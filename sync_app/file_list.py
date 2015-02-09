@@ -28,7 +28,7 @@ class FileInfo(object):
 
 class FileList(object):
     ''' file list class '''
-    def __init__(self, basepath='', subdirectories=[]):
+    def __init__(self, basepath='', subdirectories=None, filelist=None):
         if basepath:
             self.basepath = basepath
         else:
@@ -37,4 +37,19 @@ class FileList(object):
             self.subdirs = ['%s/%s' % (self.basepath, subdirectories)]
         else:
             self.subdirs = [self.basepath]
-        self.filelist_dict = {}
+        self.filelist = []
+        self.filelist_name_dict = {}
+        self.filelist_md5_dict = {}
+
+        if filelist:
+            self.filelist = filelist
+            self.fill_dicts()
+            
+    def fill_dicts(self):
+        for f in self.filelist:
+            fn = f.filename
+            if fn and fn not in self.filelist_name_dict:
+                self.filelist_name_dict[fn] = f
+            md = f.md5sum
+            if md and md not in self.filelist_md5_dict:
+                self.filelist_md5_dict[md] = f
