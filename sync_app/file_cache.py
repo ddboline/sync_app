@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
 '''
     FileCache class, cache objects to pickle file
 '''
@@ -37,14 +36,26 @@ class FileListCache(object):
         run_command('mv %s.tmp %s' % (self.pickle_file, self.pickle_file))
         return True
 
-    def get_cache_file_list(self, directory):
+    def get_cache_file_list(self):
         _temp = self.read_pickle_object_in_file()
         if _temp:
             self.cache_file_list_dict = _temp
+
+    def write_cache_file_list(self, file_list=None):
+        if not file_list:
+            return False
+        for fileinfo in file_list:
+            fn = fileinfo.filename
+            if fn not in self.cache_file_list_dict:
+                self.get_cache_file_list[fn] = fileinfo
+        return self.write_pickle_object_to_file(self.cache_file_list_dict)
+
+    def fill_cache_file_list_local(self, directory):
+        self.get_cache_file_list()
         
         def parse_dir(arg, path, filelist):
             for fn in filelist:
-                fullfn = ('%s/%s' % (path, fn)).replace('//', '/')
+                fullfn = os.path.abspath('%s/%s' % (path, fn)).replace('//', '/')
                 if os.path.isfile(fullfn):
                     stobj = os.stat(fullfn)
                     if fullfn in arg and arg[fullfn].filestat.st_size == stobj.st_size:
@@ -64,4 +75,3 @@ class FileListCache(object):
                     os.path.walk(d, parse_dir, self.cache_file_list_dict)
                 elif os.path.isfile(d):
                     add_file(d)
-        return FileList(filelist=self.cache_file_list_dict.values())

@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+'''
+    Unit tests for sync_app
+'''
 import unittest
 
 class TestGarminApp(unittest.TestCase):
@@ -13,3 +15,6 @@ class TestGarminApp(unittest.TestCase):
 
     def test_file_list(self):
         pass
+
+if __name__ == '__main__':
+    unittest.main()
