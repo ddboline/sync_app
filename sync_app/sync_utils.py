@@ -4,6 +4,8 @@
 '''
     Utility functions
 '''
+import os
+import hashlib
 
 def get_md5(fname):
     if not os.path.exists(fname):
