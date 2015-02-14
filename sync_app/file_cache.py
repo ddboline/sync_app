@@ -49,29 +49,3 @@ class FileListCache(object):
             if fn not in self.cache_file_list_dict:
                 self.get_cache_file_list[fn] = fileinfo
         return self.write_pickle_object_to_file(self.cache_file_list_dict)
-
-    def fill_cache_file_list_local(self, directory):
-        self.get_cache_file_list()
-        
-        def parse_dir(arg, path, filelist):
-            for fn in filelist:
-                fullfn = os.path.abspath('%s/%s' % (path, fn)).replace('//', '/')
-                if os.path.isfile(fullfn):
-                    stobj = os.stat(fullfn)
-                    if fullfn in arg and arg[fullfn].filestat.st_size == stobj.st_size:
-                        continue
-                    finfo = FileInfo(fn=fullfn, hn=hostname, fs=stobj)
-                    print(finfo)
-                    arg[fullfn] = finfo
-
-        if type(directory) == str:
-            if os.path.isdir(directory):
-                os.path.walk(directory, parse_dir, self.cache_file_list_dict)
-            elif os.path.isfile(directory):
-                add_file(directory)
-        if type(directory) == list:
-            for d in directory:
-                if os.path.isdir(d):
-                    os.path.walk(d, parse_dir, self.cache_file_list_dict)
-                elif os.path.isfile(d):
-                    add_file(d)
