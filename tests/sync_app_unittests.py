@@ -41,11 +41,11 @@ class TestGarminApp(unittest.TestCase):
         for fl in flist.filelist:
             output.append(('%s' % fl).replace(CURDIR, ''))
         output = sorted(output)
-        #print '\n'.join(output)
+        print '\n'.join(output)
         m = hashlib.md5()
         for out in sorted(output):
             m.update(out)
-        self.assertEqual(m.hexdigest(), '2880a2249709a08270c7c3575bc31cb5')
+        self.assertEqual(m.hexdigest(), '73f22ce2c1f4b894fadff79d8574e360')
 
     def test_file_list_cache(self):
         flist = FileListLocal()
@@ -62,7 +62,7 @@ class TestGarminApp(unittest.TestCase):
         m = hashlib.md5()
         for out in sorted(output):
             m.update(out)
-        self.assertEqual(m.hexdigest(), '2880a2249709a08270c7c3575bc31cb5')
+        self.assertEqual(m.hexdigest(), '73f22ce2c1f4b894fadff79d8574e360')
 
 if __name__ == '__main__':
     unittest.main()
