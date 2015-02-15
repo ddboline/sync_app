@@ -46,9 +46,8 @@ class FileListGdrive(FileList):
             finfo.md5sum = item['md5Checksum']
         _temp = {}
         if all(it in item for it in ['createdDate', 'modifiedDate', 'fileSize']):
-            _temp = {'st_ctime': dateutil.parser.parse(item['createdDate']).strftime("%s"),
-                    'st_mtime': dateutil.parser.parse(item['modifiedDate']).strftime("%s"),
-                    'st_size': item['fileSize']}
+            _temp = {'st_mtime': dateutil.parser.parse(item['modifiedDate']).strftime("%s"),
+                     'st_size': item['fileSize']}
         finfo.fill_stat(**_temp)
         finfo.mimetype = item['mimeType']
         if len(item['parents']) > 0:
