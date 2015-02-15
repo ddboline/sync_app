@@ -33,7 +33,7 @@ class FileInfoLocal(FileInfo):
 
 
 class FileListLocal(FileList):
-    def __init__(self, basepath='', subdirs=None, filelist=None):
+    def __init__(self, filelist=None):
         FileList.__init__(self, filelist=filelist)
 
     def fill_file_list_local(self, directory):
@@ -43,6 +43,7 @@ class FileListLocal(FileList):
                 if os.path.isfile(fullfn):
                     finfo = FileInfoLocal(fn=fullfn)
                     arg.append(finfo)
+                    print finfo
 
         if type(directory) == str:
             if os.path.isdir(directory):
