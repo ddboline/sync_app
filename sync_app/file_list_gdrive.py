@@ -24,7 +24,7 @@ class FileInfoGdrive(FileInfo):
         self.exporturls = {}
 
     def __repr__(self):
-        return '<FileInfo(fn=%s, url=%s, md5=%s, size=%s, id=%s, mime=%s, pid=%s>' % (self.filename, self.urlname, self.md5sum, self.filestat.st_size, self.gdriveid, self.mimetype, self.parentid)
+        return '<FileInfoGdrive(fn=%s, url=%s, path=%s, md5=%s, size=%s, id=%s, mime=%s, pid=%s>' % (self.filename, self.urlname, self.exportpath, self.md5sum, self.filestat.st_size, self.gdriveid, self.mimetype, self.parentid)
 
 
 class FileListGdrive(FileList):
