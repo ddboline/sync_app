@@ -37,9 +37,9 @@ class FileListCache(object):
         run_command('mv %s.tmp %s' % (self.pickle_file, self.pickle_file))
         return True
 
-    def get_cache_file_list(self, file_list_obj=None):
+    def get_cache_file_list(self, file_list_obj=None, file_list_class=FileList):
         if not file_list_obj:
-            file_list_obj = FileList()
+            file_list_obj = file_list_class()
         _temp = self.read_pickle_object_in_file()
         if _temp:
             self.cache_file_list_dict = _temp
