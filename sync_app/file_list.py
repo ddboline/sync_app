@@ -15,15 +15,21 @@
 import os
 from collections import defaultdict, namedtuple
 
+STAT_ATTRS = ('st_mtime', 'st_size')
+
+class StatTuple(object):
+    __slots__ = STAT_ATTRS
+    
+    def __init__(self, **kwargs):
+        for attr in STAT_ATTRS:
+            if attr in kwargs:
+                setattr(self, attr, kwargs[attr])
+            else:
+                setattr(self, attr, None)
+
 class FileInfo(object):
     ''' file info class '''
     __slots__ = ['filename', 'urlname', 'md5sum', 'filestat']
-
-    stat_attrs = ('st_atime', 'st_blksize', 'st_blocks', 'st_ctime', 'st_dev', 'st_gid', 'st_ino', 'st_mode', 'st_mtime', 'st_nlink', 'st_rdev', 'st_size', 'st_uid')
-    
-    stat_tuple = namedtuple('empty_stat_result', stat_attrs)
-    
-    empty_stat = stat_tuple(**{attr: 0 for attr in stat_attrs})
     
     def __init__(self, fn='', url='', md5='', fs=None):
         self.filename = fn
@@ -32,15 +38,27 @@ class FileInfo(object):
             self.md5sum = md5
         else:
             self.md5sum = self.get_md5()
-        self.filestat = None
+        self.filestat = StatTuple()
+        if not fs:
+            fs = self.get_stat()
         if fs:
-            if all(hasattr(fs, attr) for attr in stat_attrs):
-                self.filestat = fs
-        if not self.filestat:
-            self.filestat = self.get_stat()
+            self.fill_stat(fs)
 
     def __repr__(self):
         return '<FileInfo(fn=%s, url=%s, md5=%s, size=%s>' % (self.filename, self.urlname, self.md5sum, self.filestat.st_size)
+    
+    def fill_stat(self, fs=None, **options):
+        _temp = {attr: 0 for attr in STAT_ATTRS}
+        if fs:
+            for attr in STAT_ATTRS:
+                if hasattr(fs, attr):
+                    _temp[attr] = getattr(fs, attr)
+        else:
+            for attr in STAT_ATTRS:
+                if attr in options:
+                    _temp[attr] = options[attr]
+        self.filestat = StatTuple(**_temp)
+            
     
     def get_md5(self):
         return None
