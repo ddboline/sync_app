@@ -13,10 +13,12 @@ os.sys.path.append(CURDIR)
 
 from sync_app.file_cache import FileListCache
 from sync_app.file_list_local import FileInfoLocal, FileListLocal
+from sync_app.file_list_gdrive import FileInfoGdrive, FileListGdrive
+from sync_app.gdrive_instance import GdriveInstance
 
 TEST_FILE = 'tests/test_dir/hello_world.txt'
 
-class TestGarminApp(unittest.TestCase):
+class TestSyncApp(unittest.TestCase):
 
     def setUp(self):
         pass
@@ -36,12 +38,12 @@ class TestGarminApp(unittest.TestCase):
 
     def test_file_list_local(self):
         flist = FileListLocal()
-        flist.fill_cache_file_list_local(directory='tests/test_dir')
+        flist.fill_file_list_local(directory='tests/test_dir')
         output = []
         for fl in flist.filelist:
             output.append(('%s' % fl).replace(CURDIR, ''))
         output = sorted(output)
-        print '\n'.join(output)
+        #print '\n'.join(output)
         m = hashlib.md5()
         for out in sorted(output):
             m.update(out)
@@ -49,7 +51,7 @@ class TestGarminApp(unittest.TestCase):
 
     def test_file_list_cache(self):
         flist = FileListLocal()
-        flist.fill_cache_file_list_local(directory='tests/test_dir')
+        flist.fill_file_list_local(directory='tests/test_dir')
         fcache = FileListCache(pickle_file='.tmp_file_list_cache.pkl.gz')
         fcache.write_cache_file_list(flist.filelist)
         del flist
@@ -63,6 +65,13 @@ class TestGarminApp(unittest.TestCase):
         for out in sorted(output):
             m.update(out)
         self.assertEqual(m.hexdigest(), '73f22ce2c1f4b894fadff79d8574e360')
+
+    def test_gdrive_instance(self):
+        flist = FileListGdrive()
+        flist.fill_file_list_gdrive(number_to_process=10)
+        mimetypes = set()
+        for fl in flist.filelist:
+            print fl
 
 if __name__ == '__main__':
     unittest.main()
