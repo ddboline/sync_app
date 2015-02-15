@@ -5,6 +5,7 @@
 '''
 import os
 
+from sync_app.file_list_local import FileListLocal
 from sync_app.gdrive_instance import GdriveInstance
 from sync_app.file_cache import FileListCache
 from sync_app.file_list_gdrive import FileListGdrive
@@ -43,8 +44,24 @@ def print_s3():
     for finfo in flist.filelist[:10]:
         print finfo
 
+def parse_mp3():
+    flist = FileListLocal()
+    flist.fill_file_list_local(directory='%s/Documents/mp3' % os.getenv('HOME'))
+    fcache = FileListCache(pickle_file='%s/.local_file_list_cache.pkl.gz' % os.getenv('HOME'))
+    fcache.write_cache_file_list(flist.filelist)
+
+def print_mp3():
+    fcache = FileListCache(pickle_file='%s/.local_file_list_cache.pkl.gz' % os.getenv('HOME'))
+    flist = fcache.get_cache_file_list(file_list_class=FileListLocal)
+    for finfo in flist.filelist[:10]:
+        print finfo
+
 if __name__ == '__main__':
-    parse_gdrive()
-    print_gdrive()
-    parse_s3()
-    print_s3()
+    #parse_gdrive()
+    #print_gdrive()
+    #parse_s3()
+    #print_s3()
+    parse_mp3()
+    print_mp3()
+    
+    
