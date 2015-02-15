@@ -39,11 +39,19 @@ class FileListLocal(FileList):
     def fill_file_list_local(self, directory):
         def parse_dir(arg, path, filelist):
             for fn in filelist:
+                finfo = None
                 fullfn = os.path.abspath('%s/%s' % (path, fn)).replace('//', '/')
                 if os.path.isfile(fullfn):
-                    finfo = FileInfoLocal(fn=fullfn)
+                    fs = os.stat(fullfn)
+                    if fn in arg.filelist_name_dict:
+                        for ffn in arg.filelist_name_dict[fn]:
+                            if fullfn == ffn.filename:
+                                if fs.st_mtime <= ffn.filestat.st_mtime:
+                                    if get_md5(fullfn) != ffn.md5sum:
+                                        finfo = ffn
+                    if not finfo:
+                        finfo = FileInfoLocal(fn=fullfn)
                     arg.append(finfo)
-                    print finfo
 
         if type(directory) == str:
             if os.path.isdir(directory):

@@ -61,7 +61,7 @@ if __name__ == '__main__':
     #print_gdrive()
     #parse_s3()
     #print_s3()
-    parse_mp3()
+    #parse_mp3()
     print_mp3()
     
     
