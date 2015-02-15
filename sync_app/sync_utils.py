@@ -7,7 +7,9 @@
 import os
 import hashlib
 
-def get_md5(fname):
+from sync_app.util import run_command
+
+def get_md5_old(fname):
     if not os.path.exists(fname):
         return None
     m = hashlib.md5()
@@ -15,3 +17,9 @@ def get_md5(fname):
         for line in infile:
             m.update(line)
     return m.hexdigest()
+
+def get_md5(fname):
+    if not os.path.exists(fname):
+        return None
+    output = run_command('md5sum %s' % fname, do_popen=True).read().split()[0]
+    return output
