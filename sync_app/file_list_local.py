@@ -18,7 +18,6 @@ class FileInfoLocal(FileInfo):
             return False
         _url = 'file://%s' % absfn
         FileInfo.__init__(self, fn=absfn, url=_url, md5=md5, fs=fs)
-        pass
 
     def get_md5(self):
         if os.path.exists(self.filename):
@@ -37,7 +36,7 @@ class FileListLocal(FileList):
     def __init__(self, basepath='', subdirs=None, filelist=None):
         FileList.__init__(self, filelist=filelist)
 
-    def fill_cache_file_list_local(self, directory):
+    def fill_file_list_local(self, directory):
         def parse_dir(arg, path, filelist):
             for fn in filelist:
                 fullfn = os.path.abspath('%s/%s' % (path, fn)).replace('//', '/')
