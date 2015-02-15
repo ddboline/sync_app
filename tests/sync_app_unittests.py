@@ -66,12 +66,12 @@ class TestSyncApp(unittest.TestCase):
             m.update(out)
         self.assertEqual(m.hexdigest(), '73f22ce2c1f4b894fadff79d8574e360')
 
-    def test_gdrive_instance(self):
-        flist = FileListGdrive()
-        flist.fill_file_list_gdrive(number_to_process=10)
-        mimetypes = set()
-        for fl in flist.filelist:
-            print fl
+    #def test_gdrive_instance(self):
+        #flist = FileListGdrive()
+        #flist.fill_file_list_gdrive(number_to_process=10)
+        #mimetypes = set()
+        #for fl in flist.filelist:
+            #print fl
 
 if __name__ == '__main__':
     unittest.main()
