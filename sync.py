@@ -23,7 +23,7 @@ def print_gdrive():
     flist = fcache.get_cache_file_list(file_list_class=FileListGdrive)
     n = 0
     for fn, val in flist.filelist_name_dict.items():
-        if n > 100:
+        if n > 10:
             return
         finfo = val[0]
         fullname = '%s/%s' % (finfo.exportpath, finfo.filename)
@@ -44,7 +44,7 @@ def print_s3():
         print finfo
 
 if __name__ == '__main__':
-    #parse_gdrive()
-    #print_gdrive()
+    parse_gdrive()
+    print_gdrive()
     parse_s3()
     print_s3()
