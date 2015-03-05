@@ -13,9 +13,10 @@
         dicts to efficiently search within filelist
 '''
 import os
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 
 STAT_ATTRS = ('st_mtime', 'st_size')
+FILE_LIST_TYPES = ('local', 'remote', 'gdrive', 's3')
 
 class StatTuple(object):
     __slots__ = STAT_ATTRS
@@ -68,10 +69,19 @@ class FileInfo(object):
 
 class FileList(object):
     ''' file list class '''
-    def __init__(self, filelist=None):
+    def __init__(self, filelist=None, filelist_type=None, basedir=None):
         self.filelist = []
         self.filelist_name_dict = defaultdict(list)
         self.filelist_md5_dict = defaultdict(list)
+        self.filelist_type = 'local'
+        self.baseurl = 'local://'
+        self.basedir = '/home/ddboline'
+
+        if filelist_type in FILE_LIST_TYPES:
+            self.filelist_type = filelist_type
+        
+        if basedir:
+            self.basedir = basedir
 
         if filelist:
             self.filelist = filelist

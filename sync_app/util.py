@@ -54,7 +54,11 @@ def send_command(ostr, host='localhost', portno=10888, socketfile=None):
 
 def cleanup_path(orig_path):
     ''' cleanup path string using escape character '''
-    return orig_path.replace(' ', '\ ').replace('(', '\(').replace(')', '\)').replace('\'', '\\\'').replace('[', '\[').replace(']', '\]').replace('"', '\"').replace("'", "\'").replace('&', '\&').replace(',', '\,').replace('!', '\!').replace(';', '\;').replace('$', '\$')
+    return orig_path.replace(' ', '\ ').replace('(', '\(').replace(')', '\)')\
+                    .replace('\'', '\\\'').replace('[', '\[')\
+                    .replace(']', '\]').replace('"', '\"').replace("'", "\'")\
+                    .replace('&', '\&').replace(',', '\,').replace('!', '\!')\
+                    .replace(';', '\;').replace('$', '\$')
 
 def convert_date(input_date):
     import datetime

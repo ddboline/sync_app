@@ -18,8 +18,8 @@ class FileInfoS3(FileInfo):
         
 
 class FileListS3(FileList):
-    def __init__(self, filelist=None):
-        FileList.__init__(self, filelist=filelist)
+    def __init__(self, filelist=None, bucket=None):
+        FileList.__init__(self, filelist=filelist, basedir=bucket, filelist_type='s3')
         self.bucketlist = []
         self.s3 = None
         pass

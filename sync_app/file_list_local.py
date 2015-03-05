@@ -33,8 +33,9 @@ class FileInfoLocal(FileInfo):
 
 
 class FileListLocal(FileList):
-    def __init__(self, filelist=None):
-        FileList.__init__(self, filelist=filelist)
+    def __init__(self, filelist=None, directory=None, cache_file_list=None):
+        FileList.__init__(self, filelist=filelist, basedir=directory, filelist_type='local')
+        self.cache_file_list = cache_file_list
 
     def fill_file_list_local(self, directory):
         def parse_dir(arg, path, filelist):
@@ -56,11 +57,7 @@ class FileListLocal(FileList):
         if type(directory) == str:
             if os.path.isdir(directory):
                 os.path.walk(directory, parse_dir, self)
-            elif os.path.isfile(directory):
-                add_file(directory)
         if type(directory) == list:
             for d in directory:
                 if os.path.isdir(d):
                     os.path.walk(d, parse_dir, self)
-                elif os.path.isfile(d):
-                    add_file(d)

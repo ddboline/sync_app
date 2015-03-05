@@ -28,11 +28,10 @@ class FileInfoGdrive(FileInfo):
 
 
 class FileListGdrive(FileList):
-    def __init__(self, filelist=None):
-        FileList.__init__(self, filelist=filelist)
+    def __init__(self, filelist=None, basedir=None):
+        FileList.__init__(self, filelist=filelist, basedir=basedir, filelist_type='gdrive')
         self.filelist_id_dict = {}
         self.gdrive = None
-        pass
 
     def append(self, finfo):
         FileList.append(self, finfo)
