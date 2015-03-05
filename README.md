@@ -1,2 +1,3 @@
-sync_app
-==============
+# sync_app
+Small side project to sync local files/google drive/s3...
+
