@@ -30,7 +30,12 @@ class FileListS3(FileList):
         finfo.bucket = item.bucket.name
         finfo.urlname = 's3://%s/%s' % (finfo.bucket, finfo.filename)
         finfo.md5sum = item.etag.replace('"','')
+        if finfo.filename in self.filelist_name_dict:
+            for ffn in self.filelist_name_dict[finfo.filename]:
+                if ffn.md5sum == finfo.md5sum:
+                    return self.filelist_name_dict[finfo.filename]
         self.append(finfo)
+        return finfo
     
     def fill_file_list_gdrive(self, bucket=None):
         self.s3 = S3Instance()

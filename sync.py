@@ -13,8 +13,9 @@ from sync_app.file_list_gdrive import FileListGdrive
 from sync_app.file_list_s3 import FileListS3
 
 def build_indicies():
-    print 'build gdrive'
-    build_gdrive_index()
+    #print 'build gdrive'
+    #build_gdrive_index()
+    #exit(0)
     print 'build s3'
     build_s3_index()
 
@@ -28,54 +29,6 @@ def build_indicies():
     print 'build local %s' % ' '.join(local_dirs)
     build_local_index(local_dirs)
 
-def parse_gdrive():
-    flist = FileListGdrive()
-    flist.fill_file_list_gdrive()
-    fcache = FileListCache(pickle_file='%s/.gdrive_file_list_cache.pkl.gz' % os.getenv('HOME'))
-    fcache.write_cache_file_list(flist.filelist)
-
-def print_gdrive():
-    #gdrive = GdriveInstance()
-    fcache = FileListCache(pickle_file='%s/.gdrive_file_list_cache.pkl.gz' % os.getenv('HOME'))
-    flist = fcache.get_cache_file_list(file_list_class=FileListGdrive)
-    n = 0
-    for fn, val in flist.filelist_name_dict.items():
-        if n > 10:
-            return
-        finfo = val[0]
-        fullname = '%s/%s' % (finfo.exportpath, finfo.filename)
-        print fullname, finfo.urlname
-        #gdrive.download(finfo.urlname, fullname)
-        n += 1
-
-def parse_s3():
-    flist = FileListS3()
-    flist.fill_file_list_gdrive()
-    fcache = FileListCache(pickle_file='%s/.s3_file_list_cache.pkl.gz' % os.getenv('HOME'))
-    fcache.write_cache_file_list(flist.filelist)
-
-def print_s3():
-    fcache = FileListCache(pickle_file='%s/.s3_file_list_cache.pkl.gz' % os.getenv('HOME'))
-    flist = fcache.get_cache_file_list(file_list_class=FileListS3)
-    for finfo in flist.filelist[:10]:
-        print finfo
-
-def parse_mp3():
-    flist = FileListLocal()
-    flist.fill_file_list_local(directory='%s/Documents/mp3' % os.getenv('HOME'))
-    fcache = FileListCache(pickle_file='%s/.local_file_list_cache.pkl.gz' % os.getenv('HOME'))
-    fcache.write_cache_file_list(flist.filelist)
-
-def print_mp3():
-    fcache = FileListCache(pickle_file='%s/.local_file_list_cache.pkl.gz' % os.getenv('HOME'))
-    flist = fcache.get_cache_file_list(file_list_class=FileListLocal)
-    for finfo in flist.filelist[:10]:
-        print finfo
-
-def compare_dirs():
-    fcache = FileListCache(pickle_file='%s/.local_file_list_cache.pkl.gz' % os.getenv('HOME'))
-    flist_cache = fcache.get_cache_file_list(file_list_class=FileListLocal)
-    flist = FileListLocal(directory='/media/sabrent2000/dilepton_tower_backup', cache_file_list=flist_cache)
     
 
 if __name__ == '__main__':

@@ -46,7 +46,9 @@ class FileInfo(object):
             self.fill_stat(fs)
 
     def __repr__(self):
-        return '<FileInfo(fn=%s, url=%s, md5=%s, size=%s>' % (self.filename, self.urlname, self.md5sum, self.filestat.st_size)
+        return '<FileInfo(fn=%s, url=%s, md5=%s, size=%s, st_mtime=%s>'\
+                % (self.filename, self.urlname, self.md5sum,
+                   self.filestat.st_size, self.filestat.st_mtime)
     
     def fill_stat(self, fs=None, **options):
         _temp = {attr: 0 for attr in STAT_ATTRS}

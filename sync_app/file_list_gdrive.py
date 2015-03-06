@@ -24,7 +24,12 @@ class FileInfoGdrive(FileInfo):
         self.exporturls = {}
 
     def __repr__(self):
-        return '<FileInfoGdrive(fn=%s, url=%s, path=%s, md5=%s, size=%s, id=%s, mime=%s, pid=%s>' % (self.filename, self.urlname, self.exportpath, self.md5sum, self.filestat.st_size, self.gdriveid, self.mimetype, self.parentid)
+        return '<FileInfoGdrive(fn=%s, url=%s, path=%s, md5=%s, size=%s,' \
+               % (self.filename, self.urlname, self.exportpath, self.md5sum,
+                  self.filestat.st_size) \
+               + 'st_mtime=%s, id=%s, mime=%s, pid=%s>' \
+                   % (self.filestat.st_mtime, self.gdriveid, self.mimetype,
+                      self.parentid)
 
 
 class FileListGdrive(FileList):
@@ -66,6 +71,17 @@ class FileListGdrive(FileList):
                         elmime = mime
             if elmime:
                 finfo.urlname = finfo.exporturls[elmime]
+
+        if finfo.gdriveid in self.filelist_id_dict:
+            return finfo
+        if finfo.filename in self.filelist_name_dict:
+            for ffn in self.filelist_name_dict[finfo.filename]:
+                if finfo.md5sum == ffn.md5sum:
+                    return finfo
+        #if finfo.md5sum in self.filelist_md5_dict:
+            #return finfo
+
+        #print finfo
         self.append(finfo)
         self.filelist_id_dict[finfo.gdriveid] = finfo
         return finfo
@@ -85,6 +101,9 @@ class FileListGdrive(FileList):
                 response = request.execute()
                 finf = self.append_item(response)
                 fid, pid = finf.gdriveid, finf.parentid
+                #except:
+                    #print finf
+                    #exit(0)
                 fullpath.append(finf.filename)
         return '/'.join(fullpath[::-1])
 
@@ -95,4 +114,5 @@ class FileListGdrive(FileList):
     def fill_file_list_gdrive(self, number_to_process=-1):
         self.gdrive = GdriveInstance(number_to_process=number_to_process)
         self.gdrive.list_files(self.append_item)
+        print 'update paths'
         self.fix_export_path()

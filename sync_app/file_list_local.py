@@ -44,20 +44,23 @@ class FileListLocal(FileList):
                 fullfn = os.path.abspath('%s/%s' % (path, fn)).replace('//', '/')
                 if os.path.isfile(fullfn):
                     fs = os.stat(fullfn)
-                    if fn in arg.filelist_name_dict:
-                        for ffn in arg.filelist_name_dict[fn]:
+                    if fn in self.filelist_name_dict:
+                        for ffn in self.filelist_name_dict[fn]:
                             if fullfn == ffn.filename:
-                                if fs.st_mtime <= ffn.filestat.st_mtime:
-                                    if get_md5(fullfn) != ffn.md5sum:
-                                        finfo = ffn
+                                if fs.st_mtime > ffn.filestat.st_mtime:
+                                    finfo = FileInfoLocal(fn=fullfn)
+                                    print finfo
+                                else:
+                                    finfo = ffn
                     if not finfo:
                         finfo = FileInfoLocal(fn=fullfn)
-                    arg.append(finfo)
+                        print finfo
+                        self.append(finfo)
 
         if type(directory) == str:
             if os.path.isdir(directory):
-                os.path.walk(directory, parse_dir, self)
+                os.path.walk(directory, parse_dir, None)
         if type(directory) == list:
             for d in directory:
                 if os.path.isdir(d):
-                    os.path.walk(d, parse_dir, self)
+                    os.path.walk(d, parse_dir, None)
