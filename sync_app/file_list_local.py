@@ -33,9 +33,10 @@ class FileInfoLocal(FileInfo):
 
 
 class FileListLocal(FileList):
-    def __init__(self, filelist=None, directory=None, cache_file_list=None):
+    def __init__(self, filelist=None, directory=None, cache_file_list=None, do_debug=False):
         FileList.__init__(self, filelist=filelist, basedir=directory, filelist_type='local')
         self.cache_file_list = cache_file_list
+        self.do_debug = do_debug
 
     def fill_file_list_local(self, directory):
         def parse_dir(arg, path, filelist):
@@ -49,12 +50,14 @@ class FileListLocal(FileList):
                             if fullfn == ffn.filename:
                                 if fs.st_mtime > ffn.filestat.st_mtime:
                                     finfo = FileInfoLocal(fn=fullfn)
-                                    print finfo
+                                    if self.do_debug:
+                                        print finfo
                                 else:
                                     finfo = ffn
                     if not finfo:
                         finfo = FileInfoLocal(fn=fullfn)
-                        print finfo
+                        if self.do_debug:
+                            print finfo
                         self.append(finfo)
 
         if type(directory) == str:
