@@ -13,9 +13,8 @@ from sync_app.file_list_gdrive import FileListGdrive
 from sync_app.file_list_s3 import FileListS3
 
 def build_indicies():
-    #print 'build gdrive'
-    #build_gdrive_index()
-    #exit(0)
+    print 'build gdrive'
+    build_gdrive_index()
     print 'build s3'
     build_s3_index()
 
@@ -27,16 +26,16 @@ def build_indicies():
         for subdir in ['dilepton2_backup', 'dilepton_tower_backup']:
             local_dirs.append('%s/%s' % (basedir, subdir))
     print 'build local %s' % ' '.join(local_dirs)
-    build_local_index(local_dirs)
+    build_local_index(directories=local_dirs, build_local_index=True)
 
+def compare_local():
+    flists_ = []
+    for basedir in ['/home/ddboline', '/media/sabrent2000', '/media/caviar2000', '/media/western2000']:
+        flists_.append('%s/Documents/mp3' % basedir)
     
+    fsync = FileSync(flists=flists_)
+    fsync.compare_lists()
 
 if __name__ == '__main__':
-    #parse_gdrive()
-    #print_gdrive()
-    #parse_s3()
-    #print_s3()
-    #parse_mp3()
-    #print_mp3()
-    #compare_dirs()
     build_indicies()
+    compare_local()
