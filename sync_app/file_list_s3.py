@@ -37,6 +37,6 @@ class FileListS3(FileList):
         self.append(finfo)
         return finfo
     
-    def fill_file_list_gdrive(self, bucket=None):
+    def fill_file_list_s3(self, bucket=None):
         self.s3 = S3Instance()
         self.s3.get_list_of_keys(callback_fn=self.append_item)
