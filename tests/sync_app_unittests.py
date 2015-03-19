@@ -31,10 +31,10 @@ class TestSyncApp(unittest.TestCase):
     def test_file_info_local(self):
         finfo = FileInfoLocal(fn=TEST_FILE)
         output = ('%s' % finfo).replace(CURDIR, '')
-        #print output
+        #print 'finfo', output
         m = hashlib.md5()
         m.update(output)
-        self.assertEqual(m.hexdigest(), '41c5f9381ea74a6dbc00047e425054a1')
+        self.assertEqual(m.hexdigest(), '216c600e877f238202dec92c9a235648')
 
     def test_file_list_local(self):
         flist = FileListLocal()
@@ -43,11 +43,11 @@ class TestSyncApp(unittest.TestCase):
         for fl in flist.filelist:
             output.append(('%s' % fl).replace(CURDIR, ''))
         output = sorted(output)
-        #print '\n'.join(output)
+        #print 'file_list', '\n'.join(output)
         m = hashlib.md5()
         for out in sorted(output):
             m.update(out)
-        self.assertEqual(m.hexdigest(), '73f22ce2c1f4b894fadff79d8574e360')
+        self.assertEqual(m.hexdigest(), '51e640e2ae74efaa09a9fbe4fd703203')
 
     def test_file_list_cache(self):
         flist = FileListLocal()
@@ -60,18 +60,12 @@ class TestSyncApp(unittest.TestCase):
         for fl in flist.filelist:
             output.append(('%s' % fl).replace(CURDIR, ''))
         output = sorted(output)
-        #print '\n'.join(output)
+        #print 'file_cache', '\n'.join(output)
         m = hashlib.md5()
         for out in sorted(output):
             m.update(out)
-        self.assertEqual(m.hexdigest(), '73f22ce2c1f4b894fadff79d8574e360')
+        self.assertEqual(m.hexdigest(), '51e640e2ae74efaa09a9fbe4fd703203')
 
-    #def test_gdrive_instance(self):
-        #flist = FileListGdrive()
-        #flist.fill_file_list_gdrive(number_to_process=10)
-        #mimetypes = set()
-        #for fl in flist.filelist:
-            #print fl
 
 if __name__ == '__main__':
     unittest.main()
