@@ -10,7 +10,7 @@ from collections import defaultdict
 
 class FileSync(object):
     def __init__(self, flists=None):
-        if not flists:
+        if not flist0 or not flist1:
             return None
         self.flists = []
         for flist in flists:
@@ -24,12 +24,22 @@ class FileSync(object):
         if len(self.flists) < 2:
             return None
         
-        fname_count = defaultdict(list)
+        list_a_not_b = []
+        list_b_not_a = []
         
-        for n, flist in enumerate(self.flists):
+        for fn in self.flists[0].filelist_name_dict:
+            index = 1
+            for flist in self.flists[1:]:
+                if fn not in flist.filelist_name_dict:
+                    list_a_not_b.append((self.flists[0].filelist_name_dict[fn], index))
+                index += 1
+        
+        index = 0
+        for flist in self.flists[1:]:
             for fn in flist.filelist_name_dict:
-                fname_count[fn].append(n)
+                if fn not in self.flists[0]:
+                    list_b_not_a.append((index, flist.filelist_name_dict[fn]))
+            index += 1
         
-        for fn in fname_count:
-            if len(fname_count[fn]) != len(self.flists):
-                print fn, fname_count[fn]
+        print list_a_not_b
+        print list_b_not_a
