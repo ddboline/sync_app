@@ -32,7 +32,7 @@ def build_gdrive_index():
     
     fcache = FileListCache(pickle_file='%s/.gdrive_file_list_cache.pkl.gz' % os.getenv('HOME'))
     flist = FileListGdrive()
-    #print 'read cache'
+    #### always rebuild index (gdriveid isn't apparently persistent, also nothing saved by caching)
     #flist = fcache.get_cache_file_list(file_list_class=FileListGdrive)
     print 'update cache'
     flist.fill_file_list_gdrive()
@@ -45,17 +45,18 @@ def build_s3_index():
     fcache = FileListCache(pickle_file='%s/.s3_file_list_cache.pkl.gz' % os.getenv('HOME'))
     flist = FileListS3()
     flist = fcache.get_cache_file_list(file_list_class=FileListS3)
-    flist.fill_file_list_gdrive()
+    flist.fill_file_list_s3()
     fcache.write_cache_file_list(flist.filelist)
 
-def build_local_index(directories=None):
+def build_local_index(directories=None, rebuild_index=False):
     from sync_app.file_list_local import FileListLocal
 
     if not directories:
         return False
     fcache = FileListCache(pickle_file='%s/.local_file_list_cache.pkl.gz' % os.getenv('HOME'))
     flist = FileListLocal()
-    flist = fcache.get_cache_file_list(file_list_class=FileListLocal)
+    if not rebuild_index:
+        flist = fcache.get_cache_file_list(file_list_class=FileListLocal)
     for direc in directories:
         flist.fill_file_list_local(directory=direc)
     fcache.write_cache_file_list(flist.filelist)
