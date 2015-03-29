@@ -14,7 +14,7 @@ import dateutil.parser
 
 class FileInfoGdrive(FileInfo):
     __slots__ = FileInfo.__slots__ + ['gdriveid', 'mimetype', 'parentid', 'exporturls', 'exportpath']
-    
+
     def __init__(self, gid='', fn='', md5=''):
         FileInfo.__init__(self, fn=fn, md5=md5)
         self.gdriveid = gid
@@ -41,7 +41,7 @@ class FileListGdrive(FileList):
     def append(self, finfo):
         FileList.append(self, finfo)
         self.filelist_id_dict[finfo.gdriveid] = finfo
-        
+
     def append_item(self, item):
         finfo = FileInfoGdrive()
         finfo.gdriveid = item['id']

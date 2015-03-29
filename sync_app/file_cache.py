@@ -21,7 +21,7 @@ class FileListCache(object):
         self.cache_file_list_dict = {}
         self.pickle_file_is_modified = False
         self.do_update = False
-    
+
     def read_pickle_object_in_file(self):
         ''' read python object from gzipped pickle file '''
         outobj = None
@@ -29,7 +29,7 @@ class FileListCache(object):
             with gzip.open(self.pickle_file, 'rb') as pkl_file:
                 outobj = pickle.load(pkl_file)
         return outobj
-        
+
     def write_pickle_object_to_file(self, inpobj):
         ''' write python object to gzipped pickle file '''
         with gzip.open('%s.tmp' % self.pickle_file, 'wb') as pkl_file:

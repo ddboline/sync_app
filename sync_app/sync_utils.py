@@ -29,7 +29,7 @@ def get_md5(fname):
 
 def build_gdrive_index():
     from sync_app.file_list_gdrive import FileListGdrive
-    
+
     fcache = FileListCache(pickle_file='%s/.gdrive_file_list_cache.pkl.gz' % os.getenv('HOME'))
     flist = FileListGdrive()
     #### always rebuild index (gdriveid isn't apparently persistent, also nothing saved by caching)

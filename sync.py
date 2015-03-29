@@ -41,13 +41,13 @@ def compare_local():
         flist = FileListLocal()
         flist.fill_file_list_local(directory=d)
         flists_.append(flist)
-        
+
     flist = FileListLocal()
     if not rebuild_index:
         flist = fcache.get_cache_file_list(file_list_class=FileListLocal)
     for direc in directories:
         flist.fill_file_list_local(directory=direc)
-    
+
     fsync = FileSync(flists=flists_)
     fsync.compare_lists()
 

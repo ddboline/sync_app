@@ -24,7 +24,7 @@ class FileInfoLocal(FileInfo):
             return get_md5(self.filename)
         else:
             return None
-    
+
     def get_stat(self):
         if os.path.exists(self.filename):
             return os.stat(self.filename)

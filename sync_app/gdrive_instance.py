@@ -42,12 +42,12 @@ class GdriveInstance(object):
 
     def process_request(self, request, callback_fn=None):
         response = request.execute()
-    
+
         new_request = True
         while new_request:
             if self.process_response(response, callback_fn) == 0:
                 return
-    
+
             new_request = self.service.files().list_next(request, response)
             if not new_request:
                 return

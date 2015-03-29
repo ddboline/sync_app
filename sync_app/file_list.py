@@ -20,7 +20,7 @@ FILE_LIST_TYPES = ('local', 'remote', 'gdrive', 's3')
 
 class StatTuple(object):
     __slots__ = STAT_ATTRS
-    
+
     def __init__(self, **kwargs):
         for attr in STAT_ATTRS:
             if attr in kwargs:
@@ -31,7 +31,7 @@ class StatTuple(object):
 class FileInfo(object):
     ''' file info class '''
     __slots__ = ['filename', 'urlname', 'md5sum', 'filestat']
-    
+
     def __init__(self, fn='', url='', md5='', fs=None):
         self.filename = fn
         self.urlname = url
@@ -49,7 +49,7 @@ class FileInfo(object):
         return '<FileInfo(fn=%s, url=%s, md5=%s, size=%s, st_mtime=%s>'\
                 % (self.filename, self.urlname, self.md5sum,
                    self.filestat.st_size, self.filestat.st_mtime)
-    
+
     def fill_stat(self, fs=None, **options):
         _temp = {attr: 0 for attr in STAT_ATTRS}
         if fs:
@@ -61,11 +61,11 @@ class FileInfo(object):
                 if attr in options:
                     _temp[attr] = options[attr]
         self.filestat = StatTuple(**_temp)
-            
-    
+
+
     def get_md5(self):
         return None
-    
+
     def get_stat(self):
         return None
 
@@ -81,14 +81,14 @@ class FileList(object):
 
         if filelist_type in FILE_LIST_TYPES:
             self.filelist_type = filelist_type
-        
+
         if basedir:
             self.basedir = basedir
 
         if filelist:
             self.filelist = filelist
             self.fill_dicts()
-    
+
     def append(self, file_info_obj):
         for at in ['filename', 'urlname', 'md5sum', 'filestat']:
             if not hasattr(file_info_obj, at):
@@ -98,7 +98,7 @@ class FileList(object):
         self.filelist.append(file_info_obj)
         self.filelist_name_dict[fn].append(file_info_obj)
         self.filelist_md5_dict[md].append(file_info_obj)
-    
+
     def fill_dicts(self):
         for f in self.filelist:
             self.append(f)

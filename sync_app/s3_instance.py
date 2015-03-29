@@ -20,7 +20,7 @@ class S3Instance(object):
     def __init__(self):
         self.s3 = boto.connect_s3(aws_access_key_id=AWS_ACCESS_KEY_ID,
                                   aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
-    
+
     def get_list_of_buckets(self):
         _temp = []
         for bucket in self.s3.get_all_buckets():
