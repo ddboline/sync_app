@@ -11,8 +11,6 @@ from sync_app.util import run_command, cleanup_path
 from sync_app.file_cache import FileListCache
 
 def get_md5_old(fname):
-    if not os.path.exists(fname):
-        return None
     m = hashlib.md5()
     with open(fname, 'r') as infile:
         for line in infile:
@@ -20,8 +18,6 @@ def get_md5_old(fname):
     return m.hexdigest()
 
 def get_md5(fname):
-    if not os.path.exists(fname):
-        return None
     try:
         return run_command('md5sum "%s" 2> /dev/null' % cleanup_path(fname), do_popen=True).read().split()[0]
     except IndexError:

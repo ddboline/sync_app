@@ -10,10 +10,11 @@ from sync_app.file_list import FileInfo, FileList
 
 from sync_app.gdrive_instance import GdriveInstance
 
-import dateutil.parser
+from dateutil.parser import parse
 
 class FileInfoGdrive(FileInfo):
-    __slots__ = FileInfo.__slots__ + ['gdriveid', 'mimetype', 'parentid', 'exporturls', 'exportpath']
+    __slots__ = FileInfo.__slots__ + ['gdriveid', 'mimetype', 'parentid',
+                                      'exporturls', 'exportpath']
 
     def __init__(self, gid='', fn='', md5=''):
         FileInfo.__init__(self, fn=fn, md5=md5)
@@ -34,7 +35,8 @@ class FileInfoGdrive(FileInfo):
 
 class FileListGdrive(FileList):
     def __init__(self, filelist=None, basedir=None):
-        FileList.__init__(self, filelist=filelist, basedir=basedir, filelist_type='gdrive')
+        FileList.__init__(self, filelist=filelist, basedir=basedir,
+                          filelist_type='gdrive')
         self.filelist_id_dict = {}
         self.gdrive = None
 
@@ -49,8 +51,9 @@ class FileListGdrive(FileList):
         if 'md5Checksum' in item:
             finfo.md5sum = item['md5Checksum']
         _temp = {}
-        if all(it in item for it in ['createdDate', 'modifiedDate', 'fileSize']):
-            _temp = {'st_mtime': dateutil.parser.parse(item['modifiedDate']).strftime("%s"),
+        if all(it in item for it in ['createdDate', 'modifiedDate',
+                                     'fileSize']):
+            _temp = {'st_mtime': parse(item['modifiedDate']).strftime("%s"),
                      'st_size': item['fileSize']}
         finfo.fill_stat(**_temp)
         finfo.mimetype = item['mimeType']
@@ -64,7 +67,8 @@ class FileListGdrive(FileList):
         if 'exportLinks' in item:
             finfo.exporturls = item['exportLinks']
             elmime = None
-            prefered_formats = ['vnd.oasis.opendocument', 'text/', 'image/png', 'image/jpeg', 'application/pdf']
+            prefered_formats = ['vnd.oasis.opendocument', 'text/', 'image/png',
+                                'image/jpeg', 'application/pdf']
             for pfor in prefered_formats:
                 for mime in finfo.exporturls:
                     if not elmime and pfor in mime:

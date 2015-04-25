@@ -33,8 +33,10 @@ class FileInfoLocal(FileInfo):
 
 
 class FileListLocal(FileList):
-    def __init__(self, filelist=None, directory=None, cache_file_list=None, do_debug=False):
-        FileList.__init__(self, filelist=filelist, basedir=directory, filelist_type='local')
+    def __init__(self, filelist=None, directory=None, cache_file_list=None,
+                 do_debug=False):
+        FileList.__init__(self, filelist=filelist, basedir=directory,
+                          filelist_type='local')
         self.cache_file_list = cache_file_list
         self.do_debug = do_debug
 
@@ -42,7 +44,8 @@ class FileListLocal(FileList):
         def parse_dir(arg, path, filelist):
             for fn in filelist:
                 finfo = None
-                fullfn = os.path.abspath('%s/%s' % (path, fn)).replace('//', '/')
+                fullfn = os.path.abspath('%s/%s' % (path, fn)).replace('//',
+                                                                       '/')
                 if os.path.isfile(fullfn):
                     fs = os.stat(fullfn)
                     if fn in self.filelist_name_dict:
