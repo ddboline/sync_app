@@ -1,8 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-'''
+"""
     extract FileInfo object for local files
-'''
+"""
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 
@@ -14,7 +18,7 @@ class FileInfoLocal(FileInfo):
     def __init__(self, fn='', md5='', fs=None):
         absfn = os.path.abspath(fn)
         if not os.path.exists(absfn):
-            print 'ERROR'
+            print('ERROR')
             return False
         _url = 'file://%s' % absfn
         FileInfo.__init__(self, fn=absfn, url=_url, md5=md5, fs=fs)
@@ -54,16 +58,16 @@ class FileListLocal(FileList):
                                 if fs.st_mtime > ffn.filestat.st_mtime:
                                     finfo = FileInfoLocal(fn=fullfn)
                                     if self.do_debug:
-                                        print finfo
+                                        print(finfo)
                                 else:
                                     finfo = ffn
                     if not finfo:
                         finfo = FileInfoLocal(fn=fullfn)
                         if self.do_debug:
-                            print finfo
+                            print(finfo)
                         self.append(finfo)
 
-        if type(directory) == str:
+        if type(directory) in (str, unicode):
             if os.path.isdir(directory):
                 os.path.walk(directory, parse_dir, None)
         if type(directory) == list:
