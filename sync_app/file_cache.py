@@ -1,21 +1,25 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-'''
+"""
     FileCache class, cache objects to pickle file
-'''
+"""
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
-import os, hashlib
+import os
 import gzip
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
 
-from sync_app.file_list import FileInfo, FileList
+from sync_app.file_list import FileList
 from sync_app.util import run_command
 
 class FileListCache(object):
-    ''' class to manage caching objects '''
+    """ class to manage caching objects """
     def __init__(self, pickle_file=''):
         self.pickle_file = pickle_file
         self.cache_file_list_dict = {}
@@ -23,7 +27,7 @@ class FileListCache(object):
         self.do_update = False
 
     def read_pickle_object_in_file(self):
-        ''' read python object from gzipped pickle file '''
+        """ read python object from gzipped pickle file """
         outobj = None
         if os.path.exists(self.pickle_file):
             with gzip.open(self.pickle_file, 'rb') as pkl_file:
@@ -31,7 +35,7 @@ class FileListCache(object):
         return outobj
 
     def write_pickle_object_to_file(self, inpobj):
-        ''' write python object to gzipped pickle file '''
+        """ write python object to gzipped pickle file """
         with gzip.open('%s.tmp' % self.pickle_file, 'wb') as pkl_file:
             pickle.dump(inpobj, pkl_file, pickle.HIGHEST_PROTOCOL)
         run_command('mv %s.tmp %s' % (self.pickle_file, self.pickle_file))
