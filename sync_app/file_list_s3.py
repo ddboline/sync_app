@@ -1,10 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-'''
+"""
     extract FileInfo object for files in AWS S3
-'''
-
-import os
+"""
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 from sync_app.file_list import FileInfo, FileList
 from sync_app.s3_instance import S3Instance
