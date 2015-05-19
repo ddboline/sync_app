@@ -84,8 +84,8 @@ class GdriveInstance(object):
         parent_id = None
 
         fn_ = os.path.basename(fname)
-#        base_dir = '/home/ddboline/gDrive/'
-#        directories = fname.replace(base_dir, '').split('/')
+        base_dir = '/home/ddboline/gDrive/'
+        directories = fname.replace(base_dir, '').split('/')
 
         body_obj = {'title': fn_,}
 
@@ -102,6 +102,12 @@ class GdriveInstance(object):
         request = self.service.files().update(fileId=fid,
                                               addParents=parent_id,
                                               removeParents=current_pid)
+        response = request.execute()
+
+    def create_directory(self, dname):
+        body_obj = {'title': dname,
+                    'mimeType': 'application/vnd.google-apps.folder'}
+        request = self.service.files().insert(body=body_obj)
         response = request.execute()
 
     def delete_file(self, fileid):
