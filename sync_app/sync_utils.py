@@ -13,6 +13,7 @@ import hashlib
 
 from sync_app.util import run_command, cleanup_path
 from sync_app.file_cache import FileListCache
+from sync_app.file_sync import FileSync
 
 def get_md5_old(fname):
     m = hashlib.md5()
@@ -34,8 +35,8 @@ def build_gdrive_index():
     fcache = FileListCache(pickle_file='%s/.gdrive_file_list_cache.pkl.gz' %
                            os.getenv('HOME'))
     flist = FileListGdrive()
-    #### always rebuild index (gdriveid isn't apparently persistent, also nothing saved by caching)
-    #flist = fcache.get_cache_file_list(file_list_class=FileListGdrive)
+    #### always rebuild index 
+    ### (gdriveid isn't apparently persistent, also nothing saved by caching)
     print('update cache')
     flist.fill_file_list_gdrive()
     print('save cache')
@@ -84,7 +85,9 @@ def build_indicies():
 #    print('build local %s' % ' '.join(local_dirs))
 #    build_local_index(directories=local_dirs)
 
-def compare_local():
+def compare_local(rebuild_index=True, directories=None):
+    from sync_app.file_list_local import FileListLocal
+
     local_dirs = []
     for basedir in ['/home/ddboline', '/media/sabrent2000',
                     '/media/caviar2000', '/media/western2000']:
