@@ -17,7 +17,8 @@ os.sys.path.append(CURDIR)
 
 from sync_app.file_cache import FileListCache
 from sync_app.file_list_local import FileInfoLocal, FileListLocal
-#from sync_app.file_list_gdrive import FileInfoGdrive, FileListGdrive
+#from sync_app.file_list_gdrive import FileInfoGdrive
+from sync_app.file_list_gdrive import FileListGdrive
 from sync_app.gdrive_instance import GdriveInstance
 
 TEST_FILE = 'tests/test_dir/hello_world.txt'
@@ -76,8 +77,8 @@ class TestSyncApp(unittest.TestCase):
         self.test_title = None
         def get_title(item):
             self.test_title = item['title']
-        self.gdrive = GdriveInstance(number_to_process=10)
-        self.gdrive.list_files(get_title, searchstr=TEST_GDR)
+        gdrive = GdriveInstance(number_to_process=10)
+        gdrive.list_files(get_title, searchstr=TEST_GDR)
         m = hashlib.md5()
         m.update(self.test_title)
         self.assertEqual(m.hexdigest(), 'ee3ff087897ce88747e7c2b2fc0a59df')
@@ -88,36 +89,46 @@ class TestSyncApp(unittest.TestCase):
         def get_id(item):
             self.test_title = item['title']
             self.test_id= item['id']
-        self.gdrive = GdriveInstance(number_to_process=10)
-        self.gdrive.upload(TEST_FILE)
+        gdrive = GdriveInstance(number_to_process=10)
+        gdrive.upload(TEST_FILE)
 
-        self.gdrive.list_files(get_id,
+        gdrive.list_files(get_id,
                                searchstr=os.path.basename(TEST_FILE))
 
-        self.gdrive.delete_file(self.test_id)
+        gdrive.delete_file(self.test_id)
         print(self.test_id, self.test_title)
 
     def test_gdrive_search_directory(self):
-        self.test_dirs = {}
-        self.test_ids = {}
+        test_dirs = {}
+        test_ids = {}
         def get_id(item):
-            self.test_dirs[item['title']] = item['id']
-            self.test_ids[item['id']] = item['title']
-        self.gdrive = GdriveInstance()
-        self.gdrive.get_folders(get_id)
-        parents = self.gdrive.get_parents([self.test_dirs['papers']])
+            test_dirs[item['title']] = item['id']
+            test_ids[item['id']] = item['title']
+        gdrive = GdriveInstance()
+        gdrive.get_folders(get_id)
+        parents = gdrive.get_parents([test_dirs['share']])
         for parent in parents:
 #            print('parent', parent)
-            if parent['id'] in self.test_ids:
-                print('parent', self.test_ids[parent['id']])
+            if parent['id'] in test_ids:
+                print('parent', test_ids[parent['id']])
 
     def test_gdrive_list_directories(self):
-        self.number_directories = 0
-        def get_id(item):
-            self.number_directories += 1
-        self.gdrive = GdriveInstance()
-        self.gdrive.get_folders(get_id)
-        print('number', self.number_directories)
+        gdrive = GdriveInstance()
+        flist_gdrive = FileListGdrive()
+        gdrive.get_folders(flist_gdrive.append_dir)
+        flist_gdrive.fix_export_path()
+        expath_ = flist_gdrive.directory_name_dict['share'].exportpath
+        self.assertEqual(expath_, 
+                         '/home/ddboline/gDrive/ATLAS/code/' + 
+                         'ISF_Calo_Validation/17.2.4.10')
+
+    def test_gdrive_create_directory(self):
+        gdrive = GdriveInstance(number_to_process=10)
+        body_obj = {'title': 'tests',
+                    'mimeType': 'application/vnd.google-apps.folder'}
+        request = gdrive.service.files().insert(body=body_obj)
+        response = request.execute()
+        print(response)
 
 if __name__ == '__main__':
     unittest.main()
