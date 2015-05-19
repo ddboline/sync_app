@@ -10,11 +10,12 @@ from __future__ import unicode_literals
 
 import os
 
-from sync_app.file_list import FileInfo, FileList
+from dateutil.parser import parse
 
+from sync_app.file_list import FileInfo, FileList
 from sync_app.gdrive_instance import GdriveInstance
 
-from dateutil.parser import parse
+BASE_DIR = '/home/ddboline/gDrive'
 
 class FileInfoGdrive(FileInfo):
     __slots__ = FileInfo.__slots__ + ['gdriveid', 'mimetype', 'parentid',
@@ -42,6 +43,8 @@ class FileListGdrive(FileList):
         FileList.__init__(self, filelist=filelist, basedir=basedir,
                           filelist_type='gdrive')
         self.filelist_id_dict = {}
+        self.directory_id_dict = {}
+        self.directory_name_dict = {}
         self.gdrive = None
 
     def append(self, finfo):
@@ -103,14 +106,16 @@ class FileListGdrive(FileList):
             finfo.parentid = ''
         self.append(finfo)
         self.filelist_id_dict[finfo.gdriveid] = finfo
+        self.directory_id_dict[finfo.gdriveid] = finfo
+        self.directory_name_dict[finfo.filename] = finfo
 
     def get_export_path(self, finfo):
         fullpath = [finfo.filename]
-        fid, pid = finfo.gdriveid, finfo.parentid
+        pid = finfo.parentid
         while pid:
             if pid in self.filelist_id_dict:
                 finf = self.filelist_id_dict[pid]
-                fid, pid = finf.gdriveid, finf.parentid
+                pid = finf.parentid
                 fullpath.append(finf.filename)
             else:
                 if not self.gdrive:
@@ -118,16 +123,14 @@ class FileListGdrive(FileList):
                 request = self.gdrive.service.files().get(fileId=pid)
                 response = request.execute()
                 finf = self.append_item(response)
-                fid, pid = finf.gdriveid, finf.parentid
-                #except:
-                    #print finf
-                    #exit(0)
+                pid = finf.parentid
                 fullpath.append(finf.filename)
         return '/'.join(fullpath[::-1])
 
     def fix_export_path(self):
         for finfo in self.filelist:
             finfo.exportpath = os.path.dirname(self.get_export_path(finfo))
+            finfo.exportpath = finfo.exportpath.replace('My Drive', BASE_DIR)
 
     def fill_file_list_gdrive(self, number_to_process=-1):
         self.gdrive = GdriveInstance(number_to_process=number_to_process)
