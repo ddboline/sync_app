@@ -1,5 +1,9 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 import boto
@@ -30,7 +34,7 @@ class S3Instance(object):
     def get_list_of_keys(self, bucket_name=None, callback_fn=None):
         if not callback_fn:
             def _temp_fn(x):
-                print x.key
+                print(x.key)
             callback_fn = _temp_fn
         if bucket_name:
             buckets = [self.s3.get_bucket(bucket_name)]
