@@ -1,16 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-'''
+"""
     Compare two directories
     first run to identify new files, modified files
     second run to copy new files, most recently modified files
-'''
+"""
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
-from collections import defaultdict
 
 class FileSync(object):
     def __init__(self, flists=None):
-        if not flist0 or not flist1:
+        if not flists:
             return None
         self.flists = []
         for flist in flists:
@@ -31,7 +34,8 @@ class FileSync(object):
             index = 1
             for flist in self.flists[1:]:
                 if fn not in flist.filelist_name_dict:
-                    list_a_not_b.append((self.flists[0].filelist_name_dict[fn], index))
+                    list_a_not_b.append((self.flists[0].filelist_name_dict[fn],
+                                         index))
                 index += 1
 
         index = 0
@@ -41,5 +45,5 @@ class FileSync(object):
                     list_b_not_a.append((index, flist.filelist_name_dict[fn]))
             index += 1
 
-        print list_a_not_b
-        print list_b_not_a
+        print(list_a_not_b)
+        print(list_b_not_a)
