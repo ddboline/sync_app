@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-'''
+"""
     module containing FileInfo and FileList classes.
     FileInfo:
         container for file metadata:
@@ -11,7 +11,12 @@
     FileList:
         container for list of FileInfo object
         dicts to efficiently search within filelist
-'''
+"""
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import os
 from collections import defaultdict
 
@@ -29,7 +34,7 @@ class StatTuple(object):
                 setattr(self, attr, None)
 
 class FileInfo(object):
-    ''' file info class '''
+    """ file info class """
     __slots__ = ['filename', 'urlname', 'md5sum', 'filestat']
 
     def __init__(self, fn='', url='', md5='', fs=None):
@@ -70,7 +75,7 @@ class FileInfo(object):
         return None
 
 class FileList(object):
-    ''' file list class '''
+    """ file list class """
     def __init__(self, filelist=None, filelist_type=None, basedir=None):
         self.filelist = []
         self.filelist_name_dict = defaultdict(list)
