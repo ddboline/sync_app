@@ -1,8 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-'''
+"""
     extract FileInfo object for files in gdrive
-'''
+"""
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
 
 import os
 
@@ -82,13 +86,23 @@ class FileListGdrive(FileList):
             for ffn in self.filelist_name_dict[finfo.filename]:
                 if finfo.md5sum == ffn.md5sum:
                     return finfo
-        #if finfo.md5sum in self.filelist_md5_dict:
-            #return finfo
-
-        #print finfo
         self.append(finfo)
         self.filelist_id_dict[finfo.gdriveid] = finfo
         return finfo
+
+    def append_dir(self, item):
+        finfo = FileInfoGdrive()
+        if item['mimeType'] != 'application/vnd.google-apps.folder':
+            return finfo
+        finfo.gdriveid = item['id']
+        finfo.filename = item['title']
+        finfo.mimetype = item['mimeType']
+        if len(item['parents']) > 0:
+            finfo.parentid = item['parents'][0]['id']
+        else:
+            finfo.parentid = ''
+        self.append(finfo)
+        self.filelist_id_dict[finfo.gdriveid] = finfo
 
     def get_export_path(self, finfo):
         fullpath = [finfo.filename]
@@ -118,5 +132,6 @@ class FileListGdrive(FileList):
     def fill_file_list_gdrive(self, number_to_process=-1):
         self.gdrive = GdriveInstance(number_to_process=number_to_process)
         self.gdrive.list_files(self.append_item)
-        print 'update paths'
+        self.gdrive.get_folders(self.append_dir)
+        print('update paths')
         self.fix_export_path()
