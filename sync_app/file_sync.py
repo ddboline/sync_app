@@ -29,7 +29,7 @@ class FileSync(object):
         """ Compare file lists """
         if len(self.flists) < 2:
             return None
-        
+
         for flist in self.flists:
             print(len(flist.filelist_name_dict))
 
@@ -49,7 +49,7 @@ class FileSync(object):
         for finf_ in list_a_not_b:
             if callback0:
                 callback0(finf_[0])
-        
+
         for finf_ in list_b_not_a:
             if callback1:
                 callback1(finf_[0])

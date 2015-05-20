@@ -62,14 +62,14 @@ class FileListLocal(FileList):
                 fullfn = fullfn.replace('//', '/')
                 if os.path.isfile(fullfn):
                     fs = os.stat(fullfn)
-                    
+
                     if self.cache_file_list and \
                             fn in self.cache_file_list.filelist_name_dict:
                         flist_ = self.cache_file_list.filelist_name_dict
                         finf_ = flist_[fn][0]
                         if fn not in self.filelist_name_dict:
                             self.append(finf_)
-                    
+
                     if fn in self.filelist_name_dict:
                         for ffn in self.filelist_name_dict[fn]:
                             if fullfn == ffn.filename:

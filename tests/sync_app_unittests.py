@@ -119,7 +119,7 @@ class TestSyncApp(unittest.TestCase):
         flist_gdrive.fix_export_path()
         id_ = flist_gdrive.directory_name_dict['share'].gdriveid
         val = flist_gdrive.directory_id_dict[id_]
-        self.assertEqual(val.exportpath, 
+        self.assertEqual(val.exportpath,
                          '/home/ddboline/gDrive/ATLAS/code/' +
                          'ISF_Calo_Validation/17.2.4.10')
 
@@ -131,7 +131,7 @@ class TestSyncApp(unittest.TestCase):
         flist_gdrive.fix_export_path()
 
         finf_ = flist_gdrive.directory_name_dict['share']
-        
+
         self.assertEqual(finf_.exportpath,
                          '/home/ddboline/gDrive/ATLAS/code/' +
                          'ISF_Calo_Validation/17.2.4.10')
@@ -139,7 +139,7 @@ class TestSyncApp(unittest.TestCase):
     def test_gdrive_create_directory(self):
         """ Test GdriveInstance.insert """
         gdrive = GdriveInstance()
-        body_obj = {'title': 'tests',
+        body_obj = {'title': 'test_directory',
                     'mimeType': 'application/vnd.google-apps.folder'}
         request = gdrive.service.files().insert(body=body_obj)
         response = request.execute()
@@ -148,7 +148,7 @@ class TestSyncApp(unittest.TestCase):
         flist_gdrive.fix_export_path()
         fid = response['id']
         gdrive.delete_file(fid)
-        self.assertEqual('tests', 
+        self.assertEqual('test_directory',
                          flist_gdrive.filelist_id_dict[fid].filename)
 
 if __name__ == '__main__':

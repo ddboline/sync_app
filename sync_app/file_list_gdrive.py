@@ -114,7 +114,7 @@ class FileListGdrive(FileList):
             finfo.filename += '.%s' % fext
 
         finfo.exportpath = self.get_export_path(finfo, abspath=False)
-        if not finfo.urlname:        
+        if not finfo.urlname:
             finfo.urlname = 'gdrive://%s' % (finfo.exportpath)
 
         finfo.filename = '%s/%s' % (finfo.exportpath,

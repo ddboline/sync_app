@@ -87,14 +87,14 @@ def build_indicies():
 #            flist_gdrive.upload_file(finfo.filename)
 #        except UnknownFileType:
 #            return
-    
+
     def download_file(finfo):
         if 'https' in finfo.urlname:
             print('download', finfo.urlname, finfo.exportpath)
 #            finfo.download()
-    
+
     fsync.compare_lists(callback0=download_file, callback1=upload_file)
-    
+
 #    print('build s3')
 #    flist_s3 = build_s3_index()
 #    local_dirs = []
