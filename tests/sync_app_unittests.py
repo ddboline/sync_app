@@ -134,8 +134,6 @@ class TestSyncApp(unittest.TestCase):
         self.assertEqual(expath_,
                          '/home/ddboline/gDrive/ATLAS/code/' +
                          'ISF_Calo_Validation/17.2.4.10')
-#        for nam, val in flist_gdrive.directory_name_dict.items():
-#            print('%s: %s %s' % (nam, val.exportpath, val.isroot))
 
     def test_gdrive_create_directory(self):
         """ Test GdriveInstance.insert """
