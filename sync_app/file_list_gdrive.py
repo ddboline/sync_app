@@ -40,10 +40,10 @@ class FileInfoGdrive(FileInfo):
         self.gdrive = gdrive
 
     def download(self):
-        if BASE_DIR in self.exportpath:
-            return self.gdrive.download(self.urlname, self.exportpath)
+        if BASE_DIR in self.filename:
+            return self.gdrive.download(self.urlname, self.filename)
         else:
-            path_ = '%s/%s' % (BASE_DIR, self.exportpath)
+            path_ = '%s/%s' % (BASE_DIR, self.filename)
             return self.gdrive.download(self.urlname, path_)
 
     def __repr__(self):
@@ -117,7 +117,8 @@ class FileListGdrive(FileList):
         if not finfo.urlname:        
             finfo.urlname = 'gdrive://%s' % (finfo.exportpath)
 
-        finfo.filename = finfo.exportpath
+        finfo.filename = '%s/%s' % (finfo.exportpath,
+                                    os.path.basename(finfo.filename))
 
         if finfo.gdriveid in self.filelist_id_dict:
             return finfo
@@ -145,15 +146,17 @@ class FileListGdrive(FileList):
         self.directory_id_dict[finfo.gdriveid] = finfo
         self.directory_name_dict[finfo.filename] = finfo
 
-    def get_export_path(self, finfo, abspath=True):
+    def get_export_path(self, finfo, abspath=True, is_dir=False):
         """ determine export path for given finfo object"""
-        fullpath = [finfo.filename]
+        fullpath = []
+        if is_dir:
+            fullpath.append(finfo.filename)
         pid = finfo.parentid
         while pid:
             if pid in self.filelist_id_dict:
                 finf = self.filelist_id_dict[pid]
                 pid = finf.parentid
-                fullpath.append(finf.filename)
+                fullpath.append(os.path.basename(finf.filename))
             else:
                 if not self.gdrive:
                     self.gdrive = GdriveInstance()
@@ -161,7 +164,7 @@ class FileListGdrive(FileList):
                 response = request.execute()
                 finf = self.append_item(response)
                 pid = finf.parentid
-                fullpath.append(finf.filename)
+                fullpath.append(os.path.basename(finf.filename))
         fullpath = '/'.join(fullpath[::-1])
         fullpath = fullpath.replace('My Drive', BASE_DIR)
         if abspath:
@@ -172,6 +175,8 @@ class FileListGdrive(FileList):
         """ determine export paths for finfo objects in file list"""
         for finfo in self.filelist:
             finfo.exportpath = self.get_export_path(finfo)
+        for id_, finfo in self.directory_id_dict.items():
+            finfo.exportpath = self.get_export_path(finfo, is_dir=True)
 
     def fill_file_list_gdrive(self, number_to_process=-1):
         """ fill GDrive file list"""
