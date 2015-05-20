@@ -17,12 +17,18 @@ from sync_app.gdrive_instance import GdriveInstance
 
 BASE_DIR = '/home/ddboline/gDrive'
 
+GDRIVE_MIMETYPES = [
+'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+'text/csv', 'image/png', 'application/vnd.oasis.opendocument.text',
+'application/pdf']
+
 class FileInfoGdrive(FileInfo):
     """ GDrive File Info """
     __slots__ = FileInfo.__slots__ + ['gdriveid', 'mimetype', 'parentid',
-                                      'exporturls', 'exportpath', 'isroot']
+                                      'exporturls', 'exportpath', 'isroot',
+                                      'gdrive']
 
-    def __init__(self, gid='', fn='', md5=''):
+    def __init__(self, gid='', fn='', md5='', gdrive=None):
         """ Init Function """
         FileInfo.__init__(self, fn=fn, md5=md5)
         self.gdriveid = gid
@@ -31,10 +37,14 @@ class FileInfoGdrive(FileInfo):
         self.exportpath = ''
         self.isroot = False
         self.exporturls = {}
+        self.gdrive = gdrive
 
-    def download(self, gdrive):
-        expfile = '%s/%s' % (self.exportpath, self.filename)
-        return gdrive.download(self.urlname, expfile)
+    def download(self):
+        if BASE_DIR in self.exportpath:
+            return self.gdrive.download(self.urlname, self.exportpath)
+        else:
+            path_ = '%s/%s' % (BASE_DIR, self.exportpath)
+            return self.gdrive.download(self.urlname, path_)
 
     def __repr__(self):
         """ nice string representation """
@@ -68,7 +78,8 @@ class FileListGdrive(FileList):
 
     def append_item(self, item):
         """ append file to FileList, fill dict's """
-        finfo = FileInfoGdrive()
+        fext = ''
+        finfo = FileInfoGdrive(gdrive=self.gdrive)
         finfo.gdriveid = item['id']
         finfo.filename = item['title']
         if 'md5Checksum' in item:
@@ -83,21 +94,30 @@ class FileListGdrive(FileList):
         if len(item['parents']) > 0:
             finfo.parentid = item['parents'][0]['id']
             finfo.isroot = item['parents'][0]['isRoot']
-        finfo.exportpath = self.get_export_path(finfo, abspath=False)
-        finfo.urlname = 'gdrive://%s/%s' % (finfo.exportpath, finfo.filename)
         if 'downloadUrl' in item:
             finfo.urlname = item['downloadUrl']
         if 'exportLinks' in item:
             finfo.exporturls = item['exportLinks']
             elmime = None
-            prefered_formats = ['vnd.oasis.opendocument', 'text/', 'image/png',
-                                'image/jpeg', 'application/pdf']
-            for pfor in prefered_formats:
+            for pfor in GDRIVE_MIMETYPES:
                 for mime in finfo.exporturls:
                     if not elmime and pfor in mime:
                         elmime = mime
             if elmime:
                 finfo.urlname = finfo.exporturls[elmime]
+                fext = finfo.urlname.split('exportFormat=')[1]
+
+        if 'fileExtension' in item:
+            fext = item['fileExtension']
+
+        if fext not in finfo.filename.lower():
+            finfo.filename += '.%s' % fext
+
+        finfo.exportpath = self.get_export_path(finfo, abspath=False)
+        if not finfo.urlname:        
+            finfo.urlname = 'gdrive://%s' % (finfo.exportpath)
+
+        finfo.filename = finfo.exportpath
 
         if finfo.gdriveid in self.filelist_id_dict:
             return finfo
@@ -111,7 +131,7 @@ class FileListGdrive(FileList):
 
     def append_dir(self, item):
         """ append directory to FileList """
-        finfo = FileInfoGdrive()
+        finfo = FileInfoGdrive(gdrive=self.gdrive)
         if item['mimeType'] != 'application/vnd.google-apps.folder':
             return finfo
         finfo.gdriveid = item['id']
@@ -120,7 +140,7 @@ class FileListGdrive(FileList):
         if len(item['parents']) > 0:
             finfo.parentid = item['parents'][0]['id']
             finfo.isroot = item['parents'][0]['isRoot']
-        self.append(finfo)
+#        self.append(finfo)
         self.filelist_id_dict[finfo.gdriveid] = finfo
         self.directory_id_dict[finfo.gdriveid] = finfo
         self.directory_name_dict[finfo.filename] = finfo
@@ -158,10 +178,11 @@ class FileListGdrive(FileList):
         if not self.gdrive:
             self.gdrive = GdriveInstance()
         self.gdrive.number_to_process = number_to_process
+        print('get_folders')
         self.gdrive.get_folders(self.append_dir)
+        print('list_files')
         self.gdrive.list_files(self.append_item)
         print('update paths')
-        self.fix_export_path()
 
     def create_directory(self, dname):
         pid_ = None
