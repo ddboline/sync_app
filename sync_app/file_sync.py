@@ -12,7 +12,9 @@ from __future__ import unicode_literals
 
 
 class FileSync(object):
+    """ Sync Directories """
     def __init__(self, flists=None):
+        """ Init function """
         if not flists:
             return None
         self.flists = []
@@ -24,6 +26,7 @@ class FileSync(object):
             self.flists.append(flist)
 
     def compare_lists(self):
+        """ Compare file lists """
         if len(self.flists) < 2:
             return None
 
