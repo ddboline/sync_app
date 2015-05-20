@@ -138,3 +138,7 @@ class FileListGdrive(FileList):
         self.gdrive.get_folders(self.append_dir)
         print('update paths')
         self.fix_export_path()
+
+    def upload_file(self, fname):
+        dn_ = os.path.dirname(fname)
+        fn_ = os.path.basename(fname)
