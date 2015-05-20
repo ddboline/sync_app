@@ -58,10 +58,17 @@ class FileListLocal(FileList):
             """ Parse directory, fill FileInfo object """
             for fn in filelist:
                 finfo = None
-                fullfn = os.path.abspath('%s/%s' % (path, fn)).replace('//',
-                                                                       '/')
+                fullfn = os.path.abspath('%s/%s' % (path, fn))
+                fullfn = fullfn.replace('//', '/')
                 if os.path.isfile(fullfn):
                     fs = os.stat(fullfn)
+                    
+                    if fn in self.cache_file_list.filelist_name_dict:
+                        flist_ = self.cache_file_list.filelist_name_dict
+                        finf_ = flist_[fn][0]
+                        if fn not in self.filelist_name_dict:
+                            self.append(finf_)
+                    
                     if fn in self.filelist_name_dict:
                         for ffn in self.filelist_name_dict[fn]:
                             if fullfn == ffn.filename:
