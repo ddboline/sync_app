@@ -89,19 +89,17 @@ class TestSyncApp(unittest.TestCase):
     def test_gdrive_upload_search_download_delete(self):
         """ Test GdriveInstance.upload """
         gdrive = GdriveInstance()
-        flist_gdrive = FileListGdrive()
+        flist_gdrive = FileListGdrive(gdrive=gdrive)
 
         gdrive.get_folders(flist_gdrive.append_dir)
-        flist_gdrive.fix_export_path()
 
         flist_gdrive.create_directory(os.path.dirname(TEST_FILE))
         fid = flist_gdrive.upload_file(TEST_FILE)
         sstr = os.path.basename(TEST_FILE)
         gdrive.list_files(flist_gdrive.append_item, searchstr=sstr)
         gdrive.get_folders(flist_gdrive.append_dir)
-        flist_gdrive.fix_export_path()
 
-        flist_gdrive.filelist_id_dict[fid].download(gdrive)
+        flist_gdrive.filelist_id_dict[fid].download()
         fname = '/home/ddboline/gDrive/tests/test_dir/hello_world.txt'
 
         gdrive.delete_file(fid)
@@ -121,17 +119,20 @@ class TestSyncApp(unittest.TestCase):
         flist_gdrive.fix_export_path()
         id_ = flist_gdrive.directory_name_dict['share'].gdriveid
         val = flist_gdrive.directory_id_dict[id_]
-        self.assertEqual(val.exportpath, '/home/ddboline/gDrive/ATLAS/code/' +
+        self.assertEqual(val.exportpath, 
+                         '/home/ddboline/gDrive/ATLAS/code/' +
                          'ISF_Calo_Validation/17.2.4.10')
 
     def test_gdrive_list_directories(self):
         """ Test FileListGdrive """
         gdrive = GdriveInstance()
-        flist_gdrive = FileListGdrive()
+        flist_gdrive = FileListGdrive(gdrive=gdrive)
         gdrive.get_folders(flist_gdrive.append_dir)
         flist_gdrive.fix_export_path()
-        expath_ = flist_gdrive.directory_name_dict['share'].exportpath
-        self.assertEqual(expath_,
+
+        finf_ = flist_gdrive.directory_name_dict['share']
+        
+        self.assertEqual(finf_.exportpath,
                          '/home/ddboline/gDrive/ATLAS/code/' +
                          'ISF_Calo_Validation/17.2.4.10')
 
@@ -147,7 +148,8 @@ class TestSyncApp(unittest.TestCase):
         flist_gdrive.fix_export_path()
         fid = response['id']
         gdrive.delete_file(fid)
-        self.assertEqual('tests', flist_gdrive.filelist_id_dict[fid].filename)
+        self.assertEqual('tests', 
+                         flist_gdrive.filelist_id_dict[fid].filename)
 
 if __name__ == '__main__':
     unittest.main()
