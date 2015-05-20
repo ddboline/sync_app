@@ -12,10 +12,13 @@ import os
 
 from sync_app.sync_utils import get_md5
 
-from sync_app.file_list import FileInfo, FileList
+from sync_app.file_list import FileInfo, FileList, StatTuple
 
 class FileInfoLocal(FileInfo):
+    """ File Info Local """
+
     def __init__(self, fn='', md5='', fs=None):
+        """ Init function """
         absfn = os.path.abspath(fn)
         if not os.path.exists(absfn):
             print('ERROR')
@@ -24,28 +27,35 @@ class FileInfoLocal(FileInfo):
         FileInfo.__init__(self, fn=absfn, url=_url, md5=md5, fs=fs)
 
     def get_md5(self):
+        """ Wrapper around sync_utils.get_md5 """
         if os.path.exists(self.filename):
             return get_md5(self.filename)
         else:
-            return None
+            return ''
 
     def get_stat(self):
+        """ Wrapper around os.stat """
         if os.path.exists(self.filename):
             return os.stat(self.filename)
         else:
-            return None
+            return StatTuple()
 
 
 class FileListLocal(FileList):
+    """ File Info Local"""
+
     def __init__(self, filelist=None, directory=None, cache_file_list=None,
                  do_debug=False):
+        """ Init Function """
         FileList.__init__(self, filelist=filelist, basedir=directory,
                           filelist_type='local')
         self.cache_file_list = cache_file_list
         self.do_debug = do_debug
 
     def fill_file_list_local(self, directory):
+        """ Fill local file list """
         def parse_dir(arg, path, filelist):
+            """ Parse directory, fill FileInfo object """
             for fn in filelist:
                 finfo = None
                 fullfn = os.path.abspath('%s/%s' % (path, fn)).replace('//',
