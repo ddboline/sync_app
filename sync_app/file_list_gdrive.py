@@ -18,40 +18,56 @@ from sync_app.gdrive_instance import GdriveInstance
 BASE_DIR = '/home/ddboline/gDrive'
 
 class FileInfoGdrive(FileInfo):
+    """ GDrive File Info """
     __slots__ = FileInfo.__slots__ + ['gdriveid', 'mimetype', 'parentid',
-                                      'exporturls', 'exportpath']
+                                      'exporturls', 'exportpath', 'isroot']
 
     def __init__(self, gid='', fn='', md5=''):
+        """ Init Function """
         FileInfo.__init__(self, fn=fn, md5=md5)
         self.gdriveid = gid
         self.mimetype = ''
         self.parentid = ''
         self.exportpath = ''
+        self.isroot = False
         self.exporturls = {}
 
+    def download(self, gdrive):
+        expfile = '%s/%s' % (self.exportpath, self.filename)
+        return gdrive.download(self.urlname, expfile)
+
     def __repr__(self):
-        return '<FileInfoGdrive(fn=%s, url=%s, path=%s, md5=%s, size=%s,' \
-               % (self.filename, self.urlname, self.exportpath, self.md5sum,
-                  self.filestat.st_size) \
-               + 'st_mtime=%s, id=%s, mime=%s, pid=%s>' \
-                   % (self.filestat.st_mtime, self.gdriveid, self.mimetype,
-                      self.parentid)
+        """ nice string representation """
+        return '<FileInfoGdrive(fn=%s, ' % self.filename +\
+               'url=%s, ' % self.urlname +\
+               'path=%s, '% self.exportpath +\
+               'md5=%s, ' % self.md5sum +\
+               'size=%s, ' % self.filestat.st_size +\
+               'st_mime=%s, ' % self.filestat.st_mtime +\
+               'id=%s, ' % self.gdriveid +\
+               'pid=%s, ' % self.parentid +\
+               'isroot=%s>' % self.isroot
 
 
 class FileListGdrive(FileList):
-    def __init__(self, filelist=None, basedir=None):
+    """ GDrive File List """
+
+    def __init__(self, filelist=None, basedir=None, gdrive=None):
+        """ Init Function """
         FileList.__init__(self, filelist=filelist, basedir=basedir,
                           filelist_type='gdrive')
         self.filelist_id_dict = {}
         self.directory_id_dict = {}
         self.directory_name_dict = {}
-        self.gdrive = None
+        self.gdrive = gdrive
 
     def append(self, finfo):
+        """ overload FileList.append """
         FileList.append(self, finfo)
         self.filelist_id_dict[finfo.gdriveid] = finfo
 
     def append_item(self, item):
+        """ append file to FileList, fill dict's """
         finfo = FileInfoGdrive()
         finfo.gdriveid = item['id']
         finfo.filename = item['title']
@@ -66,9 +82,9 @@ class FileListGdrive(FileList):
         finfo.mimetype = item['mimeType']
         if len(item['parents']) > 0:
             finfo.parentid = item['parents'][0]['id']
-        else:
-            finfo.parentid = ''
-        finfo.urlname = 'gdrive://%s/%s' % (finfo.parentid, finfo.filename)
+            finfo.isroot = item['parents'][0]['isRoot']
+        finfo.exportpath = self.get_export_path(finfo, abspath=False)
+        finfo.urlname = 'gdrive://%s/%s' % (finfo.exportpath, finfo.filename)
         if 'downloadUrl' in item:
             finfo.urlname = item['downloadUrl']
         if 'exportLinks' in item:
@@ -94,6 +110,7 @@ class FileListGdrive(FileList):
         return finfo
 
     def append_dir(self, item):
+        """ append directory to FileList """
         finfo = FileInfoGdrive()
         if item['mimeType'] != 'application/vnd.google-apps.folder':
             return finfo
@@ -102,14 +119,14 @@ class FileListGdrive(FileList):
         finfo.mimetype = item['mimeType']
         if len(item['parents']) > 0:
             finfo.parentid = item['parents'][0]['id']
-        else:
-            finfo.parentid = ''
+            finfo.isroot = item['parents'][0]['isRoot']
         self.append(finfo)
         self.filelist_id_dict[finfo.gdriveid] = finfo
         self.directory_id_dict[finfo.gdriveid] = finfo
         self.directory_name_dict[finfo.filename] = finfo
 
-    def get_export_path(self, finfo):
+    def get_export_path(self, finfo, abspath=True):
+        """ determine export path for given finfo object"""
         fullpath = [finfo.filename]
         pid = finfo.parentid
         while pid:
@@ -125,20 +142,69 @@ class FileListGdrive(FileList):
                 finf = self.append_item(response)
                 pid = finf.parentid
                 fullpath.append(finf.filename)
-        return '/'.join(fullpath[::-1])
+        fullpath = '/'.join(fullpath[::-1])
+        fullpath = fullpath.replace('My Drive', BASE_DIR)
+        if abspath:
+            fullpath = os.path.dirname(fullpath)
+        return fullpath
 
     def fix_export_path(self):
+        """ determine export paths for finfo objects in file list"""
         for finfo in self.filelist:
-            finfo.exportpath = os.path.dirname(self.get_export_path(finfo))
-            finfo.exportpath = finfo.exportpath.replace('My Drive', BASE_DIR)
+            finfo.exportpath = self.get_export_path(finfo)
 
     def fill_file_list_gdrive(self, number_to_process=-1):
-        self.gdrive = GdriveInstance(number_to_process=number_to_process)
-        self.gdrive.list_files(self.append_item)
+        """ fill GDrive file list"""
+        if not self.gdrive:
+            self.gdrive = GdriveInstance()
+        self.gdrive.number_to_process = number_to_process
         self.gdrive.get_folders(self.append_dir)
+        self.gdrive.list_files(self.append_item)
         print('update paths')
         self.fix_export_path()
 
-    def upload_file(self, fname):
-        dn_ = os.path.dirname(fname)
-        fn_ = os.path.basename(fname)
+    def create_directory(self, dname):
+        pid_ = None
+        dn_list = dname.replace(BASE_DIR + '/', '').split('/')
+        
+        if dn_list[0] in self.directory_name_dict \
+                and self.directory_name_dict[dn_list[0]].isroot:
+            pid_ = self.directory_name_dict[dn_list[0]].gdriveid
+        else:
+            pid_ = self.gdrive.create_directory(dn_list[0], parent_id=pid_)
+        for dn_ in dn_list[1:]:
+            if dn_ in self.directory_name_dict \
+                    and pid_ == self.directory_name_dict[dn_].parentid:
+                pid_ = self.directory_name_dict[dn_].gdriveid
+            else:
+                pid_ = self.gdrive.create_directory(dn_, parent_id=pid_)
+        return pid_
+
+    def delete_directory(self, dname):
+        pid_list = []
+        dn_list = dname.replace(BASE_DIR + '/', '').split('/')
+        
+        if dn_list[0] in self.directory_name_dict \
+                and self.directory_name_dict[dn_list[0]].isroot:
+            pid_ = self.directory_name_dict[dn_list[0]].gdriveid
+            pid_list.append(pid_)
+        else:
+            return ''
+        for dn_ in dn_list[1:]:
+            if dn_ in self.directory_name_dict \
+                    and pid_ == self.directory_name_dict[dn_].parentid:
+                pid_ = self.directory_name_dict[dn_].gdriveid
+                pid_list.append(pid_)
+            else:
+                return ''
+        for pid in pid_list[::-1]:
+            self.gdrive.delete_file(pid)
+        return ''
+
+    def upload_file(self, fname, pathname=None):
+        """ upload file """
+        dname = os.path.dirname(fname)
+        if pathname:
+            dname = pathname
+        pid_ = self.create_directory(dname)
+        return self.gdrive.upload(fname, parent_id=pid_)
