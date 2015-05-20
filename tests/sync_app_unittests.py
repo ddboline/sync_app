@@ -131,8 +131,8 @@ class TestSyncApp(unittest.TestCase):
         gdrive.get_folders(flist_gdrive.append_dir)
         flist_gdrive.fix_export_path()
         expath_ = flist_gdrive.directory_name_dict['share'].exportpath
-        self.assertEqual(expath_, 
-                         '/home/ddboline/gDrive/ATLAS/code/' + 
+        self.assertEqual(expath_,
+                         '/home/ddboline/gDrive/ATLAS/code/' +
                          'ISF_Calo_Validation/17.2.4.10')
 #        for nam, val in flist_gdrive.directory_name_dict.items():
 #            print('%s: %s %s' % (nam, val.exportpath, val.isroot))

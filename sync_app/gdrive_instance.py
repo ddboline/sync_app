@@ -101,7 +101,7 @@ class GdriveInstance(object):
         if parent_id:
             response = self.set_parent_id(fid, parent_id)
         return fid
-        
+
     def set_parent_id(self, fid, parent_id):
         """ set parent_id """
         request = self.service.parents().list(fileId=fid)

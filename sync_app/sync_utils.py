@@ -38,7 +38,7 @@ def build_gdrive_index():
     fcache = FileListCache(pickle_file='%s/.gdrive_file_list_cache.pkl.gz' %
                            os.getenv('HOME'))
     flist = FileListGdrive()
-    #### always rebuild index 
+    #### always rebuild index
     ### (gdriveid isn't apparently persistent, also nothing saved by caching)
     print('update cache')
     flist.fill_file_list_gdrive()

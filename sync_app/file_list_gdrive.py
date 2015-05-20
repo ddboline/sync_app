@@ -166,7 +166,7 @@ class FileListGdrive(FileList):
     def create_directory(self, dname):
         pid_ = None
         dn_list = dname.replace(BASE_DIR + '/', '').split('/')
-        
+
         if dn_list[0] in self.directory_name_dict \
                 and self.directory_name_dict[dn_list[0]].isroot:
             pid_ = self.directory_name_dict[dn_list[0]].gdriveid
@@ -183,7 +183,7 @@ class FileListGdrive(FileList):
     def delete_directory(self, dname):
         pid_list = []
         dn_list = dname.replace(BASE_DIR + '/', '').split('/')
-        
+
         if dn_list[0] in self.directory_name_dict \
                 and self.directory_name_dict[dn_list[0]].isroot:
             pid_ = self.directory_name_dict[dn_list[0]].gdriveid
