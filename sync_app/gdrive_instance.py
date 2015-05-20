@@ -30,7 +30,7 @@ class GdriveInstance(object):
         self.number_to_process = number_to_process
 
     def process_response(self, response, callback_fn=None):
-        """ callback_fn needs to be supplied to process each item """
+        """ callback_fn applied to each item returned by response """
         if not callback_fn:
             return 0
         for item in response['items']:
@@ -40,8 +40,10 @@ class GdriveInstance(object):
             if callback_fn:
                 callback_fn(item)
             self.items_processed += 1
+        return 1
 
     def process_request(self, request, callback_fn=None):
+        """ call process_response until new_request exists or until stopped """
         response = request.execute()
 
         new_request = True
@@ -58,15 +60,24 @@ class GdriveInstance(object):
             except HttpError:
                 time.sleep(5)
                 response = request.execute()
+        return response
 
     def list_files(self, callback_fn, searchstr=None):
+        """ list non-directory files """
         query_string = 'mimeType != "application/vnd.google-apps.folder"'
         if searchstr:
             query_string += ' and title contains "%s"' % searchstr
         request = self.service.files().list(q=query_string)
-        self.process_request(request, callback_fn)
+        return self.process_request(request, callback_fn)
+
+    def get_folders(self, callback_fn):
+        """ get folders """
+        searchstr = 'mimeType = "application/vnd.google-apps.folder"'
+        request = self.service.files().list(q=searchstr)
+        return self.process_request(request, callback_fn)
 
     def download(self, dlink, exportfile):
+        """ download using dlink url """
         dirname = os.path.dirname(exportfile)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
@@ -80,48 +91,46 @@ class GdriveInstance(object):
                 outfile.write(line)
         return True
 
-    def upload(self, fname):
-        parent_id = None
-
+    def upload(self, fname, parent_id=None):
+        """ upload fname and assign parent_id if provided """
         fn_ = os.path.basename(fname)
-        base_dir = '/home/ddboline/gDrive/'
-        directories = fname.replace(base_dir, '').split('/')
-
         body_obj = {'title': fn_,}
-
         request = self.service.files().insert(body=body_obj, media_body=fname)
         response = request.execute()
-
         fid = response['id']
-
+        if parent_id:
+            response = self.set_parent_id(fid, parent_id)
+        return fid
+        
+    def set_parent_id(self, fid, parent_id):
+        """ set parent_id """
         request = self.service.parents().list(fileId=fid)
         response = request.execute()
-
         current_pid = response['items'][0]['id']
-
         request = self.service.files().update(fileId=fid,
                                               addParents=parent_id,
                                               removeParents=current_pid)
-        response = request.execute()
+        return request.execute()
 
-    def create_directory(self, dname):
+    def create_directory(self, dname, parent_id=None):
+        """ create directory, assign parent_id if supplied """
+        dname = os.path.basename(dname)
         body_obj = {'title': dname,
                     'mimeType': 'application/vnd.google-apps.folder'}
         request = self.service.files().insert(body=body_obj)
         response = request.execute()
+        fid = response['id']
+        if parent_id:
+            self.set_parent_id(fid, parent_id)
+        return fid
 
     def delete_file(self, fileid):
+        """ delete file by fileid """
         request = self.service.files().delete(fileId=fileid)
-        response = request.execute()
-        return response
-
-    def get_folders(self, callback_fn):
-        searchstr = 'mimeType = "application/vnd.google-apps.folder"'
-        request = self.service.files().list(q=searchstr)
-        self.process_request(request, callback_fn)
+        return request.execute()
 
     def get_parents(self, fids=None):
-        """ function to list files in drive """
+        """ get parents of files by fileid """
         if not fids:
             return
         parents_output = []
