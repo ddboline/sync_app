@@ -12,6 +12,7 @@ from sync_app.file_list import FileInfo, FileList
 from sync_app.s3_instance import S3Instance
 
 class FileInfoS3(FileInfo):
+    """ File Info for S3, add bucket metadata """
     __slots__ = FileInfo.__slots__ + ['bucket']
 
     def __init__(self, fn='', md5='', fs=None, bk=''):
@@ -20,13 +21,18 @@ class FileInfoS3(FileInfo):
 
 
 class FileListS3(FileList):
+    """ File list for S3 """
+
     def __init__(self, filelist=None, bucket=None):
-        FileList.__init__(self, filelist=filelist, basedir=bucket, filelist_type='s3')
+        """ Init function """
+        FileList.__init__(self, filelist=filelist, basedir=bucket,
+                          filelist_type='s3')
         self.bucketlist = []
         self.s3 = None
         pass
 
     def append_item(self, item):
+        """ append S3 item to filelist """
         finfo = FileInfoS3()
         finfo.filename = item.key
         finfo.bucket = item.bucket.name
@@ -40,5 +46,6 @@ class FileListS3(FileList):
         return finfo
 
     def fill_file_list_s3(self, bucket=None):
+        """ fill s3 filelist  """
         self.s3 = S3Instance()
         self.s3.get_list_of_keys(callback_fn=self.append_item)
