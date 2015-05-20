@@ -25,28 +25,31 @@ class FileSync(object):
                 continue
             self.flists.append(flist)
 
-    def compare_lists(self):
+    def compare_lists(self, callback0=None, callback1=None):
         """ Compare file lists """
         if len(self.flists) < 2:
             return None
+        
+        for flist in self.flists:
+            print(len(flist.filelist_name_dict))
 
         list_a_not_b = []
         list_b_not_a = []
 
         for fn in self.flists[0].filelist_name_dict:
-            index = 1
             for flist in self.flists[1:]:
                 if fn not in flist.filelist_name_dict:
-                    list_a_not_b.append((self.flists[0].filelist_name_dict[fn],
-                                         index))
-                index += 1
+                    list_a_not_b.append(self.flists[0].filelist_name_dict[fn])
 
-        index = 0
         for flist in self.flists[1:]:
             for fn in flist.filelist_name_dict:
-                if fn not in self.flists[0]:
-                    list_b_not_a.append((index, flist.filelist_name_dict[fn]))
-            index += 1
+                if fn not in self.flists[0].filelist_name_dict:
+                    list_b_not_a.append(flist.filelist_name_dict[fn])
 
-        print(list_a_not_b)
-        print(list_b_not_a)
+        for finf_ in list_a_not_b:
+            if callback0:
+                callback0(finf_[0])
+        
+        for finf_ in list_b_not_a:
+            if callback1:
+                callback1(finf_[0])
