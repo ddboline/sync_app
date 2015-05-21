@@ -23,12 +23,12 @@ class FileInfoS3(FileInfo):
 class FileListS3(FileList):
     """ File list for S3 """
 
-    def __init__(self, filelist=None, bucket=None):
+    def __init__(self, filelist=None, bucket=None, s3=None):
         """ Init function """
         FileList.__init__(self, filelist=filelist, basedir=bucket,
                           filelist_type='s3')
         self.bucketlist = []
-        self.s3 = None
+        self.s3 = s3
         pass
 
     def append_item(self, item):
