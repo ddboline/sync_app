@@ -17,27 +17,29 @@ from sync_app.gdrive_instance import GdriveInstance
 
 BASE_DIR = '/home/ddboline/gDrive'
 
-GDRIVE_MIMETYPES = [
+GDRIVE_MIMETYPES = (
 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 'text/csv', 'image/png', 'application/vnd.oasis.opendocument.text',
-'application/pdf']
+'application/pdf')
+
+FILE_INFO_SLOTS = ('gdriveid', 'mimetype', 'parentid', 'exporturls',
+                   'exportpath', 'isroot', 'gdrive')
 
 class FileInfoGdrive(FileInfo):
     """ GDrive File Info """
-    __slots__ = FileInfo.__slots__ + ['gdriveid', 'mimetype', 'parentid',
-                                      'exporturls', 'exportpath', 'isroot',
-                                      'gdrive']
+    __slots__ = FileInfo.__slots__ + list(FILE_INFO_SLOTS)
 
-    def __init__(self, gid='', fn='', md5='', gdrive=None):
+    def __init__(self, gid='', fn='', md5='', gdrive=None, item=None):
         """ Init Function """
+        for attr in FILE_INFO_SLOTS:
+            setattr(self, attr, '')
         FileInfo.__init__(self, fn=fn, md5=md5)
         self.gdriveid = gid
-        self.mimetype = ''
-        self.parentid = ''
-        self.exportpath = ''
         self.isroot = False
         self.exporturls = {}
         self.gdrive = gdrive
+        if item:
+            self.fill_item(item)
 
     def download(self):
         if BASE_DIR in self.filename:
@@ -60,6 +62,41 @@ class FileInfoGdrive(FileInfo):
                'pid=%s, ' % self.parentid +\
                'isroot=%s>' % self.isroot
 
+    def fill_item(self, item):
+        fext = ''
+        self.gdriveid = item['id']
+        self.filename = item['title']
+        if 'md5Checksum' in item:
+            self.md5sum = item['md5Checksum']
+        _temp = {}
+        if 'modifiedDate' in item:
+            _temp['st_mtime'] = int(parse(item['modifiedDate']).strftime("%s"))
+        if 'fileSize' in item:
+            _temp['st_size'] = item['fileSize']
+        self.fill_stat(**_temp)
+        self.mimetype = item['mimeType']
+        if len(item['parents']) > 0:
+            self.parentid = item['parents'][0]['id']
+            self.isroot = item['parents'][0]['isRoot']
+        if self.mimetype == 'application/vnd.google-apps.folder':
+            return
+        if 'downloadUrl' in item:
+            self.urlname = item['downloadUrl']
+        elif 'exportLinks' in item:
+            self.exporturls = item['exportLinks']
+            elmime = None
+            for pfor in GDRIVE_MIMETYPES:
+                for mime in self.exporturls:
+                    if not elmime and pfor in mime:
+                        elmime = mime
+            if elmime:
+                self.urlname = self.exporturls[elmime]
+                fext = self.urlname.split('exportFormat=')[1]
+        if 'fileExtension' in item:
+            fext = item['fileExtension']
+        if fext not in self.filename.lower():
+            self.filename += '.%s' % fext
+
 
 class FileListGdrive(FileList):
     """ GDrive File List """
@@ -73,6 +110,13 @@ class FileListGdrive(FileList):
         self.directory_name_dict = {}
         self.gdrive = gdrive
 
+    def __getitem__(self, key):
+        for dict_ in (self.filelist_id_dict, self.directory_id_dict,
+                      self.directory_name_dict):
+            if key in dict_:
+                return dict_[key]
+        return self.FileList.__getitem__(self, key)
+
     def append(self, finfo):
         """ overload FileList.append """
         FileList.append(self, finfo)
@@ -80,45 +124,12 @@ class FileListGdrive(FileList):
 
     def append_item(self, item):
         """ append file to FileList, fill dict's """
-        fext = ''
-        finfo = FileInfoGdrive(gdrive=self.gdrive)
-        finfo.gdriveid = item['id']
-        finfo.filename = item['title']
-        if 'md5Checksum' in item:
-            finfo.md5sum = item['md5Checksum']
-        _temp = {}
-        if all(it in item for it in ['createdDate', 'modifiedDate',
-                                     'fileSize']):
-            _temp = {'st_mtime': parse(item['modifiedDate']).strftime("%s"),
-                     'st_size': item['fileSize']}
-        finfo.fill_stat(**_temp)
-        finfo.mimetype = item['mimeType']
-        if len(item['parents']) > 0:
-            finfo.parentid = item['parents'][0]['id']
-            finfo.isroot = item['parents'][0]['isRoot']
-        if 'downloadUrl' in item:
-            finfo.urlname = item['downloadUrl']
-        elif 'exportLinks' in item:
-            finfo.exporturls = item['exportLinks']
-            elmime = None
-            for pfor in GDRIVE_MIMETYPES:
-                for mime in finfo.exporturls:
-                    if not elmime and pfor in mime:
-                        elmime = mime
-            if elmime:
-                finfo.urlname = finfo.exporturls[elmime]
-                fext = finfo.urlname.split('exportFormat=')[1]
+        finfo = FileInfoGdrive(gdrive=self.gdrive, item=item)
 
-        if 'fileExtension' in item:
-            fext = item['fileExtension']
-
-        if fext not in finfo.filename.lower():
-            finfo.filename += '.%s' % fext
-
+        ### Fix paths
         finfo.exportpath = self.get_export_path(finfo, abspath=False)
         if not finfo.urlname:
             finfo.urlname = 'gdrive://%s' % (finfo.exportpath)
-
         finfo.filename = '%s/%s' % (finfo.exportpath,
                                     os.path.basename(finfo.filename))
 
@@ -128,22 +139,17 @@ class FileListGdrive(FileList):
             for ffn in self.filelist_name_dict[finfo.filename]:
                 if finfo.md5sum == ffn.md5sum:
                     return finfo
+
         self.append(finfo)
         self.filelist_id_dict[finfo.gdriveid] = finfo
         return finfo
 
     def append_dir(self, item):
         """ append directory to FileList """
-        finfo = FileInfoGdrive(gdrive=self.gdrive)
+        finfo = FileInfoGdrive(gdrive=self.gdrive, item=item)
         if item['mimeType'] != 'application/vnd.google-apps.folder':
             return finfo
-        finfo.gdriveid = item['id']
-        finfo.filename = item['title']
-        finfo.mimetype = item['mimeType']
-        if len(item['parents']) > 0:
-            finfo.parentid = item['parents'][0]['id']
-            finfo.isroot = item['parents'][0]['isRoot']
-#        self.append(finfo)
+
         self.filelist_id_dict[finfo.gdriveid] = finfo
         self.directory_id_dict[finfo.gdriveid] = finfo
         self.directory_name_dict[finfo.filename] = finfo
