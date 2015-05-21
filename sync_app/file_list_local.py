@@ -12,7 +12,7 @@ import os
 
 from sync_app.sync_utils import get_md5
 
-from sync_app.file_list import FileInfo, FileList, StatTuple
+from sync_app.file_list import FileInfo, FileList
 
 class FileInfoLocal(FileInfo):
     """ File Info Local """
@@ -31,14 +31,14 @@ class FileInfoLocal(FileInfo):
         if os.path.exists(self.filename):
             return get_md5(self.filename)
         else:
-            return ''
+            return FileInfo.get_md5(self)
 
     def get_stat(self):
         """ Wrapper around os.stat """
         if os.path.exists(self.filename):
             return os.stat(self.filename)
         else:
-            return StatTuple()
+            return FileInfo.get_stat(self)
 
 
 class FileListLocal(FileList):
