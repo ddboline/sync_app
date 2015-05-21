@@ -23,7 +23,7 @@ TEST_FILE = 'tests/test_dir/hello_world.txt'
 TEST_DIR = 'tests/test_dir'
 TEST_GDR = 'Amazon-Gift-Card.pdf'
 
-class TestSyncApp(unittest.TestCase):
+class TestSyncAppLocal(unittest.TestCase):
     """ SyncApp Unit Tests """
 
     def tearDown(self):
