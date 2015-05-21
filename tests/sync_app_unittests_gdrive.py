@@ -23,7 +23,7 @@ TEST_FILE = 'tests/test_dir/hello_world.txt'
 TEST_DIR = 'tests/test_dir'
 TEST_GDR = 'Amazon-Gift-Card.pdf'
 
-class TestSyncApp(unittest.TestCase):
+class TestSyncAppGdrive(unittest.TestCase):
     """ SyncApp Unit Tests """
 
     def setUp(self):
@@ -50,7 +50,7 @@ class TestSyncApp(unittest.TestCase):
         sstr = os.path.basename(TEST_FILE)
         self.gdrive.list_files(flist_gdrive.append_item, searchstr=sstr)
         self.gdrive.get_folders(flist_gdrive.append_dir)
-
+#        print(flist_gdrive.filelist_id_dict[fid])
         flist_gdrive.filelist_id_dict[fid].download()
         fname = '/home/ddboline/gDrive/tests/test_dir/hello_world.txt'
 
