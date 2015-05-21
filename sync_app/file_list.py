@@ -22,35 +22,45 @@ from collections import defaultdict
 
 STAT_ATTRS = ('st_mtime', 'st_size')
 FILE_LIST_TYPES = ('local', 'remote', 'gdrive', 's3')
+FILE_INFO_SLOTS = ('filename', 'urlname', 'md5sum', 'filestat')
 
 class StatTuple(object):
+    """ 
+        StatTuple class
+        intended as generalization of object returned by os.stat
+        scaled back to just contain modification time and size...
+    """
     __slots__ = STAT_ATTRS
 
-    def __init__(self, **kwargs):
+    def __init__(self, fs=None, **kwargs):
+        """ Init function """
         for attr in STAT_ATTRS:
             if attr in kwargs:
                 setattr(self, attr, kwargs[attr])
             else:
-                setattr(self, attr, None)
+                setattr(self, attr, 0)
+        if fs:
+            for attr in STAT_ATTRS:
+                if hasattr(fs, attr):
+                    setattr(self, attr, getattr(fs, attr))
+            
 
 class FileInfo(object):
-    """ file info class """
-    __slots__ = ['filename', 'urlname', 'md5sum', 'filestat']
+    """ 
+        file info class, meant as a base for local/gdrive/s3, 
+        define common elements, hold common code
+    """
+    __slots__ = list(FILE_INFO_SLOTS)
 
-    def __init__(self, fn='', url='', md5='', fs=None):
+    def __init__(self, fn='', url='', md5=None, fs=None):
+        """ Init function, define sensible defaults """
         self.filename = fn
         self.urlname = url
-        if md5:
-            self.md5sum = md5
-        else:
-            self.md5sum = self.get_md5()
-        self.filestat = StatTuple()
-        if not fs:
-            fs = self.get_stat()
-        if fs:
-            self.fill_stat(fs)
+        self.md5sum = md5 if md5 else self.get_md5()
+        self.filestat = StatTuple(fs) if fs else StatTuple(self.get_stat())
 
     def __repr__(self):
+        """ Nice pretty string representation """
         return '<FileInfo(fn=%s, ' % self.filename +\
                'url=%s, ' % self.urlname +\
                'md5=%s, ' % self.md5sum +\
@@ -58,53 +68,73 @@ class FileInfo(object):
                'st_mtime=%s>' % self.filestat.st_mtime
 
     def fill_stat(self, fs=None, **options):
-        _temp = {attr: 0 for attr in STAT_ATTRS}
-        if fs:
-            for attr in STAT_ATTRS:
-                if hasattr(fs, attr):
-                    _temp[attr] = getattr(fs, attr)
-        else:
-            for attr in STAT_ATTRS:
-                if attr in options:
-                    _temp[attr] = options[attr]
-        self.filestat = StatTuple(**_temp)
-
+        """ convert fs into StatTuple... """
+        self.filestat = StatTuple(fs=fs, **options)
 
     def get_md5(self):
-        return None
+        """ meant to be overridden """
+        return ''
 
     def get_stat(self):
-        return None
+        """ meant to be overridden """
+        return StatTuple()
 
 class FileList(object):
     """ file list class """
     def __init__(self, filelist=None, filelist_type=None, basedir=None):
-        self.filelist = []
+        self.filelist = filelist if filelist else []
         self.filelist_name_dict = defaultdict(list)
         self.filelist_md5_dict = defaultdict(list)
-        self.filelist_type = 'local'
+        self.filelist_type = filelist_type if filelist_type else 'local'
+        self.basedir = basedir if basedir else '/home/ddboline'
         self.baseurl = 'local://'
-        self.basedir = '/home/ddboline'
+        self.fill_dicts()
 
-        if filelist_type in FILE_LIST_TYPES:
-            self.filelist_type = filelist_type
+    @property
+    def filelist(self):
+        return self.__filelist
+    
+    @filelist.setter
+    def filelist(self, val):
+        """ make a copy of list, element by element """
+        self.__filelist = []
+        for v in val:
+            if v not in self.__filelist:
+                self.__filelist.append(v)
 
-        if basedir:
-            self.basedir = basedir
+    @property
+    def filelist_type(self):
+        return self.__filelist_type
+    
+    @filelist_type.setter
+    def filelist_type(self, val):
+        """ throw error if we get unexpected value """
+        if val in FILE_LIST_TYPES:
+            self.__filelist_type = val
+        else:
+            raise ValueError
 
-        if filelist:
-            self.filelist = filelist
-            self.fill_dicts()
+    def __getitem__(self, key):
+        """ try to simplify calling a bit... """
+        if key in self.filelist_md5_dict:
+            return self.filelist_md5_dict[key]
+        elif key in self.filelist_name_dict:
+            return self.filelist_name_dict[key]
+        else:
+            return self.filelist.__getitem__(key)
+
+    def __iter__(self):
+        return self.filelist.__iter__()
 
     def append(self, file_info_obj):
         for at in ['filename', 'urlname', 'md5sum', 'filestat']:
             if not hasattr(file_info_obj, at):
-                return False
-        fn = os.path.basename(file_info_obj.filename)
-        md = file_info_obj.md5sum
+                raise ValueError('this object won\'t work')
+        fn_ = os.path.basename(file_info_obj.filename)
+        md5 = file_info_obj.md5sum
         self.filelist.append(file_info_obj)
-        self.filelist_name_dict[fn].append(file_info_obj)
-        self.filelist_md5_dict[md].append(file_info_obj)
+        self.filelist_name_dict[fn_].append(file_info_obj)
+        self.filelist_md5_dict[md5].append(file_info_obj)
 
     def fill_dicts(self):
         for f in self.filelist:
