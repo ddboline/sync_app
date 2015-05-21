@@ -76,7 +76,7 @@ class GdriveInstance(object):
         request = self.service.files().list(q=searchstr)
         return self.process_request(request, callback_fn)
 
-    def download(self, dlink, exportfile):
+    def download(self, dlink, exportfile, md5sum=None):
         """ download using dlink url """
         dirname = os.path.dirname(exportfile)
         if not os.path.exists(dirname):
@@ -86,9 +86,15 @@ class GdriveInstance(object):
             print(dlink)
             print('something bad happened %s' % resp)
             return False
-        with open(exportfile, 'wb') as outfile:
+        with open('%s.new' % exportfile, 'wb') as outfile:
             for line in furl:
                 outfile.write(line)
+        if md5sum:
+            from sync_app.sync_utils import get_md5
+            md_ = get_md5('%s.new' % exportfile)
+            if md_ != md5sum:
+                raise TypeError
+        os.rename('%s.new' % exportfile, exportfile)
         return True
 
     def upload(self, fname, parent_id=None):
