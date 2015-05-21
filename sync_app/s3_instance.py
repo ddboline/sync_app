@@ -36,12 +36,37 @@ class S3Instance(object):
             _temp.append(bucket.name)
         return _temp
 
+    def delete_bucket(self, bucket_name=None):
+        if bucket_name:
+            for bucket in self.s3.get_all_buckets():
+                if bucket.name == bucket_name:
+                    bucket.delete()
+                    return
+
+    def create_bucket(self, bucket_name=None):
+        return self.s3.create_bucket(bucket_name=bucket_name)
+
+    def upload(self, bucket_name, fname):
+        bucket = self.s3.get_bucket(bucket_name)
+        key = boto.s3.key.Key(bucket)
+        with open(fname, 'r') as infile:
+            key.key = fname
+            key.set_contents_from_file(infile)
+
+    def download(self, bucket_name, key_name, fname):
+        bucket = self.s3.get_bucket(bucket_name)
+        key = bucket.get_key(key_name)
+        key.get_contents_to_filename(fname)
+
+    def delete_key(self, bucket_name, key_name):
+        bucket = self.s3.get_bucket(bucket_name)
+        key = bucket.get_key(key_name)
+        key.delete()
+
     def get_list_of_keys(self, bucket_name=None, callback_fn=None):
         """ get list of keys """
         if not callback_fn:
-            def _temp_fn(x):
-                print(x.key)
-            callback_fn = _temp_fn
+            callback_fn = lambda x: print(x.key)
         if bucket_name:
             buckets = [self.s3.get_bucket(bucket_name)]
         else:
