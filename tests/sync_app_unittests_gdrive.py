@@ -26,34 +26,35 @@ TEST_GDR = 'Amazon-Gift-Card.pdf'
 class TestSyncApp(unittest.TestCase):
     """ SyncApp Unit Tests """
 
+    def setUp(self):
+        self.gdrive = GdriveInstance()
+
     def test_gdrive_list_files(self):
         """ Test GdriveInstance.list_files """
         self.test_title = None
         def get_title(item):
             self.test_title = item['title']
-        gdrive = GdriveInstance(number_to_process=10)
-        gdrive.list_files(get_title, searchstr=TEST_GDR)
+        self.gdrive.list_files(get_title, searchstr=TEST_GDR)
         m = hashlib.md5()
         m.update(self.test_title)
         self.assertEqual(m.hexdigest(), 'ee3ff087897ce88747e7c2b2fc0a59df')
 
     def test_gdrive_upload_search_download_delete(self):
         """ Test GdriveInstance.upload """
-        gdrive = GdriveInstance()
-        flist_gdrive = FileListGdrive(gdrive=gdrive)
+        flist_gdrive = FileListGdrive(gdrive=self.gdrive)
 
-        gdrive.get_folders(flist_gdrive.append_dir)
+        self.gdrive.get_folders(flist_gdrive.append_dir)
 
         flist_gdrive.create_directory(os.path.dirname(TEST_FILE))
         fid = flist_gdrive.upload_file(TEST_FILE)
         sstr = os.path.basename(TEST_FILE)
-        gdrive.list_files(flist_gdrive.append_item, searchstr=sstr)
-        gdrive.get_folders(flist_gdrive.append_dir)
+        self.gdrive.list_files(flist_gdrive.append_item, searchstr=sstr)
+        self.gdrive.get_folders(flist_gdrive.append_dir)
 
         flist_gdrive.filelist_id_dict[fid].download()
         fname = '/home/ddboline/gDrive/tests/test_dir/hello_world.txt'
 
-        gdrive.delete_file(fid)
+        self.gdrive.delete_file(fid)
         flist_gdrive.delete_directory(os.path.dirname(TEST_FILE))
         self.assertEqual(flist_gdrive.filelist_id_dict[fid].exportpath,
                          '/home/ddboline/gDrive/tests/test_dir')
@@ -64,9 +65,9 @@ class TestSyncApp(unittest.TestCase):
 
     def test_gdrive_search_directory(self):
         """ Test FileListGdrive """
-        gdrive = GdriveInstance()
+        self.gdrive = GdriveInstance()
         flist_gdrive = FileListGdrive()
-        gdrive.get_folders(flist_gdrive.append_dir)
+        self.gdrive.get_folders(flist_gdrive.append_dir)
         flist_gdrive.fix_export_path()
         id_ = flist_gdrive.directory_name_dict['share'].gdriveid
         val = flist_gdrive.directory_id_dict[id_]
@@ -76,9 +77,8 @@ class TestSyncApp(unittest.TestCase):
 
     def test_gdrive_list_directories(self):
         """ Test FileListGdrive """
-        gdrive = GdriveInstance()
-        flist_gdrive = FileListGdrive(gdrive=gdrive)
-        gdrive.get_folders(flist_gdrive.append_dir)
+        flist_gdrive = FileListGdrive(gdrive=self.gdrive)
+        self.gdrive.get_folders(flist_gdrive.append_dir)
         flist_gdrive.fix_export_path()
 
         finf_ = flist_gdrive.directory_name_dict['share']
@@ -89,16 +89,15 @@ class TestSyncApp(unittest.TestCase):
 
     def test_gdrive_create_directory(self):
         """ Test GdriveInstance.insert """
-        gdrive = GdriveInstance()
         body_obj = {'title': 'test_directory',
                     'mimeType': 'application/vnd.google-apps.folder'}
-        request = gdrive.service.files().insert(body=body_obj)
+        request = self.gdrive.service.files().insert(body=body_obj)
         response = request.execute()
         flist_gdrive = FileListGdrive()
-        gdrive.get_folders(flist_gdrive.append_dir)
+        self.gdrive.get_folders(flist_gdrive.append_dir)
         flist_gdrive.fix_export_path()
         fid = response['id']
-        gdrive.delete_file(fid)
+        self.gdrive.delete_file(fid)
         self.assertEqual('test_directory',
                          flist_gdrive.filelist_id_dict[fid].filename)
 
