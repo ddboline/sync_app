@@ -15,7 +15,7 @@ try:
 except ImportError:
     import pickle
 
-from sync_app.file_list import FileList
+from sync_app.file_list import FileInfo, FileList
 from sync_app.util import run_command
 
 class FileListCache(object):
@@ -23,8 +23,20 @@ class FileListCache(object):
     def __init__(self, pickle_file=''):
         self.pickle_file = pickle_file
         self.cache_file_list_dict = {}
-        self.pickle_file_is_modified = False
-        self.do_update = False
+
+    @property
+    def cache_file_list_dict(self):
+        return self.__cache_file_list_dict
+    
+    @cache_file_list_dict.setter
+    def cache_file_list_dict(self, dict_):
+        """ 
+            check that we have a dict-like object
+            which can be set to FileInfo object
+        """
+        dict_['DUMMYKEY'] = FileInfo()
+        dict_.pop('DUMMYKEY')
+        self.__cache_file_list_dict = dict_
 
     def read_pickle_object_in_file(self):
         """ read python object from gzipped pickle file """
