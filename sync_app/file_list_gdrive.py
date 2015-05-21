@@ -41,10 +41,12 @@ class FileInfoGdrive(FileInfo):
 
     def download(self):
         if BASE_DIR in self.filename:
-            return self.gdrive.download(self.urlname, self.filename)
+            return self.gdrive.download(self.urlname, self.filename,
+                                        md5sum=self.md5sum)
         else:
             path_ = '%s/%s' % (BASE_DIR, self.filename)
-            return self.gdrive.download(self.urlname, path_)
+            return self.gdrive.download(self.urlname, path_,
+                                        md5sum=self.md5sum)
 
     def __repr__(self):
         """ nice string representation """
@@ -96,7 +98,7 @@ class FileListGdrive(FileList):
             finfo.isroot = item['parents'][0]['isRoot']
         if 'downloadUrl' in item:
             finfo.urlname = item['downloadUrl']
-        if 'exportLinks' in item:
+        elif 'exportLinks' in item:
             finfo.exporturls = item['exportLinks']
             elmime = None
             for pfor in GDRIVE_MIMETYPES:
