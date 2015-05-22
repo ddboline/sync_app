@@ -29,7 +29,8 @@ class FileInfoGdrive(FileInfo):
     """ GDrive File Info """
     __slots__ = FileInfo.__slots__ + list(FILE_INFO_SLOTS)
 
-    def __init__(self, gid='', fn='', md5='', gdrive=None, item=None):
+    def __init__(self, gid='', fn='', md5='', gdrive=None, item=None,
+                 in_tuple=None):
         """ Init Function """
         for attr in FILE_INFO_SLOTS:
             setattr(self, attr, '')
@@ -40,6 +41,8 @@ class FileInfoGdrive(FileInfo):
         self.gdrive = gdrive
         if item:
             self.fill_item(item)
+        if in_tuple:
+            self.input_cache_tuple(in_tuple)
 
     def download(self):
         if BASE_DIR in self.filename:
@@ -60,7 +63,18 @@ class FileInfoGdrive(FileInfo):
                'st_mime=%s, ' % self.filestat.st_mtime +\
                'id=%s, ' % self.gdriveid +\
                'pid=%s, ' % self.parentid +\
-               'isroot=%s>' % self.isroot
+               'isroot=%s)>' % self.isroot
+
+    def output_cache_tuple(self):
+        return (self.filename, self.urlname, self.md5sum,
+                self.filestat.st_mtime, self.filestat.st_size, self.gdriveid,
+                self.mimetype, self.parentid, self.exporturls, self.exportpath,
+                self.isroot, self.gdrive)
+    
+    def input_cache_tuple(self, in_tuple):
+        self.filename, self.urlname, self.md5sum, self.filestat.st_mtime,\
+        self.filestat.st_size, self.gdriveid, self.mimetype, self.parentid,\
+        self.exporturls, self.exportpath, self.isroot, self.gdrive = in_tuple
 
     def fill_item(self, item):
         fext = ''
@@ -181,7 +195,7 @@ class FileListGdrive(FileList):
 
     def fix_export_path(self):
         """ determine export paths for finfo objects in file list"""
-        for finfo in self.filelist:
+        for finfo in self.filelist.values():
             finfo.exportpath = self.get_export_path(finfo)
         for id_, finfo in self.directory_id_dict.items():
             finfo.exportpath = self.get_export_path(finfo, is_dir=True)
