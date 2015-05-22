@@ -101,7 +101,7 @@ class FileList(object):
         self.filelist_name_dict = defaultdict(list)
         self.filelist_md5_dict = defaultdict(list)
         self.filelist_type = filelist_type if filelist_type else 'local'
-        self.basedir = basedir if basedir else '/home/ddboline'
+        self.basedir = basedir if basedir else os.getenv('HOME')
         self.baseurl = 'local://'
         self.fill_dicts()
 

@@ -15,7 +15,7 @@ from dateutil.parser import parse
 from sync_app.file_list import FileInfo, FileList
 from sync_app.gdrive_instance import GdriveInstance
 
-BASE_DIR = '/home/ddboline/gDrive'
+BASE_DIR = '%s/gDrive' % os.getenv('HOME')
 
 GDRIVE_MIMETYPES = (
 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

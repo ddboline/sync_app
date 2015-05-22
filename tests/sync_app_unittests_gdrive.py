@@ -23,6 +23,8 @@ TEST_FILE = 'tests/test_dir/hello_world.txt'
 TEST_DIR = 'tests/test_dir'
 TEST_GDR = 'Amazon-Gift-Card.pdf'
 
+HOMEDIR = os.getenv('HOME')
+
 class TestSyncAppGdrive(unittest.TestCase):
     """ SyncApp Unit Tests """
 
@@ -52,12 +54,12 @@ class TestSyncAppGdrive(unittest.TestCase):
         self.gdrive.get_folders(flist_gdrive.append_dir)
 #        print(flist_gdrive.filelist_id_dict[fid])
         flist_gdrive.filelist_id_dict[fid].download()
-        fname = '/home/ddboline/gDrive/tests/test_dir/hello_world.txt'
+        fname = '%s/gDrive/%s' % (HOMEDIR, TEST_FILE)
 
         self.gdrive.delete_file(fid)
         flist_gdrive.delete_directory(os.path.dirname(TEST_FILE))
         self.assertEqual(flist_gdrive.filelist_id_dict[fid].exportpath,
-                         '/home/ddboline/gDrive/tests/test_dir')
+                         '%s/gDrive/%s' % (HOMEDIR, TEST_DIR))
         self.assertEqual(flist_gdrive.filelist_id_dict[fid].md5sum,
                          '8ddd8be4b179a529afa5f2ffae4b9858')
         self.assertEqual(get_md5(fname), '8ddd8be4b179a529afa5f2ffae4b9858')
@@ -72,7 +74,7 @@ class TestSyncAppGdrive(unittest.TestCase):
         id_ = flist_gdrive.directory_name_dict['share'].gdriveid
         val = flist_gdrive.directory_id_dict[id_]
         self.assertEqual(val.exportpath,
-                         '/home/ddboline/gDrive/ATLAS/code/' +
+                         '%s/gDrive/ATLAS/code/' % HOMEDIR +
                          'ISF_Calo_Validation/17.2.4.10')
 
     def test_gdrive_list_directories(self):
@@ -84,7 +86,7 @@ class TestSyncAppGdrive(unittest.TestCase):
         finf_ = flist_gdrive.directory_name_dict['share']
 
         self.assertEqual(finf_.exportpath,
-                         '/home/ddboline/gDrive/ATLAS/code/' +
+                         '%s/gDrive/ATLAS/code/' % HOMEDIR +
                          'ISF_Calo_Validation/17.2.4.10')
 
     def test_gdrive_create_directory(self):

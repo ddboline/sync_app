@@ -8,11 +8,13 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import os
+
 from sync_app.file_list import FileInfo, FileList
 
 from dateutil.parser import parse
 
-BASE_DIR = '/home/ddboline/S3'
+BASE_DIR = '%s/S3' % os.getenv('HOME')
 
 class FileInfoS3(FileInfo):
     """ File Info for S3, add bucket metadata """

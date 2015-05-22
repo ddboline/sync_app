@@ -38,7 +38,7 @@ class TestSyncAppS3(unittest.TestCase):
         self.assertEqual(md_, '866c3c2d566d44b88e1e4a4fc1e7d65d')
         
     def test_s3_upload_search_download_delete(self):
-        bname = 'test_bucket_ddbline_20150521'
+        bname = 'test_bucket_ddboline_20150521'
         self.s3.create_bucket(bname)
         self.s3.upload(bname, TEST_FILE, os.path.abspath(TEST_FILE))
         self.s3.get_list_of_keys(bucket_name=bname,
