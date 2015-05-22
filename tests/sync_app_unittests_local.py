@@ -37,11 +37,13 @@ class TestSyncAppLocal(unittest.TestCase):
     def test_file_info_local(self):
         """ Test FileInfoLocal class """
         finfo = FileInfoLocal(fn=TEST_FILE)
-        output = ('%s' % finfo).replace(CURDIR, '')
-        print('finfo', output)
+        output = '%s %s %s %d' % (finfo.filename, finfo.urlname, finfo.md5sum,
+                                  finfo.filestat.st_size)
+        output = output.replace(CURDIR, '')
+#        print('finfo', output)
         m = hashlib.md5()
         m.update(output)
-        self.assertEqual(m.hexdigest(), 'fd288d5d8524a9a3c4dbf42382cde960')
+        self.assertEqual(m.hexdigest(), '1bfc429c2f36ef5c541742be8aaf934b')
 
     def test_file_list_local(self):
         """ Test FileListLocal class """
@@ -49,13 +51,15 @@ class TestSyncAppLocal(unittest.TestCase):
         flist.fill_file_list_local(directory=TEST_DIR)
         output = []
         for fl in flist:
-            output.append(('%s' % fl).replace(CURDIR, ''))
+            temp_ = '%s %s %s %d' % (fl.filename, fl.urlname, fl.md5sum,
+                                     fl.filestat.st_size)
+            output.append(temp_.replace(CURDIR, ''))
         output = sorted(output)
-        print('file_list', '\n'.join(output))
+#        print('file_list', '\n'.join(output))
         m = hashlib.md5()
         for out in sorted(output):
             m.update(out)
-        self.assertEqual(m.hexdigest(), '2569a9bfbad1f047416fc17785c03dbe')
+        self.assertEqual(m.hexdigest(), 'cd3bf7a0a388d94ef5626fb9d5ca1632')
 
     def test_file_list_cache(self):
         """ Test FileListCache class """
@@ -69,14 +73,15 @@ class TestSyncAppLocal(unittest.TestCase):
         flist = fcache.get_cache_file_list()
         output = []
         for fl in flist:
-#            print(fl)
-            output.append(('%s' % fl).replace(CURDIR, ''))
+            temp_ = '%s %s %s %d' % (fl.filename, fl.urlname, fl.md5sum,
+                                     fl.filestat.st_size)
+            output.append(temp_.replace(CURDIR, ''))
         output = sorted(output)
-        print('file_cache', '\n'.join(output))
+#        print('file_cache', '\n'.join(output))
         m = hashlib.md5()
         for out in sorted(output):
             m.update(out)
-        self.assertEqual(m.hexdigest(), '2569a9bfbad1f047416fc17785c03dbe')
+        self.assertEqual(m.hexdigest(), 'cd3bf7a0a388d94ef5626fb9d5ca1632')
 
 #    def test_global_file_cache(self):
 #        flist = []
