@@ -9,9 +9,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from sync_app.file_list import FileInfo, FileList
-from sync_app.s3_instance import S3Instance
 
 from dateutil.parser import parse
+
+BASE_DIR = '/home/ddboline/S3'
 
 class FileInfoS3(FileInfo):
     """ File Info for S3, add bucket metadata """
@@ -62,5 +63,4 @@ class FileListS3(FileList):
 
     def fill_file_list_s3(self, bucket=None):
         """ fill s3 filelist  """
-        self.s3 = S3Instance()
         self.s3.get_list_of_keys(callback_fn=self.append_item)
