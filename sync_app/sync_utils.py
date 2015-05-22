@@ -32,6 +32,7 @@ def get_md5_old(fname):
 
 def get_md5(fname):
     """ system md5 function """
+#    print('using md5', fname)
     try:
         return run_command('md5sum "%s" 2> /dev/null' % cleanup_path(fname),
                            do_popen=True).read().split()[0]
@@ -70,7 +71,7 @@ def build_local_index(directories=None, rebuild_index=False):
         return False
     fcache = FileListCache(pickle_file='%s/.local_file_list_cache.pkl.gz' %
                            os.getenv('HOME'))
-    flist_cache = FileListLocal()
+    flist_cache = None
     if not rebuild_index:
         flist_cache = fcache.get_cache_file_list(file_list_class=FileListLocal)
     flist = FileListLocal(cache_file_list=flist_cache)
@@ -79,7 +80,7 @@ def build_local_index(directories=None, rebuild_index=False):
         print('directory', direc)
         flist.fill_file_list_local(directory=direc)
     print('write cache')
-    fcache.write_cache_file_list(flist.filelist)
+    fcache.write_cache_file_list(flist)
     return flist
 
 def sync_gdrive(dry_run=False):
