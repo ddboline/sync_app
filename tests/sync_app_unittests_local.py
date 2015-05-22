@@ -38,7 +38,7 @@ class TestSyncAppLocal(unittest.TestCase):
         """ Test FileInfoLocal class """
         finfo = FileInfoLocal(fn=TEST_FILE)
         output = ('%s' % finfo).replace(CURDIR, '')
-#        print('finfo', output)
+        print('finfo', output)
         m = hashlib.md5()
         m.update(output)
         self.assertEqual(m.hexdigest(), 'fd288d5d8524a9a3c4dbf42382cde960')
@@ -51,7 +51,7 @@ class TestSyncAppLocal(unittest.TestCase):
         for fl in flist:
             output.append(('%s' % fl).replace(CURDIR, ''))
         output = sorted(output)
-#        print('file_list', '\n'.join(output))
+        print('file_list', '\n'.join(output))
         m = hashlib.md5()
         for out in sorted(output):
             m.update(out)
@@ -72,7 +72,7 @@ class TestSyncAppLocal(unittest.TestCase):
 #            print(fl)
             output.append(('%s' % fl).replace(CURDIR, ''))
         output = sorted(output)
-#        print('file_cache', '\n'.join(output))
+        print('file_cache', '\n'.join(output))
         m = hashlib.md5()
         for out in sorted(output):
             m.update(out)
