@@ -64,10 +64,16 @@ class FileSync(object):
 #                    if mt1 > mt0 and md0 != md1:
 #                        list_a_not_b.append(finfo1)
 
-        for finf_ in list_a_not_b:
+        for finfo in list_a_not_b:
             if callback0:
-                callback0(finf_[0])
+                finf_ = finfo
+                if type(finf_) == list:
+                    finf_ = finfo[0]
+                callback0(finf_)
 
-        for finf_ in list_b_not_a:
+        for finfo in list_b_not_a:
             if callback1:
-                callback1(finf_[0])
+                finf_ = finfo
+                if type(finf_) == list:
+                    finf_ = finfo[0]
+                callback1(finf_)
