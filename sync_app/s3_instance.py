@@ -46,14 +46,17 @@ class S3Instance(object):
     def create_bucket(self, bucket_name=None):
         return self.s3.create_bucket(bucket_name=bucket_name)
 
-    def upload(self, bucket_name, fname):
+    def upload(self, bucket_name, key_name, fname):
         bucket = self.s3.get_bucket(bucket_name)
         key = boto.s3.key.Key(bucket)
         with open(fname, 'r') as infile:
-            key.key = fname
+            key.key = key_name
             key.set_contents_from_file(infile)
 
     def download(self, bucket_name, key_name, fname):
+        dname = os.path.dirname(fname)
+        if not os.path.exists(dname):
+            os.makedirs(dname)
         bucket = self.s3.get_bucket(bucket_name)
         key = bucket.get_key(key_name)
         key.get_contents_to_filename(fname)
