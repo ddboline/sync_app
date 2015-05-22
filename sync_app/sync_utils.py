@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 
 import os
 import hashlib
+import argparse
 
 from sync_app.util import run_command, cleanup_path
 from sync_app.file_cache import FileListCache
@@ -141,21 +142,12 @@ def sync_s3(dry_run=False):
     fsync.compare_lists(callback0=download_file, callback1=upload_file)
 
 def sync_local(dry_run=False):
-    local_dirs = []
-    for basedir in LOCAL_DISKS:
-        for subdir in LOCAL_DIRECTORIES:
-            local_dirs.append('%s/%s' % (basedir, subdir))
-    for basedir in ('/media/sabrent2000', '/media/caviar2000',
-                    '/media/western2000'):
-        for subdir in ('dilepton2_backup', 'dilepton_tower_backup'):
-            local_dirs.append('%s/%s' % (basedir, subdir))
-    print('build local %s' % ' '.join(local_dirs))
-    build_local_index(directories=local_dirs)
 
     for directory in LOCAL_DIRECTORIES:
         flists_local = []
         for disk in LOCAL_DISKS:
             ldir = '/'.join([disk, directory])
+            print('build local %s' % ldir)
             flists_local.append(build_local_index(directories=[ldir]))
         def copy_file0(finfo):
             print(finfo.filename)
@@ -163,3 +155,50 @@ def sync_local(dry_run=False):
             print(finfo.filename)
         fsync = FileSync(flists=[flists_local])
         fsync.compare_lists(callback0=copy_file0, callback1=copy_file1)
+
+    for directory in ('dilepton2_backup', 'dilepton_tower_backup'):
+        flists_local = []
+        for disk in ('/media/sabrent2000', '/media/caviar2000',
+                     '/media/western2000'):
+            ldir = '/'.join([disk, directory])
+            print('build local %s' % ldir)
+            flists_local.append(build_local_index(directories=[ldir]))
+        def copy_file0(finfo):
+            print(finfo.filename)
+        def copy_file1(finfo):
+            print(finfo.filename)
+        fsync = FileSync(flists=[flists_local])
+        fsync.compare_lists(callback0=copy_file0, callback1=copy_file1)
+
+def sync_arg_parse():
+    commands = ('all', 'gdrive', 's3', 'local', 'dry_run')
+    help_text = 'usage: ./sync.py <%s>' % '|'.join(commands)
+    parser = argparse.ArgumentParser(description='garmin app')
+    parser.add_argument('command', nargs='*', help=help_text)
+    args = parser.parse_args()
+
+    do_local, do_gdrive, do_s3, do_dry_run = False, False, False, False
+
+    for arg in getattr(args, 'command'):
+        if any(arg == x for x in ['h', 'help', '-h', '--help']):
+            print('usage: ./garmin.py <%s>' % '|'.join(commands))
+            return
+
+    for arg in getattr(args, 'command'):
+        if arg in ('local', 'all'):
+            do_local = True
+        if arg in ('gdrive', 'all'):
+            do_gdrive = True
+        if arg in ('s3', 'all'):
+            do_s3 = True
+        if arg == 'dry_run':
+            do_dry_run = True
+
+    if do_s3:
+        sync_s3(dry_run=do_dry_run)
+    if do_gdrive:
+        sync_gdrive(dry_run=do_dry_run)
+    if do_local:
+        sync_local(dry_run=do_dry_run)
+
+    return
