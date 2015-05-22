@@ -6,6 +6,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+from subprocess import call, Popen, PIPE
 
 HOMEDIR = os.getenv('HOME')
 
@@ -15,9 +16,9 @@ def run_command(command, do_popen=False, turn_on_commands=True):
         print(command)
         return command
     elif do_popen:
-        return os.popen(command)
+        return Popen(command, shell=True, stdout=PIPE, close_fds=True).stdout
     else:
-        return os.system(command)
+        return call(command, shell=True)
 
 def cleanup_path(orig_path):
     """ cleanup path string using escape character """
