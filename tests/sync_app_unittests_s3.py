@@ -40,7 +40,7 @@ class TestSyncAppS3(unittest.TestCase):
     def test_s3_upload_search_download_delete(self):
         bname = 'test_bucket_ddbline_20150521'
         self.s3.create_bucket(bname)
-        self.s3.upload(bname, TEST_FILE)
+        self.s3.upload(bname, TEST_FILE, os.path.abspath(TEST_FILE))
         self.s3.get_list_of_keys(bucket_name=bname,
                                  callback_fn=self.flist_s3.append_item)
         md5_ = self.flist_s3[TEST_FILE].md5sum
