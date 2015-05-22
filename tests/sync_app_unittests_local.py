@@ -9,6 +9,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+import gzip
+import cPickle as pickle
 import hashlib
 import unittest
 
@@ -39,41 +41,50 @@ class TestSyncAppLocal(unittest.TestCase):
 #        print('finfo', output)
         m = hashlib.md5()
         m.update(output)
-        self.assertEqual(m.hexdigest(), '5ab63e715eac2f72924dfeb0639b4ca4')
+        self.assertEqual(m.hexdigest(), 'fd288d5d8524a9a3c4dbf42382cde960')
 
     def test_file_list_local(self):
         """ Test FileListLocal class """
         flist = FileListLocal()
         flist.fill_file_list_local(directory=TEST_DIR)
         output = []
-        for fl in flist.filelist:
+        for fl in flist:
             output.append(('%s' % fl).replace(CURDIR, ''))
         output = sorted(output)
 #        print('file_list', '\n'.join(output))
         m = hashlib.md5()
         for out in sorted(output):
             m.update(out)
-        self.assertEqual(m.hexdigest(), 'd5bd9264bb8c5b3322d69894054b8a51')
+        self.assertEqual(m.hexdigest(), '2569a9bfbad1f047416fc17785c03dbe')
 
     def test_file_list_cache(self):
         """ Test FileListCache class """
         flist = FileListLocal()
         flist.fill_file_list_local(directory=TEST_DIR)
         fcache = FileListCache(pickle_file='.tmp_file_list_cache.pkl.gz')
-        fcache.write_cache_file_list(flist.filelist)
+        fcache.write_cache_file_list(flist)
         del flist, fcache
         
         fcache = FileListCache(pickle_file='.tmp_file_list_cache.pkl.gz')
         flist = fcache.get_cache_file_list()
         output = []
-        for fl in flist.filelist:
+        for fl in flist:
+#            print(fl)
             output.append(('%s' % fl).replace(CURDIR, ''))
         output = sorted(output)
 #        print('file_cache', '\n'.join(output))
         m = hashlib.md5()
         for out in sorted(output):
             m.update(out)
-        self.assertEqual(m.hexdigest(), 'd5bd9264bb8c5b3322d69894054b8a51')
+        self.assertEqual(m.hexdigest(), '2569a9bfbad1f047416fc17785c03dbe')
+
+#    def test_global_file_cache(self):
+#        flist = []
+#        with gzip.open('/home/ddboline/.local_file_list_cache.pkl.gz', 'rb') as pklfile:
+#            flist = pickle.load(pklfile)
+#        for fl_ in flist:
+#            if 'Ch5.csv' in fl_[0]:
+#                print(fl_)
 
 if __name__ == '__main__':
     unittest.main()
