@@ -36,13 +36,15 @@ class StatTuple(object):
         """ Init function """
         for attr in STAT_ATTRS:
             if attr in kwargs:
-                setattr(self, attr, kwargs[attr])
+                val = kwargs[attr]
+                setattr(self, attr, int(val))
             else:
                 setattr(self, attr, 0)
         if fs:
             for attr in STAT_ATTRS:
                 if hasattr(fs, attr):
-                    setattr(self, attr, getattr(fs, attr))
+                    val = getattr(fs, attr)
+                    setattr(self, attr, int(val))
             
 
 class FileInfo(object):
