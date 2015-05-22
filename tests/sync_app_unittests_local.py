@@ -15,7 +15,7 @@ import unittest
 CURDIR = os.path.abspath(os.curdir)
 os.sys.path.append(CURDIR)
 
-from sync_app.sync_utils import get_md5
+#from sync_app.sync_utils import get_md5
 from sync_app.file_cache import FileListCache
 from sync_app.file_list_local import FileInfoLocal, FileListLocal
 
@@ -39,7 +39,7 @@ class TestSyncAppLocal(unittest.TestCase):
 #        print('finfo', output)
         m = hashlib.md5()
         m.update(output)
-        self.assertEqual(m.hexdigest(), 'bb0681fe01c42429d0a7b0994f0d9265')
+        self.assertEqual(m.hexdigest(), '5ab63e715eac2f72924dfeb0639b4ca4')
 
     def test_file_list_local(self):
         """ Test FileListLocal class """
@@ -53,7 +53,7 @@ class TestSyncAppLocal(unittest.TestCase):
         m = hashlib.md5()
         for out in sorted(output):
             m.update(out)
-        self.assertEqual(m.hexdigest(), '30eceb5a3d7b9c761651f8b1df5e53b5')
+        self.assertEqual(m.hexdigest(), 'd5bd9264bb8c5b3322d69894054b8a51')
 
     def test_file_list_cache(self):
         """ Test FileListCache class """
@@ -61,7 +61,9 @@ class TestSyncAppLocal(unittest.TestCase):
         flist.fill_file_list_local(directory=TEST_DIR)
         fcache = FileListCache(pickle_file='.tmp_file_list_cache.pkl.gz')
         fcache.write_cache_file_list(flist.filelist)
-        del flist
+        del flist, fcache
+        
+        fcache = FileListCache(pickle_file='.tmp_file_list_cache.pkl.gz')
         flist = fcache.get_cache_file_list()
         output = []
         for fl in flist.filelist:
@@ -71,7 +73,7 @@ class TestSyncAppLocal(unittest.TestCase):
         m = hashlib.md5()
         for out in sorted(output):
             m.update(out)
-        self.assertEqual(m.hexdigest(), '30eceb5a3d7b9c761651f8b1df5e53b5')
+        self.assertEqual(m.hexdigest(), 'd5bd9264bb8c5b3322d69894054b8a51')
 
 if __name__ == '__main__':
     unittest.main()
