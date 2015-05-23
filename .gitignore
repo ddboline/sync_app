@@ -60,3 +60,4 @@ run/
 *.png
 *.csv
 *.gz
+client_secrets.json
