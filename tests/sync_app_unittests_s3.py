@@ -47,7 +47,7 @@ class TestSyncAppS3(unittest.TestCase):
         self.assertEqual(md5_, '8ddd8be4b179a529afa5f2ffae4b9858')
         self.s3.download(bname, TEST_FILE, 'tests/test_dir/test.txt')
         self.s3.delete_key(bname, TEST_FILE)
-        self.s3.delete_bucket('test_bucket_ddbline_20150521')
+        self.s3.delete_bucket(bname)
         md5_ = get_md5('tests/test_dir/test.txt')
         self.assertEqual(md5_, '8ddd8be4b179a529afa5f2ffae4b9858')
         os.remove('tests/test_dir/test.txt')
