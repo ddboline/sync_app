@@ -84,8 +84,14 @@ def build_local_index(directories=None, rebuild_index=False):
     fcache.write_cache_file_list(flist)
     return flist
 
-def sync_gdrive(dry_run=False):
+def sync_gdrive(dry_run=False, delete_file=None):
     """ build gdrive index """
+    if delete_file:
+        for df_ in delete_file:
+            print('delete %s' % df_)
+            if not dry_run and os.path.exists(df_):
+                os.remove(df_)
+
     from sync_app.file_list_gdrive import BASE_DIR as BASE_DIR_GDRIVE
     print('build gdrive')
     flist_gdrive = build_gdrive_index()
@@ -98,21 +104,36 @@ def sync_gdrive(dry_run=False):
         print('upload', finfo.filename)
         if not dry_run:
             try:
-                flist_gdrive.upload_file(finfo.filename)
+                return flist_gdrive.upload_file(finfo.filename)
             except UnknownFileType:
                 return
 
     def download_file(finfo):
         """ callback to download from gdrive """
+#        print('filename', finfo)
         if 'https' in finfo.urlname:
-            print('download', finfo.urlname, finfo.filename)
-            if not dry_run:
-                finfo.download()
+            if delete_file and finfo.filename in delete_file:
+                print('delete %s' % finfo.filename)
+                if not dry_run:
+                    return finfo.delete()
+            else:
+                print('download', finfo.urlname, finfo.filename)
+                if not dry_run:
+                    return finfo.download()
+        return
+
 
     fsync.compare_lists(callback0=download_file, callback1=upload_file)
 
-def sync_s3(dry_run=False):
-    """ build s3 index """
+def sync_s3(dry_run=False, delete_file=None):
+    """ sync with s3 """
+    if delete_file:
+        for df_ in delete_file:
+            if os.path.exists(df_):
+                print('delete %s' % df_)
+                if not dry_run:
+                    os.remove(df_)
+
     from sync_app.file_list_s3 import BASE_DIR as BASE_DIR_S3
     print('build s3')
     flist_s3 = build_s3_index()
@@ -135,49 +156,58 @@ def sync_s3(dry_run=False):
         bn_ = finfo.bucket
         kn_ = finfo.filename
         fn_ = '%s/%s/%s' % (BASE_DIR_S3, bn_, kn_)
-        print(bn_, kn_, fn_)
-        if not dry_run:
-            flist_s3.s3.download(bn_, kn_, fn_)
+        if delete_file and finfo.filename in delete_file:
+            print('delete', bn_, kn_, fn_)
+            if not dry_run:
+                return flist_s3.s3.delete_key(bn_, kn_)
+        else:
+            print('download', bn_, kn_, fn_)
+            if not dry_run:
+                flist_s3.s3.download(bn_, kn_, fn_)
 
     fsync.compare_lists(callback0=download_file, callback1=upload_file)
 
-def sync_local(dry_run=False):
+def sync_local(dry_run=False, delete_file=None):
+    """ sync local directories """
+    if delete_file:
+        for df_ in delete_file:
+            if os.path.exists(df_):
+                print('delete %s' % df_)
+                if not dry_run:
+                    os.remove(df_)
 
-    for directory in LOCAL_DIRECTORIES:
-        flists_local = []
-        for disk in LOCAL_DISKS:
-            ldir = '/'.join([disk, directory])
-            print('build local %s' % ldir)
-            flists_local.append(build_local_index(directories=[ldir]))
-        def copy_file0(finfo):
-            print(finfo.filename)
-        def copy_file1(finfo):
-            print(finfo.filename)
-        fsync = FileSync(flists=[flists_local])
-        fsync.compare_lists(callback0=copy_file0, callback1=copy_file1)
+    def sync_local_directories(ldirectories, ldisks):
+        for directory in ldirectories:
+            flists_local = []
+            for disk in ldisks:
+                ldir = '/'.join([disk, directory])
+                print('build local %s' % ldir)
+                flists_local.append(build_local_index(directories=[ldir]))
 
-    for directory in ('dilepton2_backup', 'dilepton_tower_backup'):
-        flists_local = []
-        for disk in ('/media/sabrent2000', '/media/caviar2000',
-                     '/media/western2000'):
-            ldir = '/'.join([disk, directory])
-            print('build local %s' % ldir)
-            flists_local.append(build_local_index(directories=[ldir]))
-        def copy_file0(finfo):
-            print(finfo.filename)
-        def copy_file1(finfo):
-            print(finfo.filename)
-        fsync = FileSync(flists=[flists_local])
-        fsync.compare_lists(callback0=copy_file0, callback1=copy_file1)
+            def copy_file0(finfo):
+                print(finfo.filename, disk, directory)
+
+            def copy_file1(finfo):
+                print(finfo.filename, disk, directory)
+
+            fsync = FileSync(flists=[flists_local])
+            fsync.compare_lists(callback0=copy_file0, callback1=copy_file1)
+
+
+    sync_local_directories(LOCAL_DIRECTORIES, LOCAL_DISKS)
+    sync_local_directories(('dilepton2_backup', 'dilepton_tower_backup'),
+                           ('/media/sabrent2000', '/media/caviar2000',
+                            '/media/western2000'))
 
 def sync_arg_parse():
-    commands = ('all', 'gdrive', 's3', 'local', 'dry_run')
+    commands = ('all', 'gdrive', 's3', 'local', 'dry_run', 'delete')
     help_text = 'usage: ./sync.py <%s>' % '|'.join(commands)
     parser = argparse.ArgumentParser(description='garmin app')
     parser.add_argument('command', nargs='*', help=help_text)
     args = parser.parse_args()
 
     do_local, do_gdrive, do_s3, do_dry_run = False, False, False, False
+    delete_f = []
 
     for arg in getattr(args, 'command'):
         if any(arg == x for x in ['h', 'help', '-h', '--help']):
@@ -193,12 +223,15 @@ def sync_arg_parse():
             do_s3 = True
         if arg == 'dry_run':
             do_dry_run = True
+        if 'delete' in arg:
+            for temp_ in arg.split('=')[1].split(','):
+                delete_f.append(temp_)
 
     if do_s3:
-        sync_s3(dry_run=do_dry_run)
+        sync_s3(dry_run=do_dry_run, delete_file=delete_f)
     if do_gdrive:
-        sync_gdrive(dry_run=do_dry_run)
+        sync_gdrive(dry_run=do_dry_run, delete_file=delete_f)
     if do_local:
-        sync_local(dry_run=do_dry_run)
+        sync_local(dry_run=do_dry_run, delete_file=delete_f)
 
     return
