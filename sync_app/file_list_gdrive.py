@@ -44,6 +44,9 @@ class FileInfoGdrive(FileInfo):
         if in_tuple:
             self.input_cache_tuple(in_tuple)
 
+    def delete(self):
+        return self.gdrive.delete_file(self.gdriveid)
+
     def download(self):
         if BASE_DIR in self.filename:
             return self.gdrive.download(self.urlname, self.filename,
@@ -70,7 +73,7 @@ class FileInfoGdrive(FileInfo):
                 self.filestat.st_mtime, self.filestat.st_size, self.gdriveid,
                 self.mimetype, self.parentid, self.exporturls, self.exportpath,
                 self.isroot, self.gdrive)
-    
+
     def input_cache_tuple(self, in_tuple):
         self.filename, self.urlname, self.md5sum, self.filestat.st_mtime,\
         self.filestat.st_size, self.gdriveid, self.mimetype, self.parentid,\
@@ -188,6 +191,10 @@ class FileListGdrive(FileList):
                 pid = finf.parentid
                 fullpath.append(os.path.basename(finf.filename))
         fullpath = '/'.join(fullpath[::-1])
+        if not fullpath:
+            fullpath = 'My Drive'
+        elif 'My Drive' not in fullpath:
+            fullpath = 'My Drive/' + fullpath
         fullpath = fullpath.replace('My Drive', BASE_DIR)
         if abspath:
             fullpath = os.path.dirname(fullpath)
