@@ -51,7 +51,7 @@ class S3Instance(object):
         key = boto.s3.key.Key(bucket)
         with open(fname, 'r') as infile:
             key.key = key_name
-            key.set_contents_from_file(infile)
+            return key.set_contents_from_file(infile)
 
     def download(self, bucket_name, key_name, fname):
         dname = os.path.dirname(fname)
@@ -59,15 +59,16 @@ class S3Instance(object):
             os.makedirs(dname)
         bucket = self.s3.get_bucket(bucket_name)
         key = bucket.get_key(key_name)
-        key.get_contents_to_filename(fname)
+        return key.get_contents_to_filename(fname)
 
     def delete_key(self, bucket_name, key_name):
         bucket = self.s3.get_bucket(bucket_name)
         key = bucket.get_key(key_name)
-        key.delete()
+        return key.delete()
 
     def get_list_of_keys(self, bucket_name=None, callback_fn=None):
         """ get list of keys """
+        list_of_keys = []
         if not callback_fn:
             callback_fn = lambda x: print(x.key)
         if bucket_name:
@@ -77,4 +78,5 @@ class S3Instance(object):
         for bucket in buckets:
             for key in bucket.list():
                 callback_fn(key)
-        return
+                list_of_keys.append(key)
+        return list_of_keys
