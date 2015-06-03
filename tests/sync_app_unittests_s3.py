@@ -36,7 +36,7 @@ class TestSyncAppS3(unittest.TestCase):
                                      callback_fn=self.flist_s3.append_item)
         md_ = self.flist_s3['2015-01-01.txt'].md5sum
         self.assertEqual(md_, '866c3c2d566d44b88e1e4a4fc1e7d65d')
-        
+
     def test_s3_upload_search_download_delete(self):
         bname = 'test_bucket_ddboline_20150521'
         self.s3.create_bucket(bname)

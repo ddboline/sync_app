@@ -25,7 +25,7 @@ FILE_LIST_TYPES = ('local', 'remote', 'gdrive', 's3')
 FILE_INFO_SLOTS = ('filename', 'urlname', 'md5sum', 'filestat')
 
 class StatTuple(object):
-    """ 
+    """
         StatTuple class
         intended as generalization of object returned by os.stat
         scaled back to just contain modification time and size...
@@ -45,14 +45,14 @@ class StatTuple(object):
                 if hasattr(fs, attr):
                     val = getattr(fs, attr)
                     setattr(self, attr, int(val))
-    
+
     def __repr__(self):
         """ Nice pretty string representation """
         return '<StatTuple(size=%s, mtime=%s)>' % (self.st_size, self.st_mtime)
 
 class FileInfo(object):
-    """ 
-        file info class, meant as a base for local/gdrive/s3, 
+    """
+        file info class, meant as a base for local/gdrive/s3,
         define common elements, hold common code
     """
     __slots__ = list(FILE_INFO_SLOTS)
@@ -89,7 +89,7 @@ class FileInfo(object):
     def output_cache_tuple(self):
         return (self.filename, self.urlname, self.md5sum,
                 self.filestat.st_mtime, self.filestat.st_size)
-    
+
     def input_cache_tuple(self, in_tuple):
         self.filename, self.urlname, self.md5sum, self.filestat.st_mtime,\
         self.filestat.st_size = in_tuple
@@ -108,7 +108,7 @@ class FileList(object):
     @property
     def filelist(self):
         return self.__filelist
-    
+
     @filelist.setter
     def filelist(self, val):
         """ make a copy of list, element by element """
@@ -120,7 +120,7 @@ class FileList(object):
     @property
     def filelist_type(self):
         return self.__filelist_type
-    
+
     @filelist_type.setter
     def filelist_type(self, val):
         """ throw error if we get unexpected value """

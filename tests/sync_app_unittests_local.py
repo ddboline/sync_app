@@ -68,7 +68,7 @@ class TestSyncAppLocal(unittest.TestCase):
         fcache = FileListCache(pickle_file='.tmp_file_list_cache.pkl.gz')
         fcache.write_cache_file_list(flist)
         del flist, fcache
-        
+
         fcache = FileListCache(pickle_file='.tmp_file_list_cache.pkl.gz')
         flist = fcache.get_cache_file_list()
         output = []

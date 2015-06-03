@@ -27,10 +27,10 @@ class FileListCache(object):
     @property
     def cache_file_list_dict(self):
         return self.__cache_file_list_dict
-    
+
     @cache_file_list_dict.setter
     def cache_file_list_dict(self, dict_):
-        """ 
+        """
             check that we have a dict-like object
             which can be set to FileInfo object
         """
