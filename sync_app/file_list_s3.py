@@ -28,7 +28,7 @@ class FileInfoS3(FileInfo):
             self.fill_item(item)
         if in_tuple:
             self.input_cache_tuple(in_tuple)
-        
+
     def fill_item(self, item):
         self.filename = item.key
         self.bucket = item.bucket.name
@@ -37,11 +37,11 @@ class FileInfoS3(FileInfo):
         _temp = {'st_size': item.size,
                  'st_mtime': int(parse(item.last_modified).strftime("%s"))}
         self.fill_stat(**_temp)
-        
+
     def output_cache_tuple(self):
         return (self.filename, self.urlname, self.md5sum,
                 self.filestat.st_mtime, self.filestat.st_size, self.bucket)
-    
+
     def input_cache_tuple(self, in_tuple):
         self.filename, self.urlname, self.md5sum, self.filestat.st_mtime,\
         self.filestat.st_size, self.bucket = in_tuple
