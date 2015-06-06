@@ -37,8 +37,8 @@ class TestSyncAppLocal(unittest.TestCase):
         finfo = FileInfoLocal(fn=TEST_FILE)
         output = '%s %s %s %d' % (finfo.filename, finfo.urlname, finfo.md5sum,
                                   finfo.filestat.st_size)
-#        output = output.replace(CURDIR, '')
-        print('finfo', output)
+        output = output.replace(CURDIR, '')
+#        print('finfo', output)
         m = hashlib.md5()
         if hasattr(output, 'encode'):
             output = output.encode()
