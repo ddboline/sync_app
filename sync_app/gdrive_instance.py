@@ -87,11 +87,7 @@ class GdriveInstance(object):
             print('something bad happened %s' % resp)
             return False
         with open('%s.new' % exportfile, 'wb') as outfile:
-            print(type(furl))
-            print(dir(furl))
-            print(furl)
-            for line in furl:
-                outfile.write(line)
+            outfile.write(furl)
         if md5sum:
             from sync_app.sync_utils import get_md5
             md_ = get_md5('%s.new' % exportfile)
