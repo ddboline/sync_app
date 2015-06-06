@@ -40,8 +40,8 @@ class TestSyncAppLocal(unittest.TestCase):
         output = output.replace(CURDIR, '')
 #        print('finfo', output)
         m = hashlib.md5()
-        if hasattr(output, 'decode'):
-            output = output.decode()
+        if hasattr(output, 'encode'):
+            output = output.encode()
         m.update(output)
         self.assertEqual(m.hexdigest(), '1bfc429c2f36ef5c541742be8aaf934b')
 
@@ -58,8 +58,8 @@ class TestSyncAppLocal(unittest.TestCase):
 #        print('file_list', '\n'.join(output))
         m = hashlib.md5()
         for out in sorted(output):
-            if hasattr(out, 'decode'):
-                out = out.decode()
+            if hasattr(out, 'encode'):
+                out = out.encode()
             m.update(out)
         self.assertEqual(m.hexdigest(), 'cd3bf7a0a388d94ef5626fb9d5ca1632')
 
@@ -82,8 +82,8 @@ class TestSyncAppLocal(unittest.TestCase):
 #        print('file_cache', '\n'.join(output))
         m = hashlib.md5()
         for out in sorted(output):
-            if hasattr(out, 'decode'):
-                out = out.decode()
+            if hasattr(out, 'encode'):
+                out = out.encode()
             m.update(out)
         self.assertEqual(m.hexdigest(), 'cd3bf7a0a388d94ef5626fb9d5ca1632')
 
