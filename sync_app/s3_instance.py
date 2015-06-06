@@ -13,8 +13,8 @@ import boto
 
 def read_keys():
     """ read aws credentials from file, then stick into global variables... """
-    with open('%s/.aws/credentials' % os.getenv('HOME'), 'r') as f:
-        for line in f:
+    with open('%s/.aws/credentials' % os.getenv('HOME'), 'r') as infile:
+        for line in infile:
             if 'aws_access_key_id' in line:
                 aws_access_key_id = line.split('=')[-1].strip()
             if 'aws_secret_access_key' in line:
