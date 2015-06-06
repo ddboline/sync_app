@@ -87,6 +87,8 @@ class GdriveInstance(object):
             print('something bad happened %s' % resp)
             return False
         with open('%s.new' % exportfile, 'wb') as outfile:
+            print(type(furl))
+            print(dir(furl))
             for line in furl:
                 outfile.write(line)
         if md5sum:
