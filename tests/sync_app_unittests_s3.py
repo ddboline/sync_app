@@ -30,7 +30,8 @@ class TestSyncAppS3(unittest.TestCase):
         self.s3 = S3Instance()
         self.flist_s3 = FileListS3(s3=self.s3)
 
-#    def test_s3_list_files(self):
+    def test_s3_list_files(self):
+        pass
 #        for bucket in self.s3.get_list_of_buckets():
 #            self.s3.get_list_of_keys(bucket_name=bucket,
 #                                     callback_fn=self.flist_s3.append_item)
