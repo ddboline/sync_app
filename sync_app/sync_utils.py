@@ -16,6 +16,7 @@ from sync_app.util import run_command, cleanup_path
 from sync_app.file_cache import FileListCache
 from sync_app.file_sync import FileSync
 
+import apiclient
 from apiclient.errors import UnknownFileType
 
 LOCAL_DISKS = ('/home/ddboline', '/media/sabrent2000', '/media/caviar2000',
