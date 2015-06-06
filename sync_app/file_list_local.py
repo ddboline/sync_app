@@ -10,8 +10,8 @@ from __future__ import unicode_literals
 
 import os
 
+from sync_app.util import walk_wrapper
 from sync_app.sync_utils import get_md5
-
 from sync_app.file_list import FileInfo, FileList
 
 class FileInfoLocal(FileInfo):
@@ -90,7 +90,9 @@ class FileListLocal(FileList):
         if type(directory) in (str, unicode):
             if os.path.isdir(directory):
                 os.path.walk(directory, parse_dir, None)
+                walk_wrapper(directory, parse_dir, None)
         if type(directory) == list:
             for d in directory:
                 if os.path.isdir(d):
                     os.path.walk(d, parse_dir, None)
+                    walk_wrapper(d, parse_dir, None)
