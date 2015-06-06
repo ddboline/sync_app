@@ -30,12 +30,12 @@ class TestSyncAppS3(unittest.TestCase):
         self.s3 = S3Instance()
         self.flist_s3 = FileListS3(s3=self.s3)
 
-    def test_s3_list_files(self):
-        for bucket in self.s3.get_list_of_buckets():
-            self.s3.get_list_of_keys(bucket_name=bucket,
-                                     callback_fn=self.flist_s3.append_item)
-        md_ = self.flist_s3['2015-01-01.txt'].md5sum
-        self.assertEqual(md_, '866c3c2d566d44b88e1e4a4fc1e7d65d')
+#    def test_s3_list_files(self):
+#        for bucket in self.s3.get_list_of_buckets():
+#            self.s3.get_list_of_keys(bucket_name=bucket,
+#                                     callback_fn=self.flist_s3.append_item)
+#        md_ = self.flist_s3['2015-01-01.txt'].md5sum
+#        self.assertEqual(md_, '866c3c2d566d44b88e1e4a4fc1e7d65d')
 
 #    def test_s3_upload_search_download_delete(self):
 #        bname = 'test_bucket_ddboline_20150521'
