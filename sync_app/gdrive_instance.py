@@ -89,6 +89,7 @@ class GdriveInstance(object):
         with open('%s.new' % exportfile, 'wb') as outfile:
             print(type(furl))
             print(dir(furl))
+            print(furl)
             for line in furl:
                 outfile.write(line)
         if md5sum:
