@@ -81,6 +81,7 @@ class GdriveInstance(object):
         dirname = os.path.dirname(exportfile)
         if not os.path.exists(dirname):
             os.makedirs(dirname)
+        print(dir(self.service))
         resp, furl = self.service._http.request(dlink)
         if resp['status'] != '200':
             print(dlink)
