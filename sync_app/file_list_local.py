@@ -87,12 +87,10 @@ class FileListLocal(FileList):
                         finfo = FileInfoLocal(fn=fullfn)
                         self.append(finfo)
 
-        if type(directory) in (str, unicode):
-            if os.path.isdir(directory):
-                os.path.walk(directory, parse_dir, None)
-                walk_wrapper(directory, parse_dir, None)
         if type(directory) == list:
             for d in directory:
                 if os.path.isdir(d):
-                    os.path.walk(d, parse_dir, None)
                     walk_wrapper(d, parse_dir, None)
+        else:
+            if os.path.isdir(directory):
+                walk_wrapper(directory, parse_dir, None)
