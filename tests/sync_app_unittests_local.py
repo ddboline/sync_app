@@ -37,7 +37,7 @@ class TestSyncAppLocal(unittest.TestCase):
         finfo = FileInfoLocal(fn=TEST_FILE)
         output = '%s %s %s %d' % (finfo.filename, finfo.urlname, finfo.md5sum,
                                   finfo.filestat.st_size)
-        output = output.replace(CURDIR, '')
+#        output = output.replace(CURDIR, '')
         print('finfo', output)
         m = hashlib.md5()
         if hasattr(output, 'encode'):
@@ -55,7 +55,7 @@ class TestSyncAppLocal(unittest.TestCase):
                                      fl.filestat.st_size)
             output.append(temp_.replace(CURDIR, ''))
         output = sorted(output)
-        print('file_list', '\n'.join(output))
+#        print('file_list', '\n'.join(output))
         m = hashlib.md5()
         for out in sorted(output):
             if hasattr(out, 'encode'):
@@ -79,7 +79,7 @@ class TestSyncAppLocal(unittest.TestCase):
                                      fl.filestat.st_size)
             output.append(temp_.replace(CURDIR, ''))
         output = sorted(output)
-        print('file_cache', '\n'.join(output))
+#        print('file_cache', '\n'.join(output))
         m = hashlib.md5()
         for out in sorted(output):
             if hasattr(out, 'encode'):
