@@ -35,8 +35,10 @@ def get_md5(fname):
     """ system md5 function """
 #    print('using md5', fname)
     try:
-        return run_command('md5sum "%s" 2> /dev/null' % cleanup_path(fname),
-                           do_popen=True).read().split()[0]
+        with run_command('md5sum "%s" 2> /dev/null' % cleanup_path(fname),
+                           do_popen=True) as pop_:
+            output = pop_.stdout.read().split()[0]
+        return output.decode()
     except IndexError:
         return get_md5_old(fname)
 
