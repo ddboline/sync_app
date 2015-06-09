@@ -1,6 +1,5 @@
 #!/bin/bash
 
-sudo apt-get update
 sudo /opt/conda/bin/conda install --yes boto dateutil pip pytz 
 
 sudo /opt/conda/bin/pip install --upgrade google-api-python-client
