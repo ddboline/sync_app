@@ -10,7 +10,7 @@ from __future__ import unicode_literals
 
 import os
 
-from sync_app.file_list import FileInfo, FileList
+from .file_list import FileInfo, FileList
 
 from dateutil.parser import parse
 

@@ -12,8 +12,8 @@ import os
 
 from dateutil.parser import parse
 
-from sync_app.file_list import FileInfo, FileList
-from sync_app.gdrive_instance import GdriveInstance
+from .file_list import FileInfo, FileList
+from .gdrive_instance import GdriveInstance
 
 BASE_DIR = '%s/gDrive' % os.getenv('HOME')
 

@@ -10,9 +10,9 @@ from __future__ import unicode_literals
 
 import os
 
-from sync_app.util import walk_wrapper
-from sync_app.sync_utils import get_md5
-from sync_app.file_list import FileInfo, FileList
+from .util import walk_wrapper
+from .sync_utils import get_md5
+from .file_list import FileInfo, FileList
 
 class FileInfoLocal(FileInfo):
     """ File Info Local """

@@ -12,11 +12,11 @@ import os
 import hashlib
 import argparse
 
-from sync_app.util import run_command, cleanup_path
-from sync_app.file_cache import FileListCache
-from sync_app.file_sync import FileSync
+from .util import run_command, cleanup_path
+from .file_cache import FileListCache
+from .file_sync import FileSync
 
-import apiclient
+#import apiclient
 from apiclient.errors import UnknownFileType
 
 LOCAL_DISKS = ('/home/ddboline', '/media/sabrent2000', '/media/caviar2000',
@@ -45,8 +45,8 @@ def get_md5(fname):
 
 def build_gdrive_index():
     """ build GDrive index """
-    from sync_app.gdrive_instance import GdriveInstance
-    from sync_app.file_list_gdrive import FileListGdrive
+    from .gdrive_instance import GdriveInstance
+    from .file_list_gdrive import FileListGdrive
 
     gdrive = GdriveInstance()
     flist = FileListGdrive(gdrive=gdrive)
@@ -57,8 +57,8 @@ def build_gdrive_index():
 
 def build_s3_index():
     """ build S3 index """
-    from sync_app.s3_instance import S3Instance
-    from sync_app.file_list_s3 import FileListS3
+    from .s3_instance import S3Instance
+    from .file_list_s3 import FileListS3
 
     s3 = S3Instance()
     flist = FileListS3(s3=s3)
@@ -69,7 +69,7 @@ def build_s3_index():
 
 def build_local_index(directories=None, rebuild_index=False):
     """ build local index """
-    from sync_app.file_list_local import FileListLocal
+    from .file_list_local import FileListLocal
 
     if not directories:
         return False
@@ -95,7 +95,7 @@ def sync_gdrive(dry_run=False, delete_file=None):
             if not dry_run and os.path.exists(df_):
                 os.remove(df_)
 
-    from sync_app.file_list_gdrive import BASE_DIR as BASE_DIR_GDRIVE
+    from .file_list_gdrive import BASE_DIR as BASE_DIR_GDRIVE
     print('build gdrive')
     flist_gdrive = build_gdrive_index()
     print('build local gdrive')
@@ -137,7 +137,7 @@ def sync_s3(dry_run=False, delete_file=None):
                 if not dry_run:
                     os.remove(df_)
 
-    from sync_app.file_list_s3 import BASE_DIR as BASE_DIR_S3
+    from .file_list_s3 import BASE_DIR as BASE_DIR_S3
     print('build s3')
     flist_s3 = build_s3_index()
     print('build local s3')

@@ -15,8 +15,8 @@ try:
 except ImportError:
     import pickle
 
-from sync_app.file_list import FileInfo, FileList
-from sync_app.util import run_command
+from .file_list import FileInfo, FileList
+from .util import run_command
 
 class FileListCache(object):
     """ class to manage caching objects """
