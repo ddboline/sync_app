@@ -113,7 +113,6 @@ def sync_gdrive(dry_run=False, delete_file=None):
 
     def download_file(finfo):
         """ callback to download from gdrive """
-#        print('filename', finfo)
         if 'https' in finfo.urlname:
             if delete_file and finfo.filename in delete_file:
                 print('delete %s' % finfo.filename)
