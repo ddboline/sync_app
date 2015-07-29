@@ -139,7 +139,10 @@ class FileList(object):
             return self.filelist.__getitem__(key)
 
     def __iter__(self):
-        return iter(self.filelist.values())
+        if hasattr(self.filelist, 'itervalues'):
+            return self.filelist.itervalues()
+        else:
+            return iter(self.filelist.values())
 
     def append(self, file_info_obj):
         for at in ['filename', 'urlname', 'md5sum', 'filestat']:

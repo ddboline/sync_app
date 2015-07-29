@@ -16,8 +16,11 @@ from .util import run_command, cleanup_path
 from .file_cache import FileListCache
 from .file_sync import FileSync
 
-#import apiclient
-from apiclient.errors import UnknownFileType
+try:
+    from apiclient.errors import UnknownFileType
+except:
+    class UknownFileType(Exception):
+        pass
 
 LOCAL_DISKS = ('/home/ddboline', '/media/sabrent2000', '/media/caviar2000',
                '/media/western2000')
