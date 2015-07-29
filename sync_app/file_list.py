@@ -132,14 +132,14 @@ class FileList(object):
     def __getitem__(self, key):
         """ try to simplify calling a bit... """
         if key in self.filelist_md5_dict:
-            return self.filelist_md5_dict[key]
+            return self.filelist_md5_dict.__getitem__(key)
         elif key in self.filelist_name_dict:
-            return self.filelist_name_dict[key]
+            return self.filelist_name_dict.__getitem__(key)
         else:
             return self.filelist.__getitem__(key)
 
     def __iter__(self):
-        return self.filelist.values().__iter__()
+        return iter(self.filelist.values())
 
     def append(self, file_info_obj):
         for at in ['filename', 'urlname', 'md5sum', 'filestat']:
