@@ -13,7 +13,7 @@ import boto
 
 def read_keys():
     """ read aws credentials from file, then stick into global variables... """
-    with open('%s/.aws/credentials' % os.getenv('HOME'), 'r') as infile:
+    with open('%s/.aws/credentials' % os.getenv('HOME'), 'rt') as infile:
         for line in infile:
             if 'aws_access_key_id' in line:
                 aws_access_key_id = line.split('=')[-1].strip()
@@ -49,7 +49,7 @@ class S3Instance(object):
     def upload(self, bucket_name, key_name, fname):
         bucket = self.s3.get_bucket(bucket_name)
         key = boto.s3.key.Key(bucket)
-        with open(fname, 'r') as infile:
+        with open(fname, 'rb') as infile:
             key.key = key_name
             return key.set_contents_from_file(infile)
 

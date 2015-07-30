@@ -11,36 +11,8 @@ from __future__ import unicode_literals
 import os
 
 from .util import walk_wrapper
-from .sync_utils import get_md5
-from .file_list import FileInfo, FileList
-
-class FileInfoLocal(FileInfo):
-    """ File Info Local """
-
-    def __init__(self, fn='', md5='', fs=None, in_tuple=None):
-        """ Init function """
-        absfn = os.path.abspath(fn)
-        if not os.path.exists(absfn):
-            print('ERROR')
-            return False
-        _url = 'file://%s' % absfn
-        FileInfo.__init__(self, fn=absfn, url=_url, md5=md5, fs=fs,
-                          in_tuple=in_tuple)
-
-    def get_md5(self):
-        """ Wrapper around sync_utils.get_md5 """
-        if os.path.exists(self.filename):
-            return get_md5(self.filename)
-        else:
-            return FileInfo.get_md5(self)
-
-    def get_stat(self):
-        """ Wrapper around os.stat """
-        if os.path.exists(self.filename):
-            return os.stat(self.filename)
-        else:
-            return FileInfo.get_stat(self)
-
+from .file_list import FileList
+from .file_info_local import FileInfoLocal
 
 class FileListLocal(FileList):
     """ File Info Local"""

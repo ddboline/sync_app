@@ -30,7 +30,7 @@ LOCAL_DIRECTORIES = ('Documents/AudioBooks', 'Documents/mp3',
 def get_md5_old(fname):
     """ python only md5 function """
     m = hashlib.md5()
-    with open(fname, 'r') as infile:
+    with open(fname, 'rb') as infile:
         for line in infile:
             m.update(line)
     return m.hexdigest()

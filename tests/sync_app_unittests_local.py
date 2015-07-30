@@ -17,7 +17,8 @@ os.sys.path.append(CURDIR)
 
 #from sync_app.sync_utils import get_md5
 from sync_app.file_cache import FileListCache
-from sync_app.file_list_local import FileInfoLocal, FileListLocal
+from sync_app.file_info_local import FileInfoLocal
+from sync_app.file_list_local import FileListLocal
 
 TEST_FILE = 'tests/test_dir/hello_world.txt'
 TEST_DIR = 'tests/test_dir'
