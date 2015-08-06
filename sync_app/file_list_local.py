@@ -30,7 +30,6 @@ class FileListLocal(FileList):
         def parse_dir(arg, path, filelist):
             """ Parse directory, fill FileInfo object """
             for fn in filelist:
-#                print(fn)
                 finfo = None
                 fullfn = os.path.abspath('%s/%s' % (path, fn))
                 fullfn = fullfn.replace('//', '/')
