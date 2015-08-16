@@ -35,9 +35,13 @@ class FileListCache(object):
             check that we have a dict-like object
             which can be set to FileInfo object
         """
-        dict_['DUMMYKEY'] = FileInfo()
-        dict_.pop('DUMMYKEY')
-        self.__cache_file_list_dict = dict_
+        try:
+            dict_['DUMMYKEY'] = FileInfo()
+            dict_.pop('DUMMYKEY')
+        except TypeError:
+            raise TypeError('incompatible type')
+        else:
+            self.__cache_file_list_dict = dict_
 
     def read_pickle_object_in_file(self):
         """ read python object from gzipped pickle file """
