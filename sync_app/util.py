@@ -40,10 +40,11 @@ def run_command(command, do_popen=False, turn_on_commands=True,
         print(command)
         return command
     elif do_popen:
-        return PopenWrapperClass(command)
-    elif single_line:
-        with PopenWrapperClass(command) as pop_:
-            return pop_.stdout.read()
+        if single_line:
+            with PopenWrapperClass(command) as pop_:
+                return pop_.stdout.read()
+        else:
+            return PopenWrapperClass(command)
     else:
         return call(command, shell=True)
 
@@ -61,3 +62,14 @@ def walk_wrapper(direc, callback, arg):
     elif hasattr(os, 'walk'):
         for dirpath, dirnames, filenames in os.walk(direc):
             callback(arg, dirpath, dirnames + filenames)
+
+def test_run_command():
+    cmd = 'echo "HELLO"'
+    out = run_command(cmd, do_popen=True, single_line=True).strip()
+    assert out == b'HELLO'
+
+def test_cleanup_path():
+    INSTR = '/home/ddboline/THIS TEST PATH (OR SOMETHING LIKE IT) [OR OTHER!] & ELSE $;,""'
+    OUTSTR = r'/home/ddboline/THIS\ TEST\ PATH\ \(OR\ SOMETHING\ LIKE\ IT\)\ \[OR\ OTHER\!\]\ \&\ ELSE\ \$\;\,\"\"'
+    assert cleanup_path(INSTR) == OUTSTR
+
