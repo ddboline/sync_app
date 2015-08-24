@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 ### hack...
 export LANG="C.UTF-8"
 
