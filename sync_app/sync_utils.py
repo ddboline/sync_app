@@ -37,7 +37,6 @@ def get_md5_old(fname):
 
 def get_md5(fname):
     """ system md5 function """
-#    print('using md5', fname)
     try:
         with run_command('md5sum "%s" 2> /dev/null' % cleanup_path(fname),
                            do_popen=True) as pop_:
