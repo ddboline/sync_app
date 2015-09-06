@@ -88,6 +88,13 @@ class TestSyncAppLocal(unittest.TestCase):
             m.update(out)
         self.assertEqual(m.hexdigest(), 'cd3bf7a0a388d94ef5626fb9d5ca1632')
 
+        flist = FileListLocal(cache_file_list=flist)
+        flist.fill_file_list_local(directory=TEST_DIR)
+        m = hashlib.md5()
+        m.update(('%s' % sorted((_ for _ in flist),
+                                key=lambda x: x.filename)).encode())
+        self.assertEqual(m.hexdigest(), '87d4d892c3f169145414ec0c4c5d3ebb')
+
 #    def test_global_file_cache(self):
 #        flist = []
 #        with gzip.open('/home/ddboline/.local_file_list_cache.pkl.gz', 'rb') as pklfile:

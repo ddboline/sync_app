@@ -67,9 +67,9 @@ class FileList(object):
             return iter(self.filelist.values())
 
     def append(self, file_info_obj):
-        for at in ['filename', 'urlname', 'md5sum', 'filestat']:
-            if not hasattr(file_info_obj, at):
-                raise ValueError('this object won\'t work')
+        if not all(hasattr(file_info_obj, at) for at in ('filename', 'urlname',
+                   'md5sum', 'filestat')):
+            raise ValueError('this object won\'t work')
         ffn_ = file_info_obj.filename
         if ffn_ in self.filelist:
             self.filelist[ffn_] = file_info_obj
@@ -83,3 +83,17 @@ class FileList(object):
     def fill_dicts(self):
         for f in self.filelist:
             self.append(f)
+
+def test_file_list():
+    from nose.tools import raises
+    tmp = FileList()
+
+    @raises(AttributeError)
+    def test_tmp():
+        tmp.filelist = 1
+    test_tmp()
+
+    @raises(ValueError)
+    def test_tmp1():
+        tmp.append(1)
+    test_tmp1()

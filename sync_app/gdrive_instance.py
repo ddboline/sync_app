@@ -144,3 +144,18 @@ class GdriveInstance(object):
             response = request.execute()
             parents_output.extend(response['parents'])
         return parents_output
+
+def test_gdrivce_instance():
+    from nose.tools import raises
+    tmp = GdriveInstance()
+    assert tmp.process_response(None) == 0
+    class mock_request(object):
+        def execute(self):
+            pass
+    assert tmp.process_request(mock_request()) is None
+    assert tmp.get_parents() is None
+
+    @raises(HttpError)
+    def test_tmp():
+        tmp.get_parents(fids=range(10))
+    test_tmp()

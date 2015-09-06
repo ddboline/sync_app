@@ -74,11 +74,12 @@ class FileListCache(object):
         return file_list_obj
 
     def add_filelist_to_cache(self, file_list=None):
-        if not file_list:
+        if file_list is None:
             return False
         for fileinfo in file_list:
             fn = fileinfo.filename
             self.cache_file_list_dict[fn] = fileinfo
+        return True
 
     def write_cache_file_list(self, file_list=None):
         if file_list:
@@ -87,3 +88,27 @@ class FileListCache(object):
         for finfo in self.cache_file_list_dict.values():
             cache_list.append(finfo.output_cache_tuple())
         return self.write_pickle_object_to_file(tuple(cache_list))
+
+
+def test_file_list_cache():
+    from nose.tools import raises
+
+    tmp = FileListCache()
+
+    @raises(TypeError)
+    def test_tmp():
+        tmp.cache_file_list_dict = 0
+
+    test_tmp()
+
+
+def test_add_filelist_to_cache():
+    from nose.tools import raises
+
+    tmp = FileListCache()
+    assert tmp.add_filelist_to_cache() == False
+
+    @raises(TypeError)
+    def test_tmp():
+        tmp.add_filelist_to_cache(file_list=1)
+    test_tmp()

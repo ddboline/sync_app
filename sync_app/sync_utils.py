@@ -45,6 +45,13 @@ def get_md5(fname):
     except IndexError:
         return get_md5_old(fname)
 
+def test_get_md5():
+    tmp = get_md5_old('tests/test_dir/hello_world.txt')
+    test = '8ddd8be4b179a529afa5f2ffae4b9858'
+    assert tmp == test
+    tmp = get_md5('tests/test_dir/hello_world.txt')
+    assert tmp == test
+
 def build_gdrive_index():
     """ build GDrive index """
     from .gdrive_instance import GdriveInstance

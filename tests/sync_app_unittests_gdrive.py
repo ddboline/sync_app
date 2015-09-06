@@ -54,11 +54,12 @@ class TestSyncAppGdrive(unittest.TestCase):
         sstr = os.path.basename(TEST_FILE)
         self.gdrive.list_files(flist_gdrive.append_item, searchstr=sstr)
         self.gdrive.get_folders(flist_gdrive.append_dir)
-#        print(flist_gdrive.filelist_id_dict[fid])
-        flist_gdrive.filelist_id_dict[fid].download()
+        finf_ = flist_gdrive.filelist_id_dict[fid]
+        finf_.download()
         fname = '%s/gDrive/%s' % (HOMEDIR, TEST_FILE)
 
-        self.gdrive.delete_file(fid)
+        self.assertEqual(fid, finf_.gdriveid)
+        finf_.delete()
         flist_gdrive.delete_directory(os.path.dirname(TEST_FILE))
         self.assertEqual(flist_gdrive.filelist_id_dict[fid].exportpath,
                          '%s/gDrive/%s' % (HOMEDIR, TEST_DIR))
@@ -104,7 +105,6 @@ class TestSyncAppGdrive(unittest.TestCase):
         self.gdrive.delete_file(fid)
         self.assertEqual('test_directory',
                          flist_gdrive.filelist_id_dict[fid].filename)
-
 
 if __name__ == '__main__':
     unittest.main()

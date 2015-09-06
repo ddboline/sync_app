@@ -86,3 +86,23 @@ class FileInfo(object):
     def input_cache_tuple(self, in_tuple):
         self.filename, self.urlname, self.md5sum, self.filestat.st_mtime,\
         self.filestat.st_size = in_tuple
+
+def test_stat_tuple():
+    test_dict = {'st_mtime': 1234567, 'st_size': 7654321}
+    tmp = '%s' % StatTuple(**test_dict)
+    test = '<StatTuple(size=7654321, mtime=1234567)>'
+    assert tmp == test
+
+def test_file_info():
+    import os
+    test_dict = {'st_mtime': 1234567, 'st_size': 7654321}
+    fs_ = StatTuple(**test_dict)
+    fn_ = 'tests/test_dir/hello_world.txt'
+    tmp = '%s' % FileInfo(fn=fn_, url='file://%s' % os.path.abspath(fn_),
+                          md5='8ddd8be4b179a529afa5f2ffae4b9858', fs=fs_)
+    test = '<FileInfo(fn=tests/test_dir/hello_world.txt, ' + \
+           'url=file:///home/ddboline/setup_files/build/sync_app/' + \
+           'tests/test_dir/hello_world.txt, ' + \
+           'md5=8ddd8be4b179a529afa5f2ffae4b9858, size=7654321, ' + \
+           'st_mtime=1234567)>'
+    assert tmp == test

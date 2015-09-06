@@ -113,3 +113,22 @@ class FileInfoGdrive(FileInfo):
             fext = item['fileExtension']
         if fext not in self.filename.lower():
             self.filename += '.%s' % fext
+
+def test_file_info_gdrive():
+    tmp = FileInfoGdrive(gid='0BxGM0lfCdptnNzJsblNEa1ZzUU0',
+                         md5='b9c44ab2be80575b6dde114e17156189',
+                         fn='/home/ddboline/gDrive/image_backup/' +
+                            'chromebook_home_backup_Linux_ip-172-31-14-57' +
+                            '_3_13_0-61-generic_x86_64_x86_64_x86_64_GNU_' +
+                            'Linux_20150818.tar.gz')
+    test = '<FileInfoGdrive(fn=/home/ddboline/gDrive/image_backup/' + \
+           'chromebook_home_backup_Linux_ip-172-31-14-57_3_13_0-61' + \
+           '-generic_x86_64_x86_64_x86_64_GNU_Linux_20150818.tar.gz, ' + \
+           'url=, path=, md5=b9c44ab2be80575b6dde114e17156189, size=0, ' + \
+           'st_mime=0, id=0BxGM0lfCdptnNzJsblNEa1ZzUU0, pid=, isroot=False)>'
+    assert '%s' % tmp == test
+
+    test_tuple = tmp.output_cache_tuple()
+    tmp = FileInfoGdrive(in_tuple=test_tuple)
+
+    assert '%s' % tmp == test

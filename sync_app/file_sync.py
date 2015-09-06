@@ -15,15 +15,13 @@ class FileSync(object):
     """ Sync Directories """
     def __init__(self, flists=None):
         """ Init function """
-        if not flists:
-            return None
         self.flists = []
-        for flist in flists:
-            if not hasattr(flist, 'filelist') or\
-               not hasattr(flist, 'filelist_md5_dict') or\
-               not hasattr(flist, 'filelist_name_dict'):
-                continue
-            self.flists.append(flist)
+        if flists:
+            for flist in flists:
+                if not all(hasattr(flist, x) for x in ('filelist',
+                           'filelist_md5_dict', 'filelist_name_dict')):
+                    continue
+                self.flists.append(flist)
 
     def compare_lists(self, callback0=None, callback1=None):
         """ Compare file lists """
@@ -66,3 +64,8 @@ class FileSync(object):
                 if type(finf_) == list:
                     finf_ = finfo[0]
                 callback1(finf_)
+
+def test_file_sync():
+    tmp = FileSync(flists=range(20))
+    print(tmp)
+    assert True
