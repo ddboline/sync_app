@@ -35,7 +35,7 @@ class TestSyncAppS3(unittest.TestCase):
         """ test listing of files in bucket """
         for bucket in self.s3_.get_list_of_buckets():
             self.s3_.get_list_of_keys(bucket_name=bucket,
-                                     callback_fn=self.flist_s3.append_item)
+                                      callback_fn=self.flist_s3.append_item)
         finf_ = self.flist_s3['2015-01-01.txt']
         md_ = finf_.md5sum
         self.assertEqual(md_, '866c3c2d566d44b88e1e4a4fc1e7d65d')

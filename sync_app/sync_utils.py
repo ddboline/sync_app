@@ -18,8 +18,9 @@ from .file_sync import FileSync
 
 try:
     from apiclient.errors import UnknownFileType
-except:
+except ImportError:
     class UknownFileType(Exception):
+        """ dummy exception """
         pass
 
 LOCAL_DISKS = ('/home/ddboline', '/media/sabrent2000', '/media/caviar2000',
@@ -29,11 +30,11 @@ LOCAL_DIRECTORIES = ('Documents/AudioBooks', 'Documents/mp3',
 
 def get_md5_old(fname):
     """ python only md5 function """
-    m = hashlib.md5()
+    md_ = hashlib.md5()
     with open(fname, 'rb') as infile:
         for line in infile:
-            m.update(line)
-    return m.hexdigest()
+            md_.update(line)
+    return md_.hexdigest()
 
 def get_md5(fname):
     """ system md5 function """
@@ -46,6 +47,7 @@ def get_md5(fname):
         return get_md5_old(fname)
 
 def test_get_md5():
+    """ test get_md5 """
     tmp = get_md5_old('tests/test_dir/hello_world.txt')
     test = '8ddd8be4b179a529afa5f2ffae4b9858'
     assert tmp == test
@@ -69,8 +71,8 @@ def build_s3_index():
     from .s3_instance import S3Instance
     from .file_list_s3 import FileListS3
 
-    s3 = S3Instance()
-    flist = FileListS3(s3=s3)
+    s3_ = S3Instance()
+    flist = FileListS3(s3=s3_)
     #### always rebuild index
     print('download file metadata')
     flist.fill_file_list_s3()
@@ -108,7 +110,8 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
     print('build gdrive')
     flist_gdrive = build_gdrive_index()
     print('build local gdrive')
-    flist_local = build_local_index(directories=[BASE_DIR_GDRIVE], rebuild_index=rebuild_index)
+    flist_local = build_local_index(directories=[BASE_DIR_GDRIVE],
+                                    rebuild_index=rebuild_index)
     fsync = FileSync(flists=[flist_gdrive, flist_local])
 
     def upload_file(finfo):
@@ -149,7 +152,8 @@ def sync_s3(dry_run=False, delete_file=None, rebuild_index=False):
     print('build s3')
     flist_s3 = build_s3_index()
     print('build local s3')
-    flist_local = build_local_index(directories=[BASE_DIR_S3], rebuild_index=rebuild_index)
+    flist_local = build_local_index(directories=[BASE_DIR_S3],
+                                    rebuild_index=rebuild_index)
     fsync = FileSync(flists=[flist_s3, flist_local])
 
     def upload_file(finfo):
@@ -160,7 +164,7 @@ def sync_s3(dry_run=False, delete_file=None, rebuild_index=False):
         kn_ = _tmp.replace(bn_ + '/', '')
         print(bn_, kn_, fn_)
         if not dry_run:
-            flist_s3.s3.upload(bn_, kn_, fn_)
+            flist_s3.s3_.upload(bn_, kn_, fn_)
 
     def download_file(finfo):
         """ callback to download from S3 """
@@ -170,11 +174,11 @@ def sync_s3(dry_run=False, delete_file=None, rebuild_index=False):
         if delete_file and finfo.filename in delete_file:
             print('delete', bn_, kn_, fn_)
             if not dry_run:
-                return flist_s3.s3.delete_key(bn_, kn_)
+                return flist_s3.s3_.delete_key(bn_, kn_)
         else:
             print('download', bn_, kn_, fn_)
             if not dry_run:
-                flist_s3.s3.download(bn_, kn_, fn_)
+                flist_s3.s3_.download(bn_, kn_, fn_)
 
     fsync.compare_lists(callback0=download_file, callback1=upload_file)
 
@@ -188,18 +192,24 @@ def sync_local(dry_run=False, delete_file=None, rebuild_index=False):
                     os.remove(df_)
 
     def sync_local_directories(ldirectories, ldisks):
+        """ sync two local directories """
         for directory in ldirectories:
             flists_local = []
             for disk in ldisks:
                 ldir = '/'.join([disk, directory])
                 print('build local %s' % ldir)
-                flists_local.append(build_local_index(directories=[ldir]), rebuild_index=rebuild_index)
+                flists_local.append(build_local_index(directories=[ldir]),
+                                    rebuild_index=rebuild_index)
 
             def copy_file0(finfo):
-                print(finfo.filename, disk, directory)
+                """ callback """
+                for disk in ldisks:
+                    print(finfo.filename, disk, directory)
 
             def copy_file1(finfo):
-                print(finfo.filename, disk, directory)
+                """ callback """
+                for disk in ldisks:
+                    print(finfo.filename, disk, directory)
 
             fsync = FileSync(flists=[flists_local])
             fsync.compare_lists(callback0=copy_file0, callback1=copy_file1)
@@ -211,13 +221,14 @@ def sync_local(dry_run=False, delete_file=None, rebuild_index=False):
                             '/media/western2000'))
 
 def sync_arg_parse():
+    """ parse args """
     commands = ('all', 'gdrive', 's3', 'local', 'dry_run', 'delete')
     help_text = 'usage: ./sync.py <%s> [rebuild]' % '|'.join(commands)
     parser = argparse.ArgumentParser(description='garmin app')
     parser.add_argument('command', nargs='*', help=help_text)
     args = parser.parse_args()
 
-    do_local, do_gdrive, do_s3, do_dry_run, do_rebuild = False, False, False, False, False
+    do_local, do_gdrive, do_s3, do_dry_run, do_rebuild = 5*[False]
     delete_f = []
 
     for arg in getattr(args, 'command'):
@@ -241,10 +252,13 @@ def sync_arg_parse():
                 delete_f.append(temp_)
 
     if do_s3:
-        sync_s3(dry_run=do_dry_run, delete_file=delete_f, rebuild_index=do_rebuild)
+        sync_s3(dry_run=do_dry_run, delete_file=delete_f,
+                rebuild_index=do_rebuild)
     if do_gdrive:
-        sync_gdrive(dry_run=do_dry_run, delete_file=delete_f, rebuild_index=do_rebuild)
+        sync_gdrive(dry_run=do_dry_run, delete_file=delete_f,
+                    rebuild_index=do_rebuild)
     if do_local:
-        sync_local(dry_run=do_dry_run, delete_file=delete_f, rebuild_index=do_rebuild)
+        sync_local(dry_run=do_dry_run, delete_file=delete_f,
+                   rebuild_index=do_rebuild)
 
     return

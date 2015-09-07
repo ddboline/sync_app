@@ -26,43 +26,48 @@ AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY = read_keys()
 class S3Instance(object):
     """ S3Instance class to interact with S3 via Boto """
     def __init__(self):
-        self.s3 = boto.connect_s3(aws_access_key_id=AWS_ACCESS_KEY_ID,
+        self.s3_ = boto.connect_s3(aws_access_key_id=AWS_ACCESS_KEY_ID,
                                   aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 
     def get_list_of_buckets(self):
         """ get list of buckets """
         _temp = []
-        for bucket in self.s3.get_all_buckets():
+        for bucket in self.s3_.get_all_buckets():
             _temp.append(bucket.name)
         return _temp
 
     def delete_bucket(self, bucket_name=None):
+        """ delete s3 bucket """
         if bucket_name:
-            for bucket in self.s3.get_all_buckets():
+            for bucket in self.s3_.get_all_buckets():
                 if bucket.name == bucket_name:
                     bucket.delete()
                     return
 
     def create_bucket(self, bucket_name=None):
-        return self.s3.create_bucket(bucket_name=bucket_name)
+        """ create s3 bucket """
+        return self.s3_.create_bucket(bucket_name=bucket_name)
 
     def upload(self, bucket_name, key_name, fname):
-        bucket = self.s3.get_bucket(bucket_name)
+        """ upload to s3 bucket """
+        bucket = self.s3_.get_bucket(bucket_name)
         key = boto.s3.key.Key(bucket)
         with open(fname, 'rb') as infile:
             key.key = key_name
             return key.set_contents_from_file(infile)
 
     def download(self, bucket_name, key_name, fname):
+        """ download from s3 bucket """
         dname = os.path.dirname(fname)
         if not os.path.exists(dname):
             os.makedirs(dname)
-        bucket = self.s3.get_bucket(bucket_name)
+        bucket = self.s3_.get_bucket(bucket_name)
         key = bucket.get_key(key_name)
         return key.get_contents_to_filename(fname)
 
     def delete_key(self, bucket_name, key_name):
-        bucket = self.s3.get_bucket(bucket_name)
+        """ delete key from s3 bucket """
+        bucket = self.s3_.get_bucket(bucket_name)
         key = bucket.get_key(key_name)
         return key.delete()
 
@@ -72,9 +77,9 @@ class S3Instance(object):
         if not callback_fn:
             callback_fn = lambda x: print(x.key)
         if bucket_name:
-            buckets = [self.s3.get_bucket(bucket_name)]
+            buckets = [self.s3_.get_bucket(bucket_name)]
         else:
-            buckets = self.s3.get_all_buckets()
+            buckets = self.s3_.get_all_buckets()
         for bucket in buckets:
             for key in bucket.list():
                 callback_fn(key)

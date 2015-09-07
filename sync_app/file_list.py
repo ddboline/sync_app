@@ -19,28 +19,36 @@ FILE_LIST_TYPES = ('local', 'remote', 'gdrive', 's3')
 class FileList(object):
     """ file list class """
     def __init__(self, filelist=None, filelist_type=None, basedir=None):
-        self.filelist = filelist if filelist else {}
+        self.__filelist = {}
+        self.filelist = self.__filelist
+        if filelist:
+            self.filelist = filelist
         self.filelist_name_dict = defaultdict(list)
         self.filelist_md5_dict = defaultdict(list)
-        self.filelist_type = filelist_type if filelist_type else 'local'
+        self.__filelist_type = 'local'
+        self.filelist_type = self.__filelist_type
+        if filelist_type:
+            self.filelist_type = filelist_type
         self.basedir = basedir if basedir else os.getenv('HOME')
         self.baseurl = 'local://'
         self.fill_dicts()
 
     @property
     def filelist(self):
+        """ filelist getter """
         return self.__filelist
 
     @filelist.setter
     def filelist(self, val):
         """ make a copy of list, element by element """
         self.__filelist = {}
-        for k, v in val.items():
-            if k not in self.__filelist:
-                self.__filelist[k] = v
+        for k__, v__ in val.items():
+            if k__ not in self.__filelist:
+                self.__filelist[k__] = v__
 
     @property
     def filelist_type(self):
+        """ filelist_type getter """
         return self.__filelist_type
 
     @filelist_type.setter
@@ -67,6 +75,7 @@ class FileList(object):
             return iter(self.filelist.values())
 
     def append(self, file_info_obj):
+        """ append to list, fill dicts """
         if not all(hasattr(file_info_obj, at) for at in ('filename', 'urlname',
                    'md5sum', 'filestat')):
             raise ValueError('this object won\'t work')
@@ -81,19 +90,23 @@ class FileList(object):
         self.filelist_md5_dict[md5].append(file_info_obj)
 
     def fill_dicts(self):
-        for f in self.filelist:
-            self.append(f)
+        """ fill dicts """
+        for f__ in self.filelist:
+            self.append(f__)
 
 def test_file_list():
+    """ test FileList """
     from nose.tools import raises
     tmp = FileList()
 
     @raises(AttributeError)
     def test_tmp():
+        """ ... """
         tmp.filelist = 1
     test_tmp()
 
     @raises(ValueError)
     def test_tmp1():
+        """ ... """
         tmp.append(1)
     test_tmp1()

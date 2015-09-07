@@ -26,7 +26,8 @@ class PopenWrapperClass(object):
     def __exit__(self, exc_type, exc_value, traceback):
         """ exit """
         if hasattr(self.pop_, '__exit__'):
-            return self.pop_.__exit__(exc_type, exc_value, traceback)
+            return getattr(self.pop_, '__exit__')(exc_type, exc_value,
+                                                  traceback)
         self.pop_.wait()
         if exc_type or exc_value or traceback:
             return False
@@ -64,11 +65,15 @@ def walk_wrapper(direc, callback, arg):
             callback(arg, dirpath, dirnames + filenames)
 
 def test_run_command():
+    """ test run_command """
     cmd = 'echo "HELLO"'
     out = run_command(cmd, do_popen=True, single_line=True).strip()
     assert out == b'HELLO'
 
 def test_cleanup_path():
-    INSTR = '/home/ddboline/THIS TEST PATH (OR SOMETHING LIKE IT) [OR OTHER!] & ELSE $;,""'
-    OUTSTR = r'/home/ddboline/THIS\ TEST\ PATH\ \(OR\ SOMETHING\ LIKE\ IT\)\ \[OR\ OTHER\!\]\ \&\ ELSE\ \$\;\,\"\"'
-    assert cleanup_path(INSTR) == OUTSTR
+    """ test cleanup_path """
+    instr = '/home/ddboline/THIS TEST PATH (OR SOMETHING LIKE IT) ' + \
+            '[OR OTHER!] & ELSE $;,""'
+    outstr = r'/home/ddboline/THIS\ TEST\ PATH\ \(OR\ SOMETHING\ LIKE\ ' + \
+             r'IT\)\ \[OR\ OTHER\!\]\ \&\ ELSE\ \$\;\,\"\"'
+    assert cleanup_path(instr) == outstr

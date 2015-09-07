@@ -27,28 +27,28 @@ class FileListLocal(FileList):
 
     def fill_file_list_local(self, directory):
         """ Fill local file list """
-        def parse_dir(arg, path, filelist):
+        def parse_dir(_, path, filelist):
             """ Parse directory, fill FileInfo object """
-            for fn in filelist:
+            for fn_ in filelist:
                 finfo = None
-                fullfn = os.path.abspath('%s/%s' % (path, fn))
+                fullfn = os.path.abspath('%s/%s' % (path, fn_))
                 fullfn = fullfn.replace('//', '/')
                 if os.path.isfile(fullfn):
-                    fs = os.stat(fullfn)
+                    fs_ = os.stat(fullfn)
 
                     if self.cache_file_list and \
-                            fn in self.cache_file_list.filelist_name_dict:
+                            fn_ in self.cache_file_list.filelist_name_dict:
                         flist_ = self.cache_file_list.filelist_name_dict
-                        for finf_ in flist_[fn]:
+                        for finf_ in flist_[fn_]:
                             if finf_.filename == fullfn:
                                 self.append(finf_)
 
-                    if fn in self.filelist_name_dict:
-                        for ffn in self.filelist_name_dict[fn]:
+                    if fn_ in self.filelist_name_dict:
+                        for ffn in self.filelist_name_dict[fn_]:
                             if finfo:
                                 continue
                             if fullfn == ffn.filename:
-                                mt0 = int(fs.st_mtime)
+                                mt0 = int(fs_.st_mtime)
                                 mt1 = int(ffn.filestat.st_mtime)
                                 if mt0 > mt1:
                                     finfo = FileInfoLocal(fn=fullfn)
@@ -59,9 +59,9 @@ class FileListLocal(FileList):
                         self.append(finfo)
 
         if type(directory) == list:
-            for d in directory:
-                if os.path.isdir(d):
-                    walk_wrapper(d, parse_dir, None)
+            for d__ in directory:
+                if os.path.isdir(d__):
+                    walk_wrapper(d__, parse_dir, None)
         else:
             if os.path.isdir(directory):
                 walk_wrapper(directory, parse_dir, None)

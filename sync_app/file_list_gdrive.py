@@ -32,7 +32,7 @@ class FileListGdrive(FileList):
                       self.directory_name_dict):
             if key in dict_:
                 return dict_[key]
-        return self.FileList.__getitem__(self, key)
+        return FileList.__getitem__(self, key)
 
     def append(self, finfo):
         """ overload FileList.append """
@@ -104,7 +104,7 @@ class FileListGdrive(FileList):
         """ determine export paths for finfo objects in file list"""
         for finfo in self.filelist.values():
             finfo.exportpath = self.get_export_path(finfo)
-        for id_, finfo in self.directory_id_dict.items():
+        for _, finfo in self.directory_id_dict.items():
             finfo.exportpath = self.get_export_path(finfo, is_dir=True)
 
     def fill_file_list_gdrive(self, number_to_process=-1):
@@ -119,6 +119,7 @@ class FileListGdrive(FileList):
         print('update paths')
 
     def create_directory(self, dname):
+        """ create directory on gdrive """
         pid_ = None
         dn_list = dname.replace(BASE_DIR + '/', '').split('/')
 
@@ -136,6 +137,7 @@ class FileListGdrive(FileList):
         return pid_
 
     def delete_directory(self, dname):
+        """ delete directory on gdrive """
         pid_list = []
         dn_list = dname.replace(BASE_DIR + '/', '').split('/')
 

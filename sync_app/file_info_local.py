@@ -45,9 +45,11 @@ class FileInfoLocal(FileInfo):
             return self.filestat
 
 def test_file_info_local():
+    """ Test FileInfoLocal """
     from nose.tools import raises
     @raises(TypeError)
     def test_tmp():
+        """ ... """
         FileInfoLocal(fn='apsodfij')
     test_tmp()
 

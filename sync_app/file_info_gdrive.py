@@ -30,24 +30,26 @@ class FileInfoGdrive(FileInfo):
     __slots__ = FileInfo.__slots__ + list(FILE_INFO_SLOTS)
 
     def __init__(self, gid='', fn='', md5='', gdrive=None, item=None,
-                 in_tuple=None):
-        """ Init Function """
-        for attr in FILE_INFO_SLOTS:
-            setattr(self, attr, '')
+                 in_tuple=None, mime='', pid=None):
         FileInfo.__init__(self, fn=fn, md5=md5)
         self.gdriveid = gid
         self.isroot = False
         self.exporturls = {}
         self.gdrive = gdrive
+        self.mimetype = mime
+        self.parentid = pid
+        self.exportpath = ''
         if item:
             self.fill_item(item)
         if in_tuple:
             self.input_cache_tuple(in_tuple)
 
     def delete(self):
+        """ wrapper around GDriveInstance.delete_file """
         return self.gdrive.delete_file(self.gdriveid)
 
     def download(self):
+        """ wrapper around GDriveInstance.download """
         if BASE_DIR in self.filename:
             return self.gdrive.download(self.urlname, self.filename,
                                         md5sum=self.md5sum)
@@ -80,6 +82,7 @@ class FileInfoGdrive(FileInfo):
         self.exporturls, self.exportpath, self.isroot, self.gdrive = in_tuple
 
     def fill_item(self, item):
+        """ fill FileInfoGdrive from item """
         fext = ''
         self.gdriveid = item['id']
         self.filename = item['title']
@@ -115,6 +118,7 @@ class FileInfoGdrive(FileInfo):
             self.filename += '.%s' % fext
 
 def test_file_info_gdrive():
+    """ Test FileInfoGdrive """
     tmp = FileInfoGdrive(gid='0BxGM0lfCdptnNzJsblNEa1ZzUU0',
                          md5='b9c44ab2be80575b6dde114e17156189',
                          fn='/home/ddboline/gDrive/image_backup/' +
@@ -125,7 +129,8 @@ def test_file_info_gdrive():
            'chromebook_home_backup_Linux_ip-172-31-14-57_3_13_0-61' + \
            '-generic_x86_64_x86_64_x86_64_GNU_Linux_20150818.tar.gz, ' + \
            'url=, path=, md5=b9c44ab2be80575b6dde114e17156189, size=0, ' + \
-           'st_mime=0, id=0BxGM0lfCdptnNzJsblNEa1ZzUU0, pid=, isroot=False)>'
+           'st_mime=0, id=0BxGM0lfCdptnNzJsblNEa1ZzUU0, pid=None, ' + \
+           'isroot=False)>'
     assert '%s' % tmp == test
 
     test_tuple = tmp.output_cache_tuple()

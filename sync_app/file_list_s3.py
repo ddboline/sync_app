@@ -23,14 +23,14 @@ class FileListS3(FileList):
         """ Init function """
         FileList.__init__(self, filelist=filelist, basedir=bucket,
                           filelist_type='s3')
-        self.s3 = s3
+        self.s3_ = s3
         self.filelist_key_dict = {}
 
     def __getitem__(self, key):
         if key in self.filelist_key_dict:
             return self.filelist_key_dict[key]
         else:
-            return self.FileList.__getitem__(self, key)
+            return FileList.__getitem__(self, key)
 
     def append_item(self, item):
         """ append S3 item to filelist """
@@ -45,4 +45,5 @@ class FileListS3(FileList):
 
     def fill_file_list_s3(self, bucket=None):
         """ fill s3 filelist  """
-        self.s3.get_list_of_keys(callback_fn=self.append_item)
+        self.s3_.get_list_of_keys(bucket_name=bucket,
+                                  callback_fn=self.append_item)

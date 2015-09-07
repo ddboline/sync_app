@@ -26,10 +26,11 @@ class FileInfoS3(FileInfo):
             self.input_cache_tuple(in_tuple)
 
     def fill_item(self, item):
+        """ Fill FileInfoS3 from item """
         self.filename = item.key
         self.bucket = item.bucket.name
         self.urlname = 's3://%s/%s' % (self.bucket, self.filename)
-        self.md5sum = item.etag.replace('"','')
+        self.md5sum = item.etag.replace('"', '')
         _temp = {'st_size': item.size,
                  'st_mtime': int(parse(item.last_modified).strftime("%s"))}
         self.fill_stat(**_temp)
