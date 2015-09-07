@@ -31,7 +31,6 @@ class TestSyncAppLocal(unittest.TestCase):
         """ remove temporary pickle file """
         if os.path.exists('.tmp_file_list_cache.pkl.gz'):
             os.remove('.tmp_file_list_cache.pkl.gz')
-        pass
 
     def test_file_info_local(self):
         """ Test FileInfoLocal class """
@@ -39,30 +38,30 @@ class TestSyncAppLocal(unittest.TestCase):
         output = '%s %s %s %d' % (finfo.filename, finfo.urlname, finfo.md5sum,
                                   finfo.filestat.st_size)
         output = output.replace(CURDIR, '')
-#        print('finfo', output)
-        m = hashlib.md5()
+
+        md_ = hashlib.md5()
         if hasattr(output, 'encode'):
             output = output.encode()
-        m.update(output)
-        self.assertEqual(m.hexdigest(), '1bfc429c2f36ef5c541742be8aaf934b')
+        md_.update(output)
+        self.assertEqual(md_.hexdigest(), '1bfc429c2f36ef5c541742be8aaf934b')
 
     def test_file_list_local(self):
         """ Test FileListLocal class """
         flist = FileListLocal()
         flist.fill_file_list_local(directory=TEST_DIR)
         output = []
-        for fl in flist:
-            temp_ = '%s %s %s %d' % (fl.filename, fl.urlname, fl.md5sum,
-                                     fl.filestat.st_size)
+        for fl_ in flist:
+            temp_ = '%s %s %s %d' % (fl_.filename, fl_.urlname, fl_.md5sum,
+                                     fl_.filestat.st_size)
             output.append(temp_.replace(CURDIR, ''))
         output = sorted(output)
 #        print('file_list', '\n'.join(output))
-        m = hashlib.md5()
+        md_ = hashlib.md5()
         for out in sorted(output):
             if hasattr(out, 'encode'):
                 out = out.encode()
-            m.update(out)
-        self.assertEqual(m.hexdigest(), 'cd3bf7a0a388d94ef5626fb9d5ca1632')
+            md_.update(out)
+        self.assertEqual(md_.hexdigest(), 'cd3bf7a0a388d94ef5626fb9d5ca1632')
 
     def test_file_list_cache(self):
         """ Test FileListCache class """
@@ -75,33 +74,26 @@ class TestSyncAppLocal(unittest.TestCase):
         fcache = FileListCache(pickle_file='.tmp_file_list_cache.pkl.gz')
         flist = fcache.get_cache_file_list()
         output = []
-        for fl in flist:
-            temp_ = '%s %s %s %d' % (fl.filename, fl.urlname, fl.md5sum,
-                                     fl.filestat.st_size)
+        for fl_ in flist:
+            temp_ = '%s %s %s %d' % (fl_.filename, fl_.urlname, fl_.md5sum,
+                                     fl_.filestat.st_size)
             output.append(temp_.replace(CURDIR, ''))
         output = sorted(output)
 #        print('file_cache', '\n'.join(output))
-        m = hashlib.md5()
+        md_ = hashlib.md5()
         for out in sorted(output):
             if hasattr(out, 'encode'):
                 out = out.encode()
-            m.update(out)
-        self.assertEqual(m.hexdigest(), 'cd3bf7a0a388d94ef5626fb9d5ca1632')
+            md_.update(out)
+        self.assertEqual(md_.hexdigest(), 'cd3bf7a0a388d94ef5626fb9d5ca1632')
 
         flist = FileListLocal(cache_file_list=flist)
         flist.fill_file_list_local(directory=TEST_DIR)
-        m = hashlib.md5()
-        m.update(('%s' % sorted((_ for _ in flist),
+        md_ = hashlib.md5()
+        md_.update(('%s' % sorted((_ for _ in flist),
                                 key=lambda x: x.filename)).encode())
-        self.assertEqual(m.hexdigest(), '87d4d892c3f169145414ec0c4c5d3ebb')
+        self.assertEqual(md_.hexdigest(), '87d4d892c3f169145414ec0c4c5d3ebb')
 
-#    def test_global_file_cache(self):
-#        flist = []
-#        with gzip.open('/home/ddboline/.local_file_list_cache.pkl.gz', 'rb') as pklfile:
-#            flist = pickle.load(pklfile)
-#        for fl_ in flist:
-#            if 'Ch5.csv' in fl_[0]:
-#                print(fl_)
 
 if __name__ == '__main__':
     unittest.main()

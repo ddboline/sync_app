@@ -30,20 +30,21 @@ class TestSyncAppGdrive(unittest.TestCase):
 
     def setUp(self):
         self.gdrive = GdriveInstance()
+        self.test_title = None
 
     def test_gdrive_list_files(self):
         """ Test GdriveInstance.list_files """
-        self.test_title = None
         def get_title(item):
+            """ callback fn """
             self.test_title = item['title']
         self.gdrive.list_files(get_title, searchstr=TEST_GDR)
-        m = hashlib.md5()
+        md_ = hashlib.md5()
         if hasattr(self.test_title, 'encode'):
             self.test_title = self.test_title.encode()
-        m.update(self.test_title)
-        self.assertEqual(m.hexdigest(), 'ee3ff087897ce88747e7c2b2fc0a59df')
+        md_.update(self.test_title)
+        self.assertEqual(md_.hexdigest(), 'ee3ff087897ce88747e7c2b2fc0a59df')
 
-    def test_gdrive_upload_search_download_delete(self):
+    def test_gdrive_upload_search(self):
         """ Test GdriveInstance.upload """
         flist_gdrive = FileListGdrive(gdrive=self.gdrive)
 

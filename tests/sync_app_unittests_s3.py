@@ -28,12 +28,13 @@ class TestSyncAppS3(unittest.TestCase):
     """ SyncApp Unit Tests """
 
     def setUp(self):
-        self.s3 = S3Instance()
-        self.flist_s3 = FileListS3(s3=self.s3)
+        self.s3_ = S3Instance()
+        self.flist_s3 = FileListS3(s3=self.s3_)
 
     def test_s3_list_files(self):
-        for bucket in self.s3.get_list_of_buckets():
-            self.s3.get_list_of_keys(bucket_name=bucket,
+        """ test listing of files in bucket """
+        for bucket in self.s3_.get_list_of_buckets():
+            self.s3_.get_list_of_keys(bucket_name=bucket,
                                      callback_fn=self.flist_s3.append_item)
         finf_ = self.flist_s3['2015-01-01.txt']
         md_ = finf_.md5sum
@@ -46,17 +47,18 @@ class TestSyncAppS3(unittest.TestCase):
                'st_mtime=1421476145)>'
         self.assertEqual(tmp, test)
 
-    def test_s3_upload_search_download_delete(self):
+    def test_s3_upload_search(self):
+        """ integration test, upload, search, download, delete """
         bname = 'test_bucket_ddboline_20150521'
-        self.s3.create_bucket(bname)
-        self.s3.upload(bname, TEST_FILE, os.path.abspath(TEST_FILE))
-        self.s3.get_list_of_keys(bucket_name=bname,
+        self.s3_.create_bucket(bname)
+        self.s3_.upload(bname, TEST_FILE, os.path.abspath(TEST_FILE))
+        self.s3_.get_list_of_keys(bucket_name=bname,
                                  callback_fn=self.flist_s3.append_item)
         md5_ = self.flist_s3[TEST_FILE].md5sum
         self.assertEqual(md5_, '8ddd8be4b179a529afa5f2ffae4b9858')
-        self.s3.download(bname, TEST_FILE, 'tests/test_dir/test.txt')
-        self.s3.delete_key(bname, TEST_FILE)
-        self.s3.delete_bucket(bname)
+        self.s3_.download(bname, TEST_FILE, 'tests/test_dir/test.txt')
+        self.s3_.delete_key(bname, TEST_FILE)
+        self.s3_.delete_bucket(bname)
         md5_ = get_md5('tests/test_dir/test.txt')
         self.assertEqual(md5_, '8ddd8be4b179a529afa5f2ffae4b9858')
         os.remove('tests/test_dir/test.txt')
