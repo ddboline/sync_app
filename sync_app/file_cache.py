@@ -23,10 +23,12 @@ class FileListCache(object):
     """ class to manage caching objects """
     def __init__(self, pickle_file=''):
         self.pickle_file = pickle_file
+        self.__cache_file_list_dict = {}
         self.cache_file_list_dict = {}
 
     @property
     def cache_file_list_dict(self):
+        """ property getter """
         return self.__cache_file_list_dict
 
     @cache_file_list_dict.setter
@@ -74,14 +76,16 @@ class FileListCache(object):
         return file_list_obj
 
     def add_filelist_to_cache(self, file_list=None):
+        """ add file_list to cache file_list """
         if file_list is None:
             return False
         for fileinfo in file_list:
-            fn = fileinfo.filename
-            self.cache_file_list_dict[fn] = fileinfo
+            fn_ = fileinfo.filename
+            self.cache_file_list_dict[fn_] = fileinfo
         return True
 
     def write_cache_file_list(self, file_list=None):
+        """ write file_list to cache pickle file """
         if file_list:
             self.add_filelist_to_cache(file_list)
         cache_list = []
@@ -91,18 +95,21 @@ class FileListCache(object):
 
 
 def test_file_list_cache():
+    """ nose test for FileListCache """
     from nose.tools import raises
 
     tmp = FileListCache()
 
     @raises(TypeError)
     def test_tmp():
+        """ nost test """
         tmp.cache_file_list_dict = 0
 
     test_tmp()
 
 
 def test_add_filelist_to_cache():
+    """ nose test for add_filelist_to_cache """
     from nose.tools import raises
 
     tmp = FileListCache()
@@ -110,5 +117,6 @@ def test_add_filelist_to_cache():
 
     @raises(TypeError)
     def test_tmp():
+        """ nost test """
         tmp.add_filelist_to_cache(file_list=1)
     test_tmp()
