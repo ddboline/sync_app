@@ -15,7 +15,7 @@ import unittest
 CURDIR = os.path.abspath(os.curdir)
 os.sys.path.append(CURDIR)
 
-from sync_app.sync_utils import get_md5
+from sync_app.util import get_md5
 from sync_app.file_info_s3 import FileInfoS3
 from sync_app.file_list_s3 import FileListS3
 from sync_app.s3_instance import S3Instance

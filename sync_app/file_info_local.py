@@ -10,7 +10,7 @@ from __future__ import unicode_literals
 
 import os
 
-from .sync_utils import get_md5
+from .util import get_md5
 
 from .file_info import FileInfo
 

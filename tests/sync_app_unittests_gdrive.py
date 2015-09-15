@@ -15,7 +15,7 @@ import unittest
 CURDIR = os.path.abspath(os.curdir)
 os.sys.path.append(CURDIR)
 
-from sync_app.sync_utils import get_md5
+from sync_app.util import get_md5
 from sync_app.file_list_gdrive import FileListGdrive
 from sync_app.gdrive_instance import GdriveInstance
 

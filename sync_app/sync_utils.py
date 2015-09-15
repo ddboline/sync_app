@@ -9,10 +9,8 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
-import hashlib
 import argparse
 
-from .util import run_command, cleanup_path
 from .file_cache import FileListCache
 from .file_sync import FileSync
 
@@ -27,32 +25,6 @@ LOCAL_DISKS = ('/home/ddboline', '/media/sabrent2000', '/media/caviar2000',
                '/media/western2000')
 LOCAL_DIRECTORIES = ('Documents/AudioBooks', 'Documents/mp3',
                      'Documents/podcasts', 'Documents/video', 'D0_Backup')
-
-def get_md5_old(fname):
-    """ python only md5 function """
-    md_ = hashlib.md5()
-    with open(fname, 'rb') as infile:
-        for line in infile:
-            md_.update(line)
-    return md_.hexdigest()
-
-def get_md5(fname):
-    """ system md5 function """
-    try:
-        with run_command('md5sum "%s" 2> /dev/null' % cleanup_path(fname),
-                           do_popen=True) as pop_:
-            output = pop_.stdout.read().split()[0]
-        return output.decode()
-    except IndexError:
-        return get_md5_old(fname)
-
-def test_get_md5():
-    """ test get_md5 """
-    tmp = get_md5_old('tests/test_dir/hello_world.txt')
-    test = '8ddd8be4b179a529afa5f2ffae4b9858'
-    assert tmp == test
-    tmp = get_md5('tests/test_dir/hello_world.txt')
-    assert tmp == test
 
 def build_gdrive_index():
     """ build GDrive index """
