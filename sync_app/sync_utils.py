@@ -26,7 +26,7 @@ LOCAL_DISKS = ('/home/ddboline', '/media/sabrent2000', '/media/caviar2000',
 LOCAL_DIRECTORIES = ('Documents/AudioBooks', 'Documents/mp3',
                      'Documents/podcasts', 'Documents/video', 'D0_Backup')
 
-def build_gdrive_index():
+def build_gdrive_index(searchstr=None, verbose=True):
     """ build GDrive index """
     from .gdrive_instance import GdriveInstance
     from .file_list_gdrive import FileListGdrive
@@ -34,8 +34,9 @@ def build_gdrive_index():
     gdrive = GdriveInstance()
     flist = FileListGdrive(gdrive=gdrive)
     #### always rebuild index
-    print('download file metadata')
-    flist.fill_file_list_gdrive()
+    if verbose:
+        print('download file metadata')
+    flist.fill_file_list_gdrive(searchstr=searchstr, verbose=verbose)
     return flist
 
 def build_s3_index():
@@ -196,7 +197,7 @@ def sync_arg_parse():
     """ parse args """
     commands = ('all', 'gdrive', 's3', 'local', 'dry_run', 'delete')
     help_text = 'usage: ./sync.py <%s> [rebuild]' % '|'.join(commands)
-    parser = argparse.ArgumentParser(description='garmin app')
+    parser = argparse.ArgumentParser(description='sync app')
     parser.add_argument('command', nargs='*', help=help_text)
     args = parser.parse_args()
 
@@ -234,3 +235,69 @@ def sync_arg_parse():
                    rebuild_index=do_rebuild)
 
     return
+
+
+def list_drive_parse():
+    """ main routine, parse arguments """
+    commands = ('list', 'search', 'upload', 'directories',
+                'delete', 'new')
+    cmd = 'list'
+    search_strings = []
+    parent_directory = None
+    number_to_list = 100
+
+    for arg in os.sys.argv:
+        if 'list_drive_files' in arg:
+            continue
+        elif arg in ['h', '--help', '-h']:
+            print(
+                'list_drive_files <%s> <file/key> directory=<id of directory>'\
+                    % '|'.join(commands))
+            exit(0)
+        elif arg in commands:
+            cmd = arg
+        elif 'directory=' in arg:
+            parent_directory = arg.replace('directory=', '')
+        else:
+            try:
+                number_to_list = int(arg)
+            except ValueError:
+                search_strings.append(arg)
+
+    from .gdrive_instance import GdriveInstance
+    gdrive = GdriveInstance(number_to_process=number_to_list)
+    
+    if cmd == 'list':
+        flist_gdrive = build_gdrive_index(verbose=False)
+        for key, val in flist_gdrive.filelist_id_dict.items():
+            if val.md5sum:
+                print(key, val.filename)
+    elif cmd == 'search':
+        if search_strings:
+            for search_string in search_strings:
+                flist_gdrive = build_gdrive_index(verbose=False,
+                                                  searchstr=search_string)
+                for key, val in flist_gdrive.filelist_id_dict.items():
+                    if val.md5sum:
+                        print(key, val.filename)
+    elif cmd == 'directories':
+        if search_strings:
+            for search_string in search_strings:
+                flist_gdrive = build_gdrive_index(verbose=False,
+                                                  searchstr=search_string)
+                for key, val in flist_gdrive.filelist_id_dict.items():
+                    if not val.md5sum and search_string in val.filename:
+                        export_path = flist_gdrive.get_export_path(val)
+                        if val.isroot:
+                            export_path += '/gDrive'
+                        print(key, '%s/%s' % (export_path, val.filename))
+    elif cmd == 'upload':
+        from .file_list_gdrive import FileListGdrive
+    
+        flist = FileListGdrive(gdrive=gdrive)
+        gdrive.get_folders(flist.append_dir)
+        for fname in search_strings:
+            flist.upload_file(fname=fname, pathname=parent_directory)
+    elif cmd == 'delete':
+        for search_string in search_strings:
+            gdrive.delete_file(fileid=search_string)
