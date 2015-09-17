@@ -301,3 +301,60 @@ def list_drive_parse():
     elif cmd == 'delete':
         for search_string in search_strings:
             gdrive.delete_file(fileid=search_string)
+
+def parse_s3_args():
+    """ Parse command line arguments """
+    from .s3_instance import S3Instance
+    commands = ('list', 'search', 'get', 'upload', 'delete', 'delete_bucket')
+    bucket_name = None
+    cmd = 'list'
+    kname = []
+    for arg in os.sys.argv[1:]:
+        if 'list_s3' in arg:
+            continue
+        elif arg in ['h', '--help', '-h']:
+            print('get_from_s3 <%s> <bucket|file|key>' % '|'.join(commands))
+            exit(0)
+        elif arg in commands:
+            cmd = arg
+        elif 'bucket=' in arg:
+            bucket_name = arg.split('=')[1]
+        else:
+            kname.append(arg)
+
+    s3_ = S3Instance()
+
+    if cmd == 'list' or cmd == 'search':
+        if 'bucket' in kname:
+            print('\n'.join(s3_.get_list_of_buckets()))
+        else:
+            if bucket_name:
+                for key in s3_.get_list_of_keys(bucket_name=bucket_name,
+                                                callback_fn=lambda x: 0):
+                    if kname and not any(_ in key.key for _ in kname):
+                        continue
+                    try:
+                        print(key.key, key.etag.replace('"', ''),
+                              key.last_modified, key.bucket.name)
+                    except IOError:
+                        raise
+            else:
+                for bucket_name in s3_.get_list_of_buckets():
+                    for key in s3_.get_list_of_keys(bucket_name=bucket_name,
+                                                    callback_fn=lambda x: 0):
+                        if kname and not any(_ in key.key for _ in kname):
+                            continue
+                        try:
+                            print(key.key, key.etag.replace('"', ''),
+                                  key.last_modified, key.bucket.name)
+                        except IOError:
+                            raise
+    elif cmd == 'get':
+        s3_.download(bucket_name=bucket_name, key_name=kname[0],
+                     fname=kname[0])
+    elif cmd == 'upload':
+        s3_.upload(bucket_name=bucket_name, key_name=kname[0], fname=kname[0])
+    elif cmd == 'delete':
+        s3_.delete_key(bucket_name=bucket_name, key_name=kname[0])
+    elif cmd == 'delete_bucket':
+        s3_.delete_bucket(bucket_name=bucket_name)
