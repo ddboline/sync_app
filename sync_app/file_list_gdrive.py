@@ -112,12 +112,14 @@ class FileListGdrive(FileList):
         """ fill GDrive file list"""
         if not self.gdrive:
             self.gdrive = GdriveInstance()
-        self.gdrive.number_to_process = number_to_process
         if verbose:
             print('get_folders')
+        self.gdrive.number_to_process = -1
         self.gdrive.get_folders(self.append_dir)
         if verbose:
             print('list_files')
+        self.gdrive.number_to_process = number_to_process
+        self.gdrive.items_processed = 0
         self.gdrive.list_files(self.append_item, searchstr=searchstr)
         if verbose:
             print('update paths')
