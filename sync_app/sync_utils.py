@@ -244,7 +244,7 @@ def list_drive_parse():
     cmd = 'list'
     search_strings = []
     parent_directory = None
-    number_to_list = 100
+    number_to_list = -1
 
     for arg in os.sys.argv:
         if 'list_drive_files' in arg:
@@ -258,6 +258,11 @@ def list_drive_parse():
             cmd = arg
         elif 'directory=' in arg:
             parent_directory = arg.replace('directory=', '')
+        elif arg.startswith('-n'):
+            try:
+                number_to_list = int(arg.split('-n')[1])
+            except ValueError:
+                raise
         else:
             try:
                 number_to_list = int(arg)
@@ -265,26 +270,29 @@ def list_drive_parse():
                 search_strings.append(arg)
 
     from .gdrive_instance import GdriveInstance
+    from .file_list_gdrive import FileListGdrive
     gdrive = GdriveInstance(number_to_process=number_to_list)
+    flist_gdrive = FileListGdrive(gdrive=gdrive)
     
     if cmd == 'list':
-        flist_gdrive = build_gdrive_index(verbose=False)
+        flist_gdrive.fill_file_list_gdrive(verbose=False,
+                                           number_to_process=number_to_list)
         for key, val in flist_gdrive.filelist_id_dict.items():
             if val.md5sum:
                 print(key, val.filename)
     elif cmd == 'search':
         if search_strings:
             for search_string in search_strings:
-                flist_gdrive = build_gdrive_index(verbose=False,
-                                                  searchstr=search_string)
+                flist_gdrive.fill_file_list_gdrive(verbose=False,
+                                                   searchstr=search_string)
                 for key, val in flist_gdrive.filelist_id_dict.items():
                     if val.md5sum:
                         print(key, val.filename)
     elif cmd == 'directories':
         if search_strings:
             for search_string in search_strings:
-                flist_gdrive = build_gdrive_index(verbose=False,
-                                                  searchstr=search_string)
+                flist_gdrive.fill_file_list_gdrive(verbose=False,
+                                                   searchstr=search_string)
                 for key, val in flist_gdrive.filelist_id_dict.items():
                     if not val.md5sum and search_string in val.filename:
                         export_path = flist_gdrive.get_export_path(val)
@@ -292,12 +300,9 @@ def list_drive_parse():
                             export_path += '/gDrive'
                         print(key, '%s/%s' % (export_path, val.filename))
     elif cmd == 'upload':
-        from .file_list_gdrive import FileListGdrive
-    
-        flist = FileListGdrive(gdrive=gdrive)
-        gdrive.get_folders(flist.append_dir)
+        gdrive.get_folders(flist_gdrive.append_dir)
         for fname in search_strings:
-            flist.upload_file(fname=fname, pathname=parent_directory)
+            flist_gdrive.upload_file(fname=fname, pathname=parent_directory)
     elif cmd == 'delete':
         for search_string in search_strings:
             gdrive.delete_file(fileid=search_string)
