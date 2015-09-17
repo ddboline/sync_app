@@ -107,16 +107,20 @@ class FileListGdrive(FileList):
         for _, finfo in self.directory_id_dict.items():
             finfo.exportpath = self.get_export_path(finfo, is_dir=True)
 
-    def fill_file_list_gdrive(self, number_to_process=-1):
+    def fill_file_list_gdrive(self, number_to_process=-1, searchstr=None,
+                              verbose=True):
         """ fill GDrive file list"""
         if not self.gdrive:
             self.gdrive = GdriveInstance()
         self.gdrive.number_to_process = number_to_process
-        print('get_folders')
+        if verbose:
+            print('get_folders')
         self.gdrive.get_folders(self.append_dir)
-        print('list_files')
-        self.gdrive.list_files(self.append_item)
-        print('update paths')
+        if verbose:
+            print('list_files')
+        self.gdrive.list_files(self.append_item, searchstr=searchstr)
+        if verbose:
+            print('update paths')
 
     def create_directory(self, dname):
         """ create directory on gdrive """
