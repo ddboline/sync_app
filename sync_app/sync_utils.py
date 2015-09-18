@@ -355,13 +355,14 @@ def parse_s3_args():
                         except IOError:
                             raise
     elif cmd == 'get':
-        s3_.download(bucket_name=bucket_name, key_name=kname[0],
-                     fname=kname[0])
+        for kn_ in kname:
+            s3_.download(bucket_name=bucket_name, key_name=kn_, fname=kn_)
     elif cmd == 'upload':
         for fn_ in kname:
             kn_ = os.path.basename(fn_)
             s3_.upload(bucket_name=bucket_name, key_name=kn_, fname=fn_)
     elif cmd == 'delete':
-        s3_.delete_key(bucket_name=bucket_name, key_name=kname[0])
+        for kn_ in kname:
+            s3_.delete_key(bucket_name=bucket_name, key_name=kn_)
     elif cmd == 'delete_bucket':
         s3_.delete_bucket(bucket_name=bucket_name)
