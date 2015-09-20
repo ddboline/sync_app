@@ -24,5 +24,5 @@ setup(
     packages=['sync_app'],
     package_dir={'sync_app': 'sync_app'},
     package_data={'sync_app': ['templates/*.html']},
-    scripts=['sync_app.py', 'list_drive_files.py', 'list_s3_files.py']
+    scripts=['sync.py', 'list_drive_files.py', 'list_s3_files.py']
 )
