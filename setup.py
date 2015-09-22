@@ -10,7 +10,7 @@ from __future__ import division
 from __future__ import print_function
 #from __future__ import unicode_literals
 
-from distutils.core import setup
+from setuptools import setup
 
 setup(
     name='sync_app',
@@ -24,5 +24,8 @@ setup(
     packages=['sync_app'],
     package_dir={'sync_app': 'sync_app'},
     package_data={'sync_app': ['templates/*.html']},
-    scripts=['sync.py', 'list_drive_files.py', 'list_s3_files.py']
+    entry_points={'console_scripts': 
+                  ['sync-app = sync_app.sync_utils:sync_arg_parse',
+                   'list_drive_files = sync_app.sync_utils:list_drive_parse',
+                   'list_s3_files = sync_app.sync_utils:parse_s3_args']}
 )
