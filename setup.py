@@ -20,7 +20,7 @@ setup(
     description='sync_app',
     long_description='Sync App',
     license='MIT',
-#    install_requires=['pandas >= 0.13.0', 'numpy >= 1.8.0'],
+    install_requires=['boto', 'google-api-python-client'],
     packages=['sync_app'],
     package_dir={'sync_app': 'sync_app'},
     package_data={'sync_app': ['templates/*.html']},
