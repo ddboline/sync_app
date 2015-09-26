@@ -124,7 +124,7 @@ class FileListGdrive(FileList):
         if verbose:
             print('update paths')
 
-    def create_directory(self, dname):
+    def get_or_create_directory(self, dname):
         """ create directory on gdrive """
         pid_ = None
         dn_list = dname.replace(BASE_DIR + '/', '').split('/')
@@ -169,5 +169,5 @@ class FileListGdrive(FileList):
         dname = os.path.dirname(fname)
         if pathname:
             dname = pathname
-        pid_ = self.create_directory(dname)
+        pid_ = self.get_or_create_directory(dname)
         return self.gdrive.upload(fname, parent_id=pid_)

@@ -278,6 +278,9 @@ def list_drive_parse():
         flist_gdrive.fill_file_list_gdrive(verbose=False,
                                            number_to_process=number_to_list)
         for key, val in flist_gdrive.filelist_id_dict.items():
+            if parent_directory \
+                    and parent_directory not in os.path.dirname(val.filename):
+                continue
             if val.md5sum:
                 print(key, val.filename)
     elif cmd == 'search':
@@ -289,23 +292,32 @@ def list_drive_parse():
                     if val.md5sum:
                         print(key, val.filename)
     elif cmd == 'directories':
-        if search_strings:
-            for search_string in search_strings:
-                flist_gdrive.fill_file_list_gdrive(verbose=False,
-                                                   searchstr=search_string)
-                for key, val in flist_gdrive.filelist_id_dict.items():
-                    if not val.md5sum and search_string in val.filename:
-                        export_path = flist_gdrive.get_export_path(val)
-                        if val.isroot:
-                            export_path += '/gDrive'
-                        print(key, '%s/%s' % (export_path, val.filename))
+        gdrive.get_folders(flist_gdrive.append_dir)
+        for key, val in flist_gdrive.directory_name_dict.items():
+            if search_strings and not any(st_ in key for st_ in 
+                                          search_strings):
+                continue
+            export_path = flist_gdrive.get_export_path(val)
+            if val.isroot:
+                export_path += '/gDrive'
+            print(key, '%s/%s' % (export_path, val.filename))
     elif cmd == 'upload':
         gdrive.get_folders(flist_gdrive.append_dir)
         for fname in search_strings:
             flist_gdrive.upload_file(fname=fname, pathname=parent_directory)
     elif cmd == 'delete':
         for search_string in search_strings:
-            gdrive.delete_file(fileid=search_string)
+            if os.path.exists(search_string):
+                fn_ = os.path.basename(search_string)
+                flist_gdrive.fill_file_list_gdrive(verbose=False,
+                                                   searchstr=fn_)
+                for key, val in flist_gdrive.filelist_name_dict.items():
+                    if fn_ == key:
+                        for finf in val:
+                            fid_ = finf.gdriveid
+                            gdrive.delete_file(fileid=fid_)
+            else:
+                gdrive.delete_file(fileid=search_string)
 
 def parse_s3_args():
     """ Parse command line arguments """

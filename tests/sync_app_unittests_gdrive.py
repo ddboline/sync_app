@@ -50,7 +50,7 @@ class TestSyncAppGdrive(unittest.TestCase):
 
         self.gdrive.get_folders(flist_gdrive.append_dir)
 
-        flist_gdrive.create_directory(os.path.dirname(TEST_FILE))
+        flist_gdrive.get_or_create_directory(os.path.dirname(TEST_FILE))
         fid = flist_gdrive.upload_file(TEST_FILE)
         sstr = os.path.basename(TEST_FILE)
         self.gdrive.list_files(flist_gdrive.append_item, searchstr=sstr)
