@@ -24,7 +24,7 @@ setup(
     packages=['sync_app'],
     package_dir={'sync_app': 'sync_app'},
     package_data={'sync_app': ['templates/*.html']},
-    entry_points={'console_scripts': 
+    entry_points={'console_scripts':
                   ['sync-app = sync_app.sync_utils:sync_arg_parse',
                    'list_drive_files = sync_app.sync_utils:list_drive_parse',
                    'list_s3_files = sync_app.sync_utils:parse_s3_args']}

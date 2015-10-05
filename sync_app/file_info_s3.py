@@ -12,6 +12,7 @@ from dateutil.parser import parse
 
 from .file_info import FileInfo
 
+
 class FileInfoS3(FileInfo):
     """ File Info for S3, add bucket metadata """
     __slots__ = FileInfo.__slots__ + ['bucket']

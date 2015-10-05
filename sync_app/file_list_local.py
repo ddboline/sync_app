@@ -14,6 +14,7 @@ from .util import walk_wrapper
 from .file_list import FileList
 from .file_info_local import FileInfoLocal
 
+
 class FileListLocal(FileList):
     """ File Info Local"""
 

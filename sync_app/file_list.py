@@ -16,6 +16,7 @@ from collections import defaultdict
 
 FILE_LIST_TYPES = ('local', 'remote', 'gdrive', 's3')
 
+
 class FileList(object):
     """ file list class """
     def __init__(self, filelist=None, filelist_type=None, basedir=None):
@@ -93,6 +94,7 @@ class FileList(object):
         """ fill dicts """
         for f__ in self.filelist:
             self.append(f__)
+
 
 def test_file_list():
     """ test FileList """

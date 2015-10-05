@@ -8,9 +8,11 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import os, time
+import os
+import time
 from apiclient import sample_tools
 from apiclient.errors import HttpError
+
 
 class GdriveInstance(object):
     """ class to make use of google python api """
@@ -24,9 +26,11 @@ class GdriveInstance(object):
         self.list_of_folders = {}
         self.list_of_items = {}
 
-        self.service, self.flags = \
-            sample_tools.init([], app, version, __doc__, __file__,\
-                scope='https://www.googleapis.com/auth/%s' % app)
+        self.service, self.flags = sample_tools.init([], app, version,
+                                                     __doc__, __file__,
+                                                     scope='https://'
+                                                     'www.googleapis.com/auth'
+                                                     '/%s' % app)
         self.number_to_process = number_to_process
 
     def process_response(self, response, callback_fn=None):
@@ -99,7 +103,7 @@ class GdriveInstance(object):
     def upload(self, fname, parent_id=None):
         """ upload fname and assign parent_id if provided """
         fn_ = os.path.basename(fname)
-        body_obj = {'title': fn_,}
+        body_obj = {'title': fn_}
         request = self.service.files().insert(body=body_obj, media_body=fname)
         response = request.execute()
         fid = response['id']
@@ -145,11 +149,13 @@ class GdriveInstance(object):
             parents_output.extend(response['parents'])
         return parents_output
 
+
 def test_gdrivce_instance():
     """ test GdriveInstance """
     from nose.tools import raises
     tmp = GdriveInstance()
     assert tmp.process_response(None) == 0
+
     class MockRequest(object):
         """ ... """
         def execute(self):

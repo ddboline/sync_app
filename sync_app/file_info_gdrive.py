@@ -17,9 +17,9 @@ from dateutil.parser import parse
 BASE_DIR = '%s/gDrive' % os.getenv('HOME')
 
 GDRIVE_MIMETYPES = (
-'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-'text/csv', 'image/png', 'application/vnd.oasis.opendocument.text',
-'application/pdf')
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/csv', 'image/png', 'application/vnd.oasis.opendocument.text',
+    'application/pdf')
 
 FILE_INFO_SLOTS = ('gdriveid', 'mimetype', 'parentid', 'exporturls',
                    'exportpath', 'isroot', 'gdrive')
@@ -62,7 +62,7 @@ class FileInfoGdrive(FileInfo):
         """ nice string representation """
         return '<FileInfoGdrive(fn=%s, ' % self.filename +\
                'url=%s, ' % self.urlname +\
-               'path=%s, '% self.exportpath +\
+               'path=%s, ' % self.exportpath +\
                'md5=%s, ' % self.md5sum +\
                'size=%s, ' % self.filestat.st_size +\
                'st_mime=%s, ' % self.filestat.st_mtime +\
@@ -77,9 +77,10 @@ class FileInfoGdrive(FileInfo):
                 self.isroot, self.gdrive)
 
     def input_cache_tuple(self, in_tuple):
-        self.filename, self.urlname, self.md5sum, self.filestat.st_mtime,\
-        self.filestat.st_size, self.gdriveid, self.mimetype, self.parentid,\
-        self.exporturls, self.exportpath, self.isroot, self.gdrive = in_tuple
+        self.filename, self.urlname, self.md5sum, self.filestat.st_mtime, \
+            self.filestat.st_size, self.gdriveid, self.mimetype, \
+            self.parentid, self.exporturls, self.exportpath, self.isroot, \
+            self.gdrive = in_tuple
 
     def fill_item(self, item):
         """ fill FileInfoGdrive from item """
@@ -116,6 +117,7 @@ class FileInfoGdrive(FileInfo):
             fext = item['fileExtension']
         if fext not in self.filename.lower():
             self.filename += '.%s' % fext
+
 
 def test_file_info_gdrive():
     """ Test FileInfoGdrive """

@@ -11,6 +11,7 @@ from __future__ import unicode_literals
 import os
 import boto
 
+
 def read_keys():
     """ read aws credentials from file, then stick into global variables... """
     with open('%s/.aws/credentials' % os.getenv('HOME'), 'rt') as infile:
@@ -23,11 +24,12 @@ def read_keys():
 
 AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY = read_keys()
 
+
 class S3Instance(object):
     """ S3Instance class to interact with S3 via Boto """
     def __init__(self):
         self.s3_ = boto.connect_s3(aws_access_key_id=AWS_ACCESS_KEY_ID,
-                                  aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+                                   aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 
     def get_list_of_buckets(self):
         """ get list of buckets """

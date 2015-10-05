@@ -19,6 +19,7 @@ from .file_info import FileInfo
 from .file_list import FileList
 from .util import run_command
 
+
 class FileListCache(object):
     """ class to manage caching objects """
     def __init__(self, pickle_file=''):
@@ -113,7 +114,7 @@ def test_add_filelist_to_cache():
     from nose.tools import raises
 
     tmp = FileListCache()
-    assert tmp.add_filelist_to_cache() == False
+    assert tmp.add_filelist_to_cache() is False
 
     @raises(TypeError)
     def test_tmp():

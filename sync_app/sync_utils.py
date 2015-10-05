@@ -26,6 +26,7 @@ LOCAL_DISKS = ('/home/ddboline', '/media/sabrent2000', '/media/caviar2000',
 LOCAL_DIRECTORIES = ('Documents/AudioBooks', 'Documents/mp3',
                      'Documents/podcasts', 'Documents/video', 'D0_Backup')
 
+
 def build_gdrive_index(searchstr=None, verbose=True):
     """ build GDrive index """
     from .gdrive_instance import GdriveInstance
@@ -39,6 +40,7 @@ def build_gdrive_index(searchstr=None, verbose=True):
     flist.fill_file_list_gdrive(searchstr=searchstr, verbose=verbose)
     return flist
 
+
 def build_s3_index():
     """ build S3 index """
     from .s3_instance import S3Instance
@@ -50,6 +52,7 @@ def build_s3_index():
     print('download file metadata')
     flist.fill_file_list_s3()
     return flist
+
 
 def build_local_index(directories=None, rebuild_index=False):
     """ build local index """
@@ -70,6 +73,7 @@ def build_local_index(directories=None, rebuild_index=False):
     print('write cache')
     fcache.write_cache_file_list(flist)
     return flist
+
 
 def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
     """ build gdrive index """
@@ -109,8 +113,8 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
                     return finfo.download()
         return
 
-
     fsync.compare_lists(callback0=download_file, callback1=upload_file)
+
 
 def sync_s3(dry_run=False, delete_file=None, rebuild_index=False):
     """ sync with s3 """
@@ -155,6 +159,7 @@ def sync_s3(dry_run=False, delete_file=None, rebuild_index=False):
 
     fsync.compare_lists(callback0=download_file, callback1=upload_file)
 
+
 def sync_local(dry_run=False, delete_file=None, rebuild_index=False):
     """ sync local directories """
     if delete_file:
@@ -187,11 +192,11 @@ def sync_local(dry_run=False, delete_file=None, rebuild_index=False):
             fsync = FileSync(flists=[flists_local])
             fsync.compare_lists(callback0=copy_file0, callback1=copy_file1)
 
-
     sync_local_directories(LOCAL_DIRECTORIES, LOCAL_DISKS)
     sync_local_directories(('dilepton2_backup', 'dilepton_tower_backup'),
                            ('/media/sabrent2000', '/media/caviar2000',
                             '/media/western2000'))
+
 
 def sync_arg_parse():
     """ parse args """
@@ -250,9 +255,8 @@ def list_drive_parse():
         if 'list_drive_files' in arg:
             continue
         elif arg in ['h', '--help', '-h']:
-            print(
-                'list_drive_files <%s> <file/key> directory=<id of directory>'\
-                    % '|'.join(commands))
+            print('list_drive_files <' + '|'.join(commands) +
+                  '> <file/key> directory=<id of directory>')
             exit(0)
         elif arg in commands:
             cmd = arg
@@ -273,7 +277,7 @@ def list_drive_parse():
     from .file_list_gdrive import FileListGdrive
     gdrive = GdriveInstance(number_to_process=number_to_list)
     flist_gdrive = FileListGdrive(gdrive=gdrive)
-    
+
     if cmd == 'list':
         flist_gdrive.fill_file_list_gdrive(verbose=False,
                                            number_to_process=number_to_list)
@@ -294,7 +298,7 @@ def list_drive_parse():
     elif cmd == 'directories':
         gdrive.get_folders(flist_gdrive.append_dir)
         for key, val in flist_gdrive.directory_name_dict.items():
-            if search_strings and not any(st_ in key for st_ in 
+            if search_strings and not any(st_ in key for st_ in
                                           search_strings):
                 continue
             export_path = flist_gdrive.get_export_path(val)
@@ -318,6 +322,7 @@ def list_drive_parse():
                             gdrive.delete_file(fileid=fid_)
             else:
                 gdrive.delete_file(fileid=search_string)
+
 
 def parse_s3_args():
     """ Parse command line arguments """

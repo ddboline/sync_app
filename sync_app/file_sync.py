@@ -69,6 +69,7 @@ class FileSync(object):
                     finf_ = finfo[0]
                 callback1(finf_)
 
+
 def test_file_sync():
     """ test FileSync """
     tmp = FileSync(flists=range(20))

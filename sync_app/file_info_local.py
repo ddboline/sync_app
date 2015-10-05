@@ -14,6 +14,7 @@ from .util import get_md5
 
 from .file_info import FileInfo
 
+
 class FileInfoLocal(FileInfo):
     """ File Info Local """
 

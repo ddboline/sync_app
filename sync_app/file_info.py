@@ -17,6 +17,7 @@ from __future__ import unicode_literals
 STAT_ATTRS = ('st_mtime', 'st_size')
 FILE_INFO_SLOTS = ('filename', 'urlname', 'md5sum', 'filestat')
 
+
 class StatTuple(object):
     """
         StatTuple class
@@ -44,6 +45,7 @@ class StatTuple(object):
     def __repr__(self):
         """ Nice pretty string representation """
         return '<StatTuple(size=%s, mtime=%s)>' % (self.st_size, self.st_mtime)
+
 
 class FileInfo(object):
     """
@@ -90,8 +92,9 @@ class FileInfo(object):
 
     def input_cache_tuple(self, in_tuple):
         """ deserialize FileInfo """
-        self.filename, self.urlname, self.md5sum, self.filestat.st_mtime,\
-        self.filestat.st_size = in_tuple
+        self.filename, self.urlname, self.md5sum, self.filestat.st_mtime, \
+            self.filestat.st_size = in_tuple
+
 
 def test_stat_tuple():
     """ test StatTuple class """
@@ -99,6 +102,7 @@ def test_stat_tuple():
     tmp = '%s' % StatTuple(**test_dict)
     test = '<StatTuple(size=7654321, mtime=1234567)>'
     assert tmp == test
+
 
 def test_file_info():
     """ test FileInfo class """
