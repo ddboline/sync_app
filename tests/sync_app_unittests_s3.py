@@ -24,6 +24,7 @@ TEST_FILE = 'tests/test_dir/hello_world.txt'
 TEST_DIR = 'tests/test_dir'
 TEST_GDR = 'Amazon-Gift-Card.pdf'
 
+
 class TestSyncAppS3(unittest.TestCase):
     """ SyncApp Unit Tests """
 
@@ -41,10 +42,10 @@ class TestSyncAppS3(unittest.TestCase):
         self.assertEqual(md_, '866c3c2d566d44b88e1e4a4fc1e7d65d')
         tup_ = finf_.output_cache_tuple()
         tmp = '%s' % FileInfoS3(in_tuple=tup_)
+
         test = '<FileInfo(fn=2015-01-01.txt, url=s3://' + \
                'diary_backup_ddboline/2015-01-01.txt, ' + \
-               'md5=866c3c2d566d44b88e1e4a4fc1e7d65d, size=12, ' + \
-               'st_mtime=1421476145)>'
+               'md5=866c3c2d566d44b88e1e4a4fc1e7d65d, size=12)>'
         self.assertEqual(tmp, test)
 
     def test_s3_upload_search(self):
@@ -53,7 +54,7 @@ class TestSyncAppS3(unittest.TestCase):
         self.s3_.create_bucket(bname)
         self.s3_.upload(bname, TEST_FILE, os.path.abspath(TEST_FILE))
         self.s3_.get_list_of_keys(bucket_name=bname,
-                                 callback_fn=self.flist_s3.append_item)
+                                  callback_fn=self.flist_s3.append_item)
         md5_ = self.flist_s3[TEST_FILE].md5sum
         self.assertEqual(md5_, '8ddd8be4b179a529afa5f2ffae4b9858')
         self.s3_.download(bname, TEST_FILE, 'tests/test_dir/test.txt')

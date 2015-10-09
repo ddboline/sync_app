@@ -9,10 +9,8 @@
             md5sum of the file
             output of os.stat
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 STAT_ATTRS = ('st_mtime', 'st_size')
 FILE_INFO_SLOTS = ('filename', 'urlname', 'md5sum', 'filestat')
@@ -44,7 +42,7 @@ class StatTuple(object):
 
     def __repr__(self):
         """ Nice pretty string representation """
-        return '<StatTuple(size=%s, mtime=%s)>' % (self.st_size, self.st_mtime)
+        return '<StatTuple(size=%s)>' % self.st_size
 
 
 class FileInfo(object):
@@ -65,11 +63,10 @@ class FileInfo(object):
 
     def __repr__(self):
         """ Nice pretty string representation """
-        return '<FileInfo(fn=%s, ' % self.filename +\
-               'url=%s, ' % self.urlname +\
-               'md5=%s, ' % self.md5sum +\
-               'size=%s, ' % self.filestat.st_size +\
-               'st_mtime=%s)>' % self.filestat.st_mtime
+        return '<FileInfo(fn=%s, ' % self.filename + \
+               'url=%s, ' % self.urlname + \
+               'md5=%s, ' % self.md5sum + \
+               'size=%s)>' % self.filestat.st_size
 
     def fill_stat(self, fs=None, **options):
         """ convert fs into StatTuple... """
@@ -99,9 +96,8 @@ class FileInfo(object):
 def test_stat_tuple():
     """ test StatTuple class """
     test_dict = {'st_mtime': 1234567, 'st_size': 7654321}
-    tmp = '%s' % StatTuple(**test_dict)
-    test = '<StatTuple(size=7654321, mtime=1234567)>'
-    assert tmp == test
+    tmp = StatTuple(**test_dict)
+    assert tmp.st_size == 7654321
 
 
 def test_file_info():
@@ -110,11 +106,17 @@ def test_file_info():
     test_dict = {'st_mtime': 1234567, 'st_size': 7654321}
     fs_ = StatTuple(**test_dict)
     fn_ = 'tests/test_dir/hello_world.txt'
-    tmp = '%s' % FileInfo(fn=fn_, url='file://%s' % os.path.abspath(fn_),
-                          md5='8ddd8be4b179a529afa5f2ffae4b9858', fs=fs_)
-    test = '<FileInfo(fn=tests/test_dir/hello_world.txt, ' + \
-           'url=file:///home/ddboline/setup_files/build/sync_app/' + \
-           'tests/test_dir/hello_world.txt, ' + \
-           'md5=8ddd8be4b179a529afa5f2ffae4b9858, size=7654321, ' + \
-           'st_mtime=1234567)>'
-    assert tmp == test
+    tmp = FileInfo(fn=fn_, url='file://%s' % os.path.abspath(fn_),
+                   md5='8ddd8be4b179a529afa5f2ffae4b9858', fs=fs_)
+    test = {'filename': 'tests/test_dir/hello_world.txt',
+            'md5sum': '8ddd8be4b179a529afa5f2ffae4b9858'}
+
+    for key in FILE_INFO_SLOTS:
+        if key == 'urlname':
+            continue
+        if key == 'filestat':
+            assert tmp.filestat.st_size == 7654321
+        else:
+            print(key, getattr(tmp, key))
+            print(key, test[key])
+            assert getattr(tmp, key) == test[key]

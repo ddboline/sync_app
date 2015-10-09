@@ -45,9 +45,11 @@ class FileInfoLocal(FileInfo):
         else:
             return self.filestat
 
+
 def test_file_info_local():
     """ Test FileInfoLocal """
     from nose.tools import raises
+
     @raises(TypeError)
     def test_tmp():
         """ ... """
@@ -63,7 +65,8 @@ def test_file_info_local():
     test = '<FileInfo(fn=/home/ddboline/setup_files/build/sync_app/tests/' + \
            'test_dir/hello_world.txt, url=file:///home/ddboline/' + \
            'setup_files/build/sync_app/tests/test_dir/hello_world.txt, ' + \
-           'md5=8ddd8be4b179a529afa5f2ffae4b9858, size=7654321, ' + \
-           'st_mtime=1234567)>'
+           'md5=8ddd8be4b179a529afa5f2ffae4b9858, size=7654321)>'
 
+    print(tmp)
+    print(test)
     assert tmp == test

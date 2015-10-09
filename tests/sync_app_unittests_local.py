@@ -24,6 +24,7 @@ TEST_FILE = 'tests/test_dir/hello_world.txt'
 TEST_DIR = 'tests/test_dir'
 TEST_GDR = 'Amazon-Gift-Card.pdf'
 
+
 class TestSyncAppLocal(unittest.TestCase):
     """ SyncApp Unit Tests """
 
@@ -55,7 +56,6 @@ class TestSyncAppLocal(unittest.TestCase):
                                      fl_.filestat.st_size)
             output.append(temp_.replace(CURDIR, ''))
         output = sorted(output)
-#        print('file_list', '\n'.join(output))
         md_ = hashlib.md5()
         for out in sorted(output):
             if hasattr(out, 'encode'):
@@ -79,7 +79,6 @@ class TestSyncAppLocal(unittest.TestCase):
                                      fl_.filestat.st_size)
             output.append(temp_.replace(CURDIR, ''))
         output = sorted(output)
-#        print('file_cache', '\n'.join(output))
         md_ = hashlib.md5()
         for out in sorted(output):
             if hasattr(out, 'encode'):
@@ -91,8 +90,8 @@ class TestSyncAppLocal(unittest.TestCase):
         flist.fill_file_list_local(directory=TEST_DIR)
         md_ = hashlib.md5()
         md_.update(('%s' % sorted((_ for _ in flist),
-                                key=lambda x: x.filename)).encode())
-        self.assertEqual(md_.hexdigest(), '87d4d892c3f169145414ec0c4c5d3ebb')
+                                  key=lambda x: x.filename)).encode())
+        self.assertEqual(md_.hexdigest(), 'd54073ff63e767c81e4aef53e26271f8')
 
 
 if __name__ == '__main__':

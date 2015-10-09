@@ -25,6 +25,7 @@ TEST_GDR = 'Amazon-Gift-Card.pdf'
 
 HOMEDIR = os.getenv('HOME')
 
+
 class TestSyncAppGdrive(unittest.TestCase):
     """ SyncApp Unit Tests """
 
