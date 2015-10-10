@@ -91,7 +91,8 @@ class TestSyncAppLocal(unittest.TestCase):
         md_ = hashlib.md5()
         md_.update(('%s' % sorted((_ for _ in flist),
                                   key=lambda x: x.filename)).encode())
-        self.assertEqual(md_.hexdigest(), 'd54073ff63e767c81e4aef53e26271f8')
+        self.assertIn(md_.hexdigest(), ['d54073ff63e767c81e4aef53e26271f8',
+                                        '66debb3722d1cd5a1e0e45e49f37bc01'])
 
 
 if __name__ == '__main__':

@@ -60,11 +60,10 @@ def test_file_info_local():
     test_dict = {'st_mtime': 1234567, 'st_size': 7654321}
     fs_ = StatTuple(**test_dict)
     fn_ = 'tests/test_dir/hello_world.txt'
+    afn_ = os.path.abspath(fn_)
     tmp = '%s' % FileInfoLocal(fn=fn_, md5='8ddd8be4b179a529afa5f2ffae4b9858',
                                fs=fs_)
-    test = '<FileInfo(fn=/home/ddboline/setup_files/build/sync_app/tests/' + \
-           'test_dir/hello_world.txt, url=file:///home/ddboline/' + \
-           'setup_files/build/sync_app/tests/test_dir/hello_world.txt, ' + \
+    test = '<FileInfo(fn=%s, ' % afn_ + 'url=file://%s, ' % afn_ + \
            'md5=8ddd8be4b179a529afa5f2ffae4b9858, size=7654321)>'
 
     print(tmp)
