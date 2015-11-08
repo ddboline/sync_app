@@ -23,6 +23,7 @@ class FileList(object):
         self.filelist = filelist if filelist else {}
         self.filelist_name_dict = defaultdict(list)
         self.filelist_md5_dict = defaultdict(list)
+        self.filelist_sha1_dict = defaultdict(list)
         self.filelist_type = filelist_type if filelist_type else 'local'
 
         self.basedir = basedir if basedir else os.getenv('HOME')
@@ -59,6 +60,8 @@ class FileList(object):
         """ try to simplify calling a bit... """
         if key in self.filelist_md5_dict:
             return self.filelist_md5_dict.__getitem__(key)
+        elif key in self.filelist_sha1_dict:
+            return self.filelist_sha1_dict.__getitem__(key)
         elif key in self.filelist_name_dict:
             return self.filelist_name_dict.__getitem__(key)
         else:
@@ -81,9 +84,13 @@ class FileList(object):
             return
         fn_ = os.path.basename(ffn_)
         md5 = file_info_obj.md5sum
+        sha1 = file_info_obj.sha1sum
         self.filelist[ffn_] = file_info_obj
         self.filelist_name_dict[fn_].append(file_info_obj)
-        self.filelist_md5_dict[md5].append(file_info_obj)
+        if md5:
+            self.filelist_md5_dict[md5].append(file_info_obj)
+        if sha1:
+            self.filelist_sha1_dict[sha1].append(file_info_obj)
 
     def append_item(self, item):
         raise NotImplementedError
