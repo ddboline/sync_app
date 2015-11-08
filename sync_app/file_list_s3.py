@@ -43,7 +43,7 @@ class FileListS3(FileList):
         self.filelist_key_dict[finfo.filename] = finfo
         return finfo
 
-    def fill_file_list_s3(self, bucket=None):
+    def fill_file_list(self, bucket=None):
         """ fill s3 filelist  """
         self.s3_.get_list_of_keys(bucket_name=bucket,
                                   callback_fn=self.append_item)
