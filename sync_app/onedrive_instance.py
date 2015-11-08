@@ -49,8 +49,8 @@ class OneDriveInstance(object):
                                          scopes=['wl.signin',
                                                  'wl.offline_access',
                                                  'onedrive.readwrite'])
-        if os.path.exists('session.pickle'):
-            with open('session.pickle', 'rb') as pfile:
+        if os.path.exists('session.pkl'):
+            with open('session.pkl', 'rb') as pfile:
                 self.client.auth_provider._session = pickle.load(pfile)
         else:
             auth_url = \
@@ -58,18 +58,10 @@ class OneDriveInstance(object):
             code = GetAuthCodeServer.get_auth_code(auth_url, self.redirect_uri)
             self.client.auth_provider.authenticate(code, self.redirect_uri,
                                                    self.client_secret)
-            with open('session.pickle', 'wb') as pfile:
+            with open('session.pkl', 'wb') as pfile:
                 pickle.dump(self.client.auth_provider._session, pfile)
 
         return self.client
-
-    def process_response(self, response, callback_fn=None):
-        """ callback_fn applied to each item returned by response """
-        raise NotImplementedError
-
-    def process_request(self, request, callback_fn=None):
-        """ call process_response until new_request exists or until stopped """
-        raise NotImplementedError
 
     def list_files(self, callback_fn):
         """ list non-directory files """
@@ -89,6 +81,7 @@ class OneDriveInstance(object):
         """ get folders """
         def walk_nodes(parentid='root'):
             parent_node = self.client.item(id=parentid)
+            print('parent_node', parentid)
             for node in parent_node.children.get():
                 item = node.to_dict()
                 item['parentid'] = parentid
@@ -134,10 +127,3 @@ class OneDriveInstance(object):
     def delete_file(self, fileid):
         """ delete file by fileid """
         return self.client.item(id=fileid).delete()
-
-
-def test_gdrivce_instance():
-    """ test OneDriveInstance """
-    onedrive = OneDriveInstance()
-    print(dir(onedrive.client.item(id='root')))
-    assert False
