@@ -64,7 +64,7 @@ class GdriveInstance(object):
             except HttpError:
                 time.sleep(5)
                 response = request.execute()
-        return response
+        return
 
     def list_files(self, callback_fn, searchstr=None):
         """ list non-directory files """
