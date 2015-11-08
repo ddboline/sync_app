@@ -26,7 +26,7 @@ class FileListLocal(FileList):
         self.cache_file_list = cache_file_list
         self.do_debug = do_debug
 
-    def fill_file_list_local(self, directory):
+    def fill_file_list(self, directory):
         """ Fill local file list """
         def parse_dir(_, path, filelist):
             """ Parse directory, fill FileInfo object """

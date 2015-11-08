@@ -14,22 +14,17 @@ from __future__ import unicode_literals
 import os
 from collections import defaultdict
 
-FILE_LIST_TYPES = ('local', 'remote', 'gdrive', 's3')
+FILE_LIST_TYPES = ('local', 'remote', 'gdrive', 's3', 'onedrive')
 
 
 class FileList(object):
     """ file list class """
     def __init__(self, filelist=None, filelist_type=None, basedir=None):
-        self.__filelist = {}
-        self.filelist = self.__filelist
-        if filelist:
-            self.filelist = filelist
+        self.filelist = filelist if filelist else {}
         self.filelist_name_dict = defaultdict(list)
         self.filelist_md5_dict = defaultdict(list)
-        self.__filelist_type = 'local'
-        self.filelist_type = self.__filelist_type
-        if filelist_type:
-            self.filelist_type = filelist_type
+        self.filelist_type = filelist_type if filelist_type else 'local'
+
         self.basedir = basedir if basedir else os.getenv('HOME')
         self.baseurl = 'local://'
         self.fill_dicts()
@@ -89,6 +84,12 @@ class FileList(object):
         self.filelist[ffn_] = file_info_obj
         self.filelist_name_dict[fn_].append(file_info_obj)
         self.filelist_md5_dict[md5].append(file_info_obj)
+
+    def append_item(self, item):
+        raise NotImplementedError
+
+    def fill_file_list(self):
+        raise NotImplementedError
 
     def fill_dicts(self):
         """ fill dicts """

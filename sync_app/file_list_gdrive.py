@@ -107,8 +107,8 @@ class FileListGdrive(FileList):
         for _, finfo in self.directory_id_dict.items():
             finfo.exportpath = self.get_export_path(finfo, is_dir=True)
 
-    def fill_file_list_gdrive(self, number_to_process=-1, searchstr=None,
-                              verbose=True):
+    def fill_file_list(self, number_to_process=-1, searchstr=None,
+                       verbose=True):
         """ fill GDrive file list"""
         if not self.gdrive:
             self.gdrive = GdriveInstance()
