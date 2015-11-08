@@ -113,3 +113,9 @@ def test_file_list():
         """ ... """
         tmp.append(1)
     test_tmp1()
+
+
+def test_file_list_add():
+    tmp = FileList()
+    new_filelist = {'key0': 'val0', 'key1': 'val1'}
+    tmp.filelist = new_filelist
