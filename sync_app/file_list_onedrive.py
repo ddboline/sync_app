@@ -53,7 +53,7 @@ class FileListOneDrive(FileList):
             return finfo
         if finfo.filename in self.filelist_name_dict:
             for ffn in self.filelist_name_dict[finfo.filename]:
-                if finfo.md5sum == ffn.md5sum:
+                if finfo.sha1sum == ffn.sha1sum:
                     return finfo
 
         self.append(finfo)
