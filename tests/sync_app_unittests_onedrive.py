@@ -79,45 +79,29 @@ class TestSyncAppOneDrive(unittest.TestCase):
         self.assertEqual(get_sha1(fname),
                          'a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b')
         os.remove(fname)
-        self.assertFalse(True)
 
-#    def test_onedrive_search_directory(self):
-#        """ Test FileListOneDrive """
-#        self.onedrive = OneDriveInstance()
-#        flist_onedrive = FileListOneDrive()
-#        self.onedrive.get_folders(flist_onedrive.append_dir)
-#        flist_onedrive.fix_export_path()
-#        id_ = flist_onedrive.directory_name_dict['share'].onedriveid
-#        val = flist_onedrive.directory_id_dict[id_]
-#        self.assertEqual(val.exportpath,
-#                         '%s/OneDrive/ATLAS/code/' % HOMEDIR +
-#                         'ISF_Calo_Validation/17.2.4.10')
-#
-#    def test_onedrive_list_directories(self):
-#        """ Test FileListOneDrive """
-#        flist_onedrive = FileListOneDrive(onedrive=self.onedrive)
-#        self.onedrive.get_folders(flist_onedrive.append_dir)
-#        flist_onedrive.fix_export_path()
-#
-#        finf_ = flist_onedrive.directory_name_dict['share']
-#
-#        self.assertEqual(finf_.exportpath,
-#                         '%s/OneDrive/ATLAS/code/' % HOMEDIR +
-#                         'ISF_Calo_Validation/17.2.4.10')
-#
-#    def test_onedrive_create_directory(self):
-#        """ Test OneDriveInstance.insert """
-#        body_obj = {'title': 'test_directory',
-#                    'mimeType': 'application/vnd.google-apps.folder'}
-#        request = self.onedrive.service.files().insert(body=body_obj)
-#        response = request.execute()
-#        flist_onedrive = FileListOneDrive()
-#        self.onedrive.get_folders(flist_onedrive.append_dir)
-#        flist_onedrive.fix_export_path()
-#        fid = response['id']
-#        self.onedrive.delete_file(fid)
-#        self.assertEqual('test_directory',
-#                         flist_onedrive.filelist_id_dict[fid].filename)
+    def test_onedrive_search_directory(self):
+        """ Test FileListOneDrive """
+        self.onedrive = OneDriveInstance()
+        flist_onedrive = FileListOneDrive()
+        self.onedrive.get_folders(flist_onedrive.append_dir)
+        flist_onedrive.fix_export_path()
+        print(flist_onedrive.directory_name_dict)
+        id_ = flist_onedrive.directory_name_dict['Imported'].onedriveid
+        val = flist_onedrive.directory_id_dict[id_]
+        print(val)
+        self.assertEqual(val.exportpath, '%s/OneDrive/Documents' % HOMEDIR)
+
+    def test_onedrive_list_directories(self):
+        """ Test FileListOneDrive """
+        flist_onedrive = FileListOneDrive(onedrive=self.onedrive)
+        self.onedrive.get_folders(flist_onedrive.append_dir)
+        flist_onedrive.fix_export_path()
+
+        finf_ = flist_onedrive.directory_name_dict['Imported']
+
+        self.assertEqual(finf_.exportpath, '%s/OneDrive/Documents' % HOMEDIR)
+
 
 if __name__ == '__main__':
     unittest.main()
