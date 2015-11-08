@@ -7,13 +7,14 @@
             filename
             urlname
             md5sum of the file
+            sha1sum of the file
             output of os.stat
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 STAT_ATTRS = ('st_mtime', 'st_size')
-FILE_INFO_SLOTS = ('filename', 'urlname', 'md5sum', 'filestat')
+FILE_INFO_SLOTS = ('filename', 'urlname', 'md5sum', 'sha1sum', 'filestat')
 
 
 class StatTuple(object):
@@ -52,11 +53,13 @@ class FileInfo(object):
     """
     __slots__ = list(FILE_INFO_SLOTS)
 
-    def __init__(self, fn='', url='', md5=None, fs=None, in_tuple=None):
+    def __init__(self, fn='', url='', md5=None, sha1=None, fs=None,
+                 in_tuple=None):
         """ Init function, define sensible defaults """
         self.filename = fn
         self.urlname = url
         self.md5sum = md5 if md5 else self.get_md5()
+        self.sha1sum = sha1 if sha1 else self.get_sha1()
         self.filestat = StatTuple(fs) if fs else StatTuple(self.get_stat())
         if in_tuple:
             self.input_cache_tuple(in_tuple)
@@ -66,6 +69,7 @@ class FileInfo(object):
         return '<FileInfo(fn=%s, ' % self.filename + \
                'url=%s, ' % self.urlname + \
                'md5=%s, ' % self.md5sum + \
+               'sha1=%s, ' % self.sha1sum + \
                'size=%s)>' % self.filestat.st_size
 
     def fill_stat(self, fs=None, **options):
@@ -77,6 +81,10 @@ class FileInfo(object):
         self.md5sum = ''
         return self.md5sum
 
+    def get_sha1(self):
+        self.sha1sum = ''
+        return self.sha1sum
+
     def get_stat(self):
         """ meant to be overridden """
         self.filestat = StatTuple()
@@ -84,13 +92,13 @@ class FileInfo(object):
 
     def output_cache_tuple(self):
         """ serialize FileInfo """
-        return (self.filename, self.urlname, self.md5sum,
+        return (self.filename, self.urlname, self.md5sum, self.sha1sum,
                 self.filestat.st_mtime, self.filestat.st_size)
 
     def input_cache_tuple(self, in_tuple):
         """ deserialize FileInfo """
-        self.filename, self.urlname, self.md5sum, self.filestat.st_mtime, \
-            self.filestat.st_size = in_tuple
+        self.filename, self.urlname, self.md5sum, self.sha1sum, \
+            self.filestat.st_mtime, self.filestat.st_size = in_tuple
 
 
 def test_stat_tuple():
@@ -110,9 +118,11 @@ def test_file_info():
     fs_ = StatTuple(**test_dict)
     fn_ = 'tests/test_dir/hello_world.txt'
     tmp = FileInfo(fn=fn_, url='file://%s' % os.path.abspath(fn_),
-                   md5='8ddd8be4b179a529afa5f2ffae4b9858', fs=fs_)
+                   md5='8ddd8be4b179a529afa5f2ffae4b9858',
+                   sha1='a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b', fs=fs_)
     test = {'filename': 'tests/test_dir/hello_world.txt',
-            'md5sum': '8ddd8be4b179a529afa5f2ffae4b9858'}
+            'md5sum': '8ddd8be4b179a529afa5f2ffae4b9858',
+            'sha1sum': 'a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b'}
 
     for key in FILE_INFO_SLOTS:
         if key == 'urlname':
