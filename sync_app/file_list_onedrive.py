@@ -85,10 +85,10 @@ class FileListOneDrive(FileList):
                 raise ValueError('no parent %s' % pid)
         fullpath = '/'.join(fullpath[::-1])
         if not fullpath:
-            fullpath = 'My Drive'
-        elif 'My Drive' not in fullpath:
-            fullpath = 'My Drive/' + fullpath
-        fullpath = fullpath.replace('My Drive', BASE_DIR)
+            fullpath = 'OneDrive'
+        elif 'OneDrive' not in fullpath:
+            fullpath = 'OneDrive/' + fullpath
+        fullpath = fullpath.replace('OneDrive', BASE_DIR)
         if abspath:
             fullpath = os.path.dirname(fullpath)
         return fullpath
@@ -100,10 +100,22 @@ class FileListOneDrive(FileList):
         for _, finfo in self.directory_id_dict.items():
             finfo.exportpath = self.get_export_path(finfo, is_dir=True)
 
-    def fill_file_list_onedrive(self, number_to_process=-1, searchstr=None,
-                                verbose=True):
+    def fill_file_list(self, number_to_process=-1, searchstr=None,
+                       verbose=True):
         """ fill OneDrive file list"""
-        raise NotImplementedError
+        if not self.onedrive:
+            raise Exception('what happened?')
+        if verbose:
+            print('get_folders')
+        self.onedrive.number_to_process = -1
+        self.onedrive.get_folders(self.append_dir)
+        if verbose:
+            print('list_files')
+        self.onedrive.number_to_process = number_to_process
+        self.onedrive.items_processed = 0
+        self.onedrive.list_files(self.append_item)
+        if verbose:
+            print('update paths')
 
     def get_or_create_directory(self, dname):
         """ create directory on onedrive """
@@ -134,9 +146,10 @@ class FileListOneDrive(FileList):
     def upload_file(self, fname, pathname=None):
         """ upload file """
         dname = os.path.dirname(fname)
+        pid_ = 'root'
         if pathname:
             dname = pathname
-        pid_ = self.get_or_create_directory(dname)
+            pid_ = self.get_or_create_directory(dname)
         item = self.onedrive.upload(fname, parent_id=pid_)
         item['parentid'] = pid_
         self.append_item(item)
