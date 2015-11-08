@@ -8,7 +8,10 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import os
+
 from .file_list import FileList
+from .file_info_onedrive import (FileInfoOneDrive, BASE_DIR)
 
 
 class FileListOneDrive(FileList):
@@ -32,37 +35,106 @@ class FileListOneDrive(FileList):
 
     def append(self, finfo):
         """ overload FileList.append """
-        raise NotImplementedError
+        FileList.append(self, finfo)
+        self.filelist_id_dict[finfo.onedriveid] = finfo
 
     def append_item(self, item):
         """ append file to FileList, fill dict's """
-        raise NotImplementedError
+        finfo = FileInfoOneDrive(onedrive=self.onedrive, item=item)
+
+        ### Fix paths
+        finfo.exportpath = self.get_export_path(finfo, abspath=False)
+        if not finfo.urlname:
+            finfo.urlname = 'onedrive://%s' % (finfo.exportpath)
+        finfo.filename = '%s/%s' % (finfo.exportpath,
+                                    os.path.basename(finfo.filename))
+
+        if finfo.onedriveid in self.filelist_id_dict:
+            return finfo
+        if finfo.filename in self.filelist_name_dict:
+            for ffn in self.filelist_name_dict[finfo.filename]:
+                if finfo.md5sum == ffn.md5sum:
+                    return finfo
+
+        self.append(finfo)
+        self.filelist_id_dict[finfo.onedriveid] = finfo
+        return finfo
 
     def append_dir(self, item):
         """ append directory to FileList """
-        raise NotImplementedError
+        finfo = FileInfoOneDrive(onedrive=self.onedrive, item=item)
+        if 'folder' not in item:
+            return finfo
+
+        self.filelist_id_dict[finfo.onedriveid] = finfo
+        self.directory_id_dict[finfo.onedriveid] = finfo
+        self.directory_name_dict[finfo.filename] = finfo
 
     def get_export_path(self, finfo, abspath=True, is_dir=False):
         """ determine export path for given finfo object"""
-        raise NotImplementedError
+        fullpath = []
+        if is_dir:
+            fullpath.append(finfo.filename)
+        pid = finfo.parentid
+        while pid != 'root':
+            if pid in self.filelist_id_dict:
+                finf = self.filelist_id_dict[pid]
+                pid = finf.parentid
+                fullpath.append(os.path.basename(finf.filename))
+            else:
+                raise ValueError('no parent %s' % pid)
+        fullpath = '/'.join(fullpath[::-1])
+        if not fullpath:
+            fullpath = 'My Drive'
+        elif 'My Drive' not in fullpath:
+            fullpath = 'My Drive/' + fullpath
+        fullpath = fullpath.replace('My Drive', BASE_DIR)
+        if abspath:
+            fullpath = os.path.dirname(fullpath)
+        return fullpath
 
     def fix_export_path(self):
         """ determine export paths for finfo objects in file list"""
         raise NotImplementedError
 
     def fill_file_list_onedrive(self, number_to_process=-1, searchstr=None,
-                              verbose=True):
+                                verbose=True):
         """ fill OneDrive file list"""
         raise NotImplementedError
 
     def get_or_create_directory(self, dname):
         """ create directory on onedrive """
-        raise NotImplementedError
+        pid_ = 'root'
+        dn_list = dname.replace(BASE_DIR + '/', '').split('/')
+
+        if dn_list[0] in self.directory_name_dict:
+            pid_ = self.directory_name_dict[dn_list[0]].onedriveid
+        else:
+            item = self.onedrive.create_directory(dn_list[0], parent_id=pid_)
+            self.append_dir(item)
+            pid_ = item['id']
+        for dn_ in dn_list[1:]:
+            if dn_ in self.directory_name_dict \
+                    and pid_ == self.directory_name_dict[dn_].parentid:
+                pid_ = self.directory_name_dict[dn_].onedriveid
+            else:
+                item = self.onedrive.create_directory(dn_, parent_id=pid_)
+                self.append_dir(item)
+                pid_ = item['id']
+        return pid_
 
     def delete_directory(self, dname):
         """ delete directory on onedrive """
-        raise NotImplementedError
+        pid = self.get_or_create_directory(dname)
+        self.onedrive.delete_file(pid)
 
     def upload_file(self, fname, pathname=None):
         """ upload file """
-        raise NotImplementedError
+        dname = os.path.dirname(fname)
+        if pathname:
+            dname = pathname
+        pid_ = self.get_or_create_directory(dname)
+        item = self.onedrive.upload(fname, parent_id=pid_)
+        item['parentid'] = pid_
+        self.append_item(item)
+        return item['id']
