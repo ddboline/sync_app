@@ -49,7 +49,7 @@ class TestSyncAppLocal(unittest.TestCase):
     def test_file_list_local(self):
         """ Test FileListLocal class """
         flist = FileListLocal()
-        flist.fill_file_list_local(directory=TEST_DIR)
+        flist.fill_file_list(directory=TEST_DIR)
         output = []
         for fl_ in flist:
             temp_ = '%s %s %s %d' % (fl_.filename, fl_.urlname, fl_.md5sum,
@@ -66,7 +66,7 @@ class TestSyncAppLocal(unittest.TestCase):
     def test_file_list_cache(self):
         """ Test FileListCache class """
         flist = FileListLocal()
-        flist.fill_file_list_local(directory=TEST_DIR)
+        flist.fill_file_list(directory=TEST_DIR)
         fcache = FileListCache(pickle_file='.tmp_file_list_cache.pkl.gz')
         fcache.write_cache_file_list(flist)
         del flist, fcache
@@ -87,7 +87,7 @@ class TestSyncAppLocal(unittest.TestCase):
         self.assertEqual(md_.hexdigest(), 'cd3bf7a0a388d94ef5626fb9d5ca1632')
 
         flist = FileListLocal(cache_file_list=flist)
-        flist.fill_file_list_local(directory=TEST_DIR)
+        flist.fill_file_list(directory=TEST_DIR)
         md_ = hashlib.md5()
         md_.update(('%s' % sorted((_ for _ in flist),
                                   key=lambda x: x.filename)).encode())
