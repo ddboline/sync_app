@@ -37,7 +37,7 @@ def build_gdrive_index(searchstr=None, verbose=True):
     #### always rebuild index
     if verbose:
         print('download file metadata')
-    flist.fill_file_list_gdrive(searchstr=searchstr, verbose=verbose)
+    flist.fill_file_list(searchstr=searchstr, verbose=verbose)
     return flist
 
 
@@ -50,7 +50,7 @@ def build_s3_index():
     flist = FileListS3(s3=s3_)
     #### always rebuild index
     print('download file metadata')
-    flist.fill_file_list_s3()
+    flist.fill_file_list()
     return flist
 
 
@@ -69,7 +69,7 @@ def build_local_index(directories=None, rebuild_index=False):
     print('index local directories')
     for direc in directories:
         print('directory', direc)
-        flist.fill_file_list_local(directory=direc)
+        flist.fill_file_list(directory=direc)
     print('write cache')
     fcache.write_cache_file_list(flist)
     return flist
@@ -279,7 +279,7 @@ def list_drive_parse():
     flist_gdrive = FileListGdrive(gdrive=gdrive)
 
     if cmd == 'list':
-        flist_gdrive.fill_file_list_gdrive(verbose=False,
+        flist_gdrive.fill_file_list(verbose=False,
                                            number_to_process=number_to_list)
         for key, val in flist_gdrive.filelist_id_dict.items():
             if parent_directory \
@@ -290,7 +290,7 @@ def list_drive_parse():
     elif cmd == 'search':
         if search_strings:
             for search_string in search_strings:
-                flist_gdrive.fill_file_list_gdrive(verbose=False,
+                flist_gdrive.fill_file_list(verbose=False,
                                                    searchstr=search_string)
                 for key, val in flist_gdrive.filelist_id_dict.items():
                     if val.md5sum:
@@ -313,7 +313,7 @@ def list_drive_parse():
         for search_string in search_strings:
             if os.path.exists(search_string):
                 fn_ = os.path.basename(search_string)
-                flist_gdrive.fill_file_list_gdrive(verbose=False,
+                flist_gdrive.fill_file_list(verbose=False,
                                                    searchstr=fn_)
                 for key, val in flist_gdrive.filelist_name_dict.items():
                     if fn_ == key:
@@ -383,3 +383,85 @@ def parse_s3_args():
             s3_.delete_key(bucket_name=bucket_name, key_name=kn_)
     elif cmd == 'delete_bucket':
         s3_.delete_bucket(bucket_name=bucket_name)
+
+
+def list_onedrive_parse():
+    """ main routine, parse arguments """
+    commands = ('list', 'search', 'upload', 'directories',
+                'delete', 'new')
+    cmd = 'list'
+    search_strings = []
+    parent_directory = None
+    number_to_list = -1
+
+    for arg in os.sys.argv:
+        if 'list_onedrive_files' in arg:
+            continue
+        elif arg in ['h', '--help', '-h']:
+            print('list_onedrive_files <' + '|'.join(commands) +
+                  '> <file/key> directory=<id of directory>')
+            exit(0)
+        elif arg in commands:
+            cmd = arg
+        elif 'directory=' in arg:
+            parent_directory = arg.replace('directory=', '')
+        elif arg.startswith('-n'):
+            try:
+                number_to_list = int(arg.split('-n')[1])
+            except ValueError:
+                raise
+        else:
+            try:
+                number_to_list = int(arg)
+            except ValueError:
+                search_strings.append(arg)
+
+    from .onedrive_instance import OneDriveInstance
+    from .file_list_onedrive import FileListOneDrive
+    onedrive = OneDriveInstance(number_to_process=number_to_list)
+    flist_onedrive = FileListOneDrive(onedrive=onedrive)
+
+    if cmd == 'list':
+        flist_onedrive.fill_file_list_onedrive(verbose=False,
+                                           number_to_process=number_to_list)
+        for key, val in flist_onedrive.filelist_id_dict.items():
+            if parent_directory \
+                    and parent_directory not in os.path.dirname(val.filename):
+                continue
+            if val.md5sum:
+                print(key, val.filename)
+    elif cmd == 'search':
+        if search_strings:
+            for search_string in search_strings:
+                flist_onedrive.fill_file_list_onedrive(verbose=False,
+                                                   searchstr=search_string)
+                for key, val in flist_onedrive.filelist_id_dict.items():
+                    if val.md5sum:
+                        print(key, val.filename)
+    elif cmd == 'directories':
+        onedrive.get_folders(flist_onedrive.append_dir)
+        for key, val in flist_onedrive.directory_name_dict.items():
+            if search_strings and not any(st_ in key for st_ in
+                                          search_strings):
+                continue
+            export_path = flist_onedrive.get_export_path(val)
+            if val.isroot:
+                export_path += '/OneDrive'
+            print(key, '%s/%s' % (export_path, val.filename))
+    elif cmd == 'upload':
+        onedrive.get_folders(flist_onedrive.append_dir)
+        for fname in search_strings:
+            flist_onedrive.upload_file(fname=fname, pathname=parent_directory)
+    elif cmd == 'delete':
+        for search_string in search_strings:
+            if os.path.exists(search_string):
+                fn_ = os.path.basename(search_string)
+                flist_onedrive.fill_file_list_onedrive(verbose=False,
+                                                   searchstr=fn_)
+                for key, val in flist_onedrive.filelist_name_dict.items():
+                    if fn_ == key:
+                        for finf in val:
+                            fid_ = finf.onedriveid
+                            onedrive.delete_file(fileid=fid_)
+            else:
+                onedrive.delete_file(fileid=search_string)
