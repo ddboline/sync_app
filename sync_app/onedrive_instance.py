@@ -8,9 +8,10 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from onedrivesdk import get_default_client
+import os
+from onedrivesdk import get_default_client, Folder, Item
 from onedrivesdk.helpers import GetAuthCodeServer
-from onedrivesdk.request.one_drive_client import OneDriveClient
+import cPickle as pickle
 
 from .util import HOMEDIR
 
@@ -18,13 +19,11 @@ from .util import HOMEDIR
 class OneDriveInstance(object):
     """ class to make use of google python api """
 
-    def __init__(self, client=None, number_to_process=-1):
+    def __init__(self, number_to_process=-1):
         """ init function """
-
         self.redirect_uri = ''
         self.client_id = ''
         self.client_secret = ''
-
         self.list_of_keys = {}
         self.list_of_mimetypes = {}
         self.items_processed = 0
@@ -32,11 +31,7 @@ class OneDriveInstance(object):
         self.list_of_items = {}
         self.number_to_process = number_to_process
         self.read_credentials()
-
-        if isinstance(client, OneDriveClient):
-            self.client = client
-        else:
-            self.client = self.get_auth()
+        self.client = self.get_auth()
 
     def read_credentials(self,
                          credential_file=HOMEDIR+'/.onedrive/credentials'):
@@ -50,16 +45,23 @@ class OneDriveInstance(object):
 
     def get_auth(self):
         """ do authorization """
-        client = get_default_client(client_id=self.client_id,
-                                    scopes=['wl.signin',
-                                            'wl.offline_access',
-                                            'onedrive.readwrite'])
-        auth_url = client.auth_provider.get_auth_url(self.redirect_uri)
-        code = GetAuthCodeServer.get_auth_code(auth_url, self.redirect_uri)
+        self.client = get_default_client(client_id=self.client_id,
+                                         scopes=['wl.signin',
+                                                 'wl.offline_access',
+                                                 'onedrive.readwrite'])
+        if os.path.exists('session.pickle'):
+            with open('session.pickle', 'rb') as pfile:
+                self.client.auth_provider._session = pickle.load(pfile)
+        else:
+            auth_url = \
+                self.client.auth_provider.get_auth_url(self.redirect_uri)
+            code = GetAuthCodeServer.get_auth_code(auth_url, self.redirect_uri)
+            self.client.auth_provider.authenticate(code, self.redirect_uri,
+                                                   self.client_secret)
+            with open('session.pickle', 'wb') as pfile:
+                pickle.dump(self.client.auth_provider._session, pfile)
 
-        client.auth_provider.authenticate(code, self.redirect_uri,
-                                          self.client_secret)
-        return client
+        return self.client
 
     def process_response(self, response, callback_fn=None):
         """ callback_fn applied to each item returned by response """
@@ -69,39 +71,73 @@ class OneDriveInstance(object):
         """ call process_response until new_request exists or until stopped """
         raise NotImplementedError
 
-    def list_files(self, callback_fn, searchstr=None):
+    def list_files(self, callback_fn):
         """ list non-directory files """
-        raise NotImplementedError
+        def walk_nodes(parentid='root'):
+            parent_node = self.client.item(id=parentid)
+            for node in parent_node.children.get():
+                item = node.to_dict()
+                item['parentid'] = parentid
+                if 'folder' in item and item['folder']['childCount'] > 0:
+                    walk_nodes(parentid=item['id'])
+                else:
+                    callback_fn(item)
+
+        walk_nodes(parentid='root')
 
     def get_folders(self, callback_fn):
         """ get folders """
-        raise NotImplementedError
+        def walk_nodes(parentid='root'):
+            parent_node = self.client.item(id=parentid)
+            for node in parent_node.children.get():
+                item = node.to_dict()
+                item['parentid'] = parentid
+                if 'folder' in item:
+                    callback_fn(item)
+                    if item['folder']['childCount'] > 0:
+                        walk_nodes(parentid=item['id'])
+        walk_nodes(parentid='root')
 
-    def download(self, dlink, exportfile, md5sum=None):
+    def download(self, did, exportfile, sha1sum=None):
         """ download using dlink url """
-        raise NotImplementedError
+        dirname = os.path.dirname(exportfile)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        self.client.item(id=did).download(exportfile + '.new')
+        if sha1sum:
+            from .util import get_sha1
+            sha = get_sha1(exportfile + '.new')
+            if sha != sha1sum:
+                raise TypeError('%s %s' % (sha, sha1sum))
+        os.rename('%s.new' % exportfile, exportfile)
+        return True
 
-    def upload(self, fname, parent_id=None):
+    def upload(self, fname, parent_id='root'):
         """ upload fname and assign parent_id if provided """
-        raise NotImplementedError
+        bname = os.path.basename(fname)
+        node = self.client.item(drive="me", id=parent_id)
+        return node.children[bname].upload(fname).to_dict()
 
-    def set_parent_id(self, fid, parent_id):
-        """ set parent_id """
-        raise NotImplementedError
-
-    def create_directory(self, dname, parent_id=None):
+    def create_directory(self, dname, parent_id='root'):
         """ create directory, assign parent_id if supplied """
-        raise NotImplementedError
+        if not parent_id:
+            raise ValueError('need to specify parent_id')
+        newfolder = Folder()
+        newitem = Item()
+        newitem.name = dname
+        newitem.folder = newfolder
+
+        result = self.client.item(id=parent_id).children.add(newitem).to_dict()
+        result['parentid'] = parent_id
+        return result
 
     def delete_file(self, fileid):
         """ delete file by fileid """
-        raise NotImplementedError
-
-    def get_parents(self, fids=None):
-        """ get parents of files by fileid """
-        raise NotImplementedError
+        return self.client.item(id=fileid).delete()
 
 
 def test_gdrivce_instance():
     """ test OneDriveInstance """
-    assert True
+    onedrive = OneDriveInstance()
+    print(dir(onedrive.client.item(id='root')))
+    assert False
