@@ -81,7 +81,6 @@ class OneDriveInstance(object):
         """ get folders """
         def walk_nodes(parentid='root'):
             parent_node = self.client.item(id=parentid)
-            print('parent_node', parentid)
             for node in parent_node.children.get():
                 item = node.to_dict()
                 item['parentid'] = parentid
