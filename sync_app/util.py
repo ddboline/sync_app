@@ -10,6 +10,12 @@ import os
 import hashlib
 from subprocess import call, Popen, PIPE
 
+import requests
+try:
+    requests.packages.urllib3.disable_warnings()
+except AttributeError:
+    pass
+
 HOMEDIR = os.getenv('HOME')
 
 
@@ -96,6 +102,35 @@ def test_get_md5():
     test = '8ddd8be4b179a529afa5f2ffae4b9858'
     assert tmp == test
     tmp = get_md5('tests/test_dir/hello_world.txt')
+    assert tmp == test
+
+
+def get_sha1_old(fname):
+    """ python only sha1 function """
+    md_ = hashlib.sha1()
+    with open(fname, 'rb') as infile:
+        for line in infile:
+            md_.update(line)
+    return md_.hexdigest()
+
+
+def get_sha1(fname):
+    """ system sha1 function """
+    try:
+        with run_command('sha1sum "%s" 2> /dev/null' % cleanup_path(fname),
+                         do_popen=True) as pop_:
+            output = pop_.stdout.read().split()[0]
+        return output.decode()
+    except IndexError:
+        return get_sha1_old(fname)
+
+
+def test_get_sha1():
+    """ test get_sha1 """
+    tmp = get_sha1_old('tests/test_dir/hello_world.txt')
+    test = 'a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b'
+    assert tmp == test
+    tmp = get_sha1('tests/test_dir/hello_world.txt')
     assert tmp == test
 
 
