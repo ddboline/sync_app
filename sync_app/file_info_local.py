@@ -10,7 +10,7 @@ from __future__ import unicode_literals
 
 import os
 
-from .util import get_md5
+from .util import get_md5, get_sha1
 
 from .file_info import FileInfo
 
@@ -18,7 +18,7 @@ from .file_info import FileInfo
 class FileInfoLocal(FileInfo):
     """ File Info Local """
 
-    def __init__(self, fn='', md5='', fs=None, in_tuple=None):
+    def __init__(self, fn='', md5='', sha1='', fs=None, in_tuple=None):
         """ Init function """
         absfn = ''
         _url = ''
@@ -28,7 +28,7 @@ class FileInfoLocal(FileInfo):
                 print('ERROR')
                 raise TypeError
             _url = 'file://%s' % absfn
-        FileInfo.__init__(self, fn=absfn, url=_url, md5=md5, fs=fs,
+        FileInfo.__init__(self, fn=absfn, url=_url, md5=md5, sha1=sha1, fs=fs,
                           in_tuple=in_tuple)
 
     def get_md5(self):
@@ -37,6 +37,13 @@ class FileInfoLocal(FileInfo):
             return get_md5(self.filename)
         else:
             return self.md5sum
+
+    def get_sha1(self):
+        """ Wrapper around sync_utils.get_sha1 """
+        if os.path.exists(self.filename):
+            return get_sha1(self.filename)
+        else:
+            return self.sha1sum
 
     def get_stat(self):
         """ Wrapper around os.stat """
@@ -62,9 +69,11 @@ def test_file_info_local():
     fn_ = 'tests/test_dir/hello_world.txt'
     afn_ = os.path.abspath(fn_)
     tmp = '%s' % FileInfoLocal(fn=fn_, md5='8ddd8be4b179a529afa5f2ffae4b9858',
+                               sha1='a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b',
                                fs=fs_)
     test = '<FileInfo(fn=%s, ' % afn_ + 'url=file://%s, ' % afn_ + \
-           'md5=8ddd8be4b179a529afa5f2ffae4b9858, size=7654321)>'
+           'md5=8ddd8be4b179a529afa5f2ffae4b9858, ' \
+           'sha1=a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b, size=7654321)>'
 
     print(tmp)
     print(test)
