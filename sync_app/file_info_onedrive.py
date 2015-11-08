@@ -9,6 +9,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+from dateutil.parser import parse
 
 from .file_info import FileInfo
 
@@ -22,14 +23,14 @@ class FileInfoOneDrive(FileInfo):
     """ OneDrive File Info """
     __slots__ = FileInfo.__slots__ + list(FILE_INFO_SLOTS)
 
-    def __init__(self, gid='', fn='', md5='', onedrive=None, item=None,
+    def __init__(self, gid='', fn='', sha1='', onedrive=None, item=None,
                  in_tuple=None, mime='', sha1sum=None):
-        FileInfo.__init__(self, fn=fn, md5=md5)
+        FileInfo.__init__(self, fn=fn, sha1=sha1)
         self.onedriveid = gid
         self.onedrive = onedrive
         self.mimetype = mime
         self.exportpath = ''
-        self.sha1sum = ''
+        self.sha1sum = sha1
         if item:
             self.fill_item(item)
         if in_tuple:
@@ -54,19 +55,18 @@ class FileInfoOneDrive(FileInfo):
         return '<FileInfoOneDrive(fn=%s, ' % self.filename +\
                'url=%s, ' % self.urlname +\
                'path=%s, ' % self.exportpath +\
-               'md5=%s, ' % self.md5sum +\
                'sha1sum=%s, ' % self.sha1sum +\
                'size=%s, ' % self.filestat.st_size +\
                'st_mime=%s, ' % self.filestat.st_mtime +\
                'id=%s)>' % self.onedriveid
 
     def output_cache_tuple(self):
-        return (self.filename, self.urlname, self.md5sum, self.sha1sum,
+        return (self.filename, self.urlname, self.sha1sum,
                 self.filestat.st_mtime, self.filestat.st_size, self.onedriveid,
                 self.mimetype, self.exportpath, self.onedrive)
 
     def input_cache_tuple(self, in_tuple):
-        self.filename, self.urlname, self.md5sum, self.sha1sum, \
+        self.filename, self.urlname, self.sha1sum, \
             self.filestat.st_mtime, self.filestat.st_size, self.onedriveid, \
             self.mimetype, self.exportpath, self.onedrive = in_tuple
 
@@ -75,6 +75,11 @@ class FileInfoOneDrive(FileInfo):
         self.onedriveid = item['id']
         self.filename = item['name']
         self.parentid = item['parentid']
+        _temp = {}
+        _temp['st_mtime'] = int(
+            parse(item['lastModifiedDateTime']).strftime("%s"))
+        _temp['st_size'] = item['size']
+        self.fill_stat(**_temp)
         if 'file' in item:
             self.mimetype = item['file'].get('mimeType', 'None')
             if 'hashes' in item['file']:
@@ -84,4 +89,15 @@ class FileInfoOneDrive(FileInfo):
 
 def test_file_info_onedrive():
     """ Test FileInfoOneDrive """
-    assert True
+    tmp = FileInfoOneDrive(gid='0BxGM0lfCdptnNzJsblNEa1ZzUU0',
+                           sha1='63f959b57ab0d1ef4e96a8dc4df3055456a80705',
+                           fn='/home/ddboline/OneDrive/temp1.xml')
+    test = '<FileInfoOneDrive(fn=/home/ddboline/OneDrive/temp1.xml, ' \
+           'url=, path=, sha1sum=63f959b57ab0d1ef4e96a8dc4df3055456a80705, ' \
+           'size=0, st_mime=0, id=0BxGM0lfCdptnNzJsblNEa1ZzUU0)>'
+    assert '%s' % tmp == test
+
+    test_tuple = tmp.output_cache_tuple()
+    tmp = FileInfoOneDrive(in_tuple=test_tuple)
+
+    assert '%s' % tmp == test
