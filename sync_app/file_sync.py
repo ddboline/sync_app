@@ -26,7 +26,7 @@ class FileSync(object):
     def __repr__(self):
         return '%s' % ' '.join(self.flists)
 
-    def compare_lists(self, callback0=None, callback1=None):
+    def compare_lists(self, callback0=None, callback1=None, use_sha1=False):
         """ Compare file lists """
         if len(self.flists) < 2:
             return None
@@ -37,13 +37,20 @@ class FileSync(object):
         for fn_ in self.flists[0].filelist_name_dict:
             finfo0 = self.flists[0].filelist_name_dict[fn_]
             fmd5_0 = finfo0[0].md5sum
+            if use_sha1:
+                fmd5_0 = finfo0[0].sha1sum
             fmtim0 = finfo0[0].filestat.st_mtime
             for flist in self.flists[1:]:
+                hash_dict = flist.filelist_md5_dict
+                if use_sha1:
+                    hash_dict = flist.filelist_sha1_dict
                 if fn_ not in flist.filelist_name_dict:
                     list_a_not_b.append(finfo0)
-                elif fmd5_0 not in flist.filelist_md5_dict:
+                elif fmd5_0 not in hash_dict:
                     tmp = flist.filelist_name_dict[fn_][0]
                     fmd5_1 = tmp.get_md5()
+                    if use_sha1:
+                        fmd5_1 = tmp.get_sha1()
                     fmtim1 = tmp.get_stat().st_mtime
                     fmtim1 += 12 * 3600
                     if fmd5_0 != fmd5_1 and fmtim0 > fmtim1:
