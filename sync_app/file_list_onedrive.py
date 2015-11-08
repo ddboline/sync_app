@@ -95,7 +95,10 @@ class FileListOneDrive(FileList):
 
     def fix_export_path(self):
         """ determine export paths for finfo objects in file list"""
-        raise NotImplementedError
+        for finfo in self.filelist.values():
+            finfo.exportpath = self.get_export_path(finfo)
+        for _, finfo in self.directory_id_dict.items():
+            finfo.exportpath = self.get_export_path(finfo, is_dir=True)
 
     def fill_file_list_onedrive(self, number_to_process=-1, searchstr=None,
                                 verbose=True):
