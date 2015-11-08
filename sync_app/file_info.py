@@ -97,6 +97,9 @@ def test_stat_tuple():
     """ test StatTuple class """
     test_dict = {'st_mtime': 1234567, 'st_size': 7654321}
     tmp = StatTuple(**test_dict)
+    obs = '%s' % tmp
+    exp = '<StatTuple(size=7654321)>'
+    assert obs == exp
     assert tmp.st_size == 7654321
 
 
