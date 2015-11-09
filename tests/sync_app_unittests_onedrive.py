@@ -58,8 +58,8 @@ class TestSyncAppOneDrive(unittest.TestCase):
             print(directory)
             print(flist_onedrive.get_export_path(finfo))
 
-        flist_onedrive.get_or_create_directory(os.path.dirname(TEST_FILE))
-        fid = flist_onedrive.upload_file(TEST_FILE)
+        flist_onedrive.get_or_create_directory(TEST_DIR)
+        fid = flist_onedrive.upload_file(TEST_FILE, pathname=TEST_DIR)
         print(fid)
 
         finf_ = flist_onedrive.filelist_id_dict[fid]
