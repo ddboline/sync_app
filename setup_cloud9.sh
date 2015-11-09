@@ -9,3 +9,5 @@ sudo apt-get install -y --force-yes python-boto python-googleapi python-dateutil
 scp ddboline@ddbolineathome.mooo.com:~/setup_files/build/sync_app/sync_app/client_secrets.json sync_app/
 scp ddboline@ddbolineathome.mooo.com:~/setup_files/build/sync_app/*.dat .
 scp ddboline@ddbolineathome.mooo.com:~/setup_files/build/sync_app/session.pkl .
+mkdir ~/.onedrive
+scp ddboline@ddbolineathome.mooo.com:~/.onedrive/credentials ~/.onedrive/
