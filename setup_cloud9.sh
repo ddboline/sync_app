@@ -8,3 +8,4 @@ sudo apt-get install -y python-boto python-googleapi python-dateutil python-nose
 
 scp ddboline@ddbolineathome.mooo.com:~/setup_files/build/ddboline_personal_scripts/client_secrets.json sync_app/
 scp ddboline@ddbolineathome.mooo.com:~/setup_files/build/ddboline_personal_scripts/*.dat .
+scp ddboline@ddbolineathome.mooo.com:~/setup_files/build/ddboline_personal_scripts/session.pkl .
