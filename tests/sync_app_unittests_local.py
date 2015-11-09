@@ -92,7 +92,7 @@ class TestSyncAppLocal(unittest.TestCase):
         md_.update(('%s' % sorted((_ for _ in flist),
                                   key=lambda x: x.filename)).encode())
         self.assertIn(md_.hexdigest(), ['4fd66d0de026e7d9de08a29efd707ab2',
-                                        '66debb3722d1cd5a1e0e45e49f37bc01'])
+                                        'ca97fddb40f753e245a18f540f5b116e'])
 
 
 if __name__ == '__main__':
