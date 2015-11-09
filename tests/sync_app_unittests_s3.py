@@ -45,7 +45,7 @@ class TestSyncAppS3(unittest.TestCase):
 
         test = '<FileInfo(fn=2015-01-01.txt, url=s3://' + \
                'diary_backup_ddboline/2015-01-01.txt, ' + \
-               'md5=866c3c2d566d44b88e1e4a4fc1e7d65d, size=12)>'
+               'md5=866c3c2d566d44b88e1e4a4fc1e7d65d, sha1=, size=12)>'
         self.assertEqual(tmp, test)
 
     def test_s3_upload_search(self):
