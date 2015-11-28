@@ -5,10 +5,8 @@
     first run to identify new files, modified files
     second run to copy new files, most recently modified files
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 
 class FileSync(object):
@@ -48,13 +46,13 @@ class FileSync(object):
                     list_a_not_b.append(finfo0)
                 elif fmd5_0 not in hash_dict:
                     tmp = flist.filelist_name_dict[fn_][0]
-                    fmd5_1 = tmp.get_md5()
+                    fmd5_1 = tmp.md5sum
                     if use_sha1:
-                        fmd5_1 = tmp.get_sha1()
+                        fmd5_1 = tmp.sha1sum
                     fmtim1 = tmp.get_stat().st_mtime
                     fmtim1 += 12 * 3600
                     if fmd5_0 != fmd5_1 and fmtim0 > fmtim1:
-                        print(fn_, fmtim0, fmtim1, fmd5_0, fmd5_1)
+                        print('compare', fn_, fmtim0, fmtim1, fmd5_0, fmd5_1)
                         list_a_not_b.append(finfo0)
 
         for flist in self.flists[1:]:

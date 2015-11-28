@@ -3,10 +3,8 @@
 """
     extract FileList object for files in gdrive
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import os
 
@@ -121,6 +119,7 @@ class FileListGdrive(FileList):
         self.gdrive.number_to_process = number_to_process
         self.gdrive.items_processed = 0
         self.gdrive.list_files(self.append_item, searchstr=searchstr)
+        self.fill_hash_dicts()
         if verbose:
             print('update paths')
 

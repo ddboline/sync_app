@@ -6,10 +6,8 @@
         container for list of FileInfo object
         dicts to efficiently search within filelist
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import os
 from collections import defaultdict
@@ -83,14 +81,22 @@ class FileList(object):
             self.filelist[ffn_] = file_info_obj
             return
         fn_ = os.path.basename(ffn_)
-        md5 = file_info_obj.md5sum
-        sha1 = file_info_obj.sha1sum
         self.filelist[ffn_] = file_info_obj
         self.filelist_name_dict[fn_].append(file_info_obj)
-        if md5:
-            self.filelist_md5_dict[md5].append(file_info_obj)
-        if sha1:
-            self.filelist_sha1_dict[sha1].append(file_info_obj)
+
+    def fill_hash_dicts(self):
+        for key in self.filelist:
+            finfo = self.filelist[key]
+            if hasattr(finfo.md5sum, 'result'):
+                finfo.md5sum = finfo.md5sum.result()
+            if hasattr(finfo.sha1sum, 'result'):
+                finfo.sha1sum = finfo.sha1sum.result()
+            md5 = finfo.md5sum
+            sha1 = finfo.sha1sum
+            if md5:
+                self.filelist_md5_dict[md5].append(finfo)
+            if sha1:
+                self.filelist_sha1_dict[sha1].append(finfo)
 
     def append_item(self, item):
         raise NotImplementedError

@@ -3,16 +3,19 @@
 """
     extract FileInfo object for local files
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
+import multiprocessing as mp
+from concurrent.futures import ProcessPoolExecutor
 
 import os
 
 from .util import get_md5, get_sha1
 
 from .file_info import FileInfo
+
+_pool = ProcessPoolExecutor(max_workers=mp.cpu_count())
 
 
 class FileInfoLocal(FileInfo):
@@ -34,14 +37,14 @@ class FileInfoLocal(FileInfo):
     def get_md5(self):
         """ Wrapper around sync_utils.get_md5 """
         if os.path.exists(self.filename):
-            return get_md5(self.filename)
+            return _pool.submit(get_md5, self.filename)
         else:
             return self.md5sum
 
     def get_sha1(self):
         """ Wrapper around sync_utils.get_sha1 """
         if os.path.exists(self.filename):
-            return get_sha1(self.filename)
+            return _pool.submit(get_sha1, self.filename)
         else:
             return self.sha1sum
 

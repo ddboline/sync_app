@@ -64,3 +64,5 @@ class FileListLocal(FileList):
         else:
             if os.path.isdir(directory):
                 walk_wrapper(directory, parse_dir, None)
+
+        self.fill_hash_dicts()

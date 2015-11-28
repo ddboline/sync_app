@@ -36,7 +36,8 @@ class TestSyncAppLocal(unittest.TestCase):
     def test_file_info_local(self):
         """ Test FileInfoLocal class """
         finfo = FileInfoLocal(fn=TEST_FILE)
-        output = '%s %s %s %d' % (finfo.filename, finfo.urlname, finfo.md5sum,
+        output = '%s %s %s %d' % (finfo.filename, finfo.urlname,
+                                  finfo.md5sum.result(),
                                   finfo.filestat.st_size)
         output = output.replace(CURDIR, '')
 

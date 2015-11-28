@@ -3,10 +3,8 @@
 """
     extract FileList object for files in onedrive
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import os
 
@@ -114,6 +112,7 @@ class FileListOneDrive(FileList):
         self.onedrive.number_to_process = number_to_process
         self.onedrive.items_processed = 0
         self.onedrive.list_files(self.append_item)
+        self.fill_hash_dicts()
         if verbose:
             print('update paths')
 

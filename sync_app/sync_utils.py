@@ -3,10 +3,8 @@
 """
     Utility functions
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
 import os
 import argparse
@@ -164,7 +162,7 @@ def sync_onedrive(dry_run=False, delete_file=None, rebuild_index=False):
         else:
             print('download', finfo.urlname, finfo.filename)
             if not dry_run:
-                print(finfo)
+                print('not dry_run %s' % finfo)
                 return finfo.download()
         return
 
@@ -195,7 +193,7 @@ def sync_s3(dry_run=False, delete_file=None, rebuild_index=False):
         _tmp = fn_.replace(BASE_DIR_S3 + '/', '')
         bn_ = _tmp.split('/')[0]
         kn_ = _tmp.replace(bn_ + '/', '')
-        print(bn_, kn_, fn_)
+        print('upload', bn_, kn_, fn_)
         if not dry_run:
             flist_s3.s3_.upload(bn_, kn_, fn_)
 
@@ -238,12 +236,12 @@ def sync_local(dry_run=False, delete_file=None, rebuild_index=False):
             def copy_file0(finfo):
                 """ callback """
                 for disk in ldisks:
-                    print(finfo.filename, disk, directory)
+                    print('copy0', finfo.filename, disk, directory)
 
             def copy_file1(finfo):
                 """ callback """
                 for disk in ldisks:
-                    print(finfo.filename, disk, directory)
+                    print('copy1', finfo.filename, disk, directory)
 
             fsync = FileSync(flists=[flists_local])
             fsync.compare_lists(callback0=copy_file0, callback1=copy_file1)

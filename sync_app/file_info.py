@@ -92,6 +92,10 @@ class FileInfo(object):
 
     def output_cache_tuple(self):
         """ serialize FileInfo """
+        if hasattr(self.md5sum, 'result'):
+            self.md5sum = self.md5sum.result()
+        if hasattr(self.sha1sum, 'result'):
+            self.sha1sum = self.sha1sum.result()
         return (self.filename, self.urlname, self.md5sum, self.sha1sum,
                 self.filestat.st_mtime, self.filestat.st_size)
 
