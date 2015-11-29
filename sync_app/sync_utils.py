@@ -230,8 +230,8 @@ def sync_local(dry_run=False, delete_file=None, rebuild_index=False):
             for disk in ldisks:
                 ldir = '/'.join([disk, directory])
                 print('build local %s' % ldir)
-                flists_local.append(build_local_index(directories=[ldir]),
-                                    rebuild_index=rebuild_index)
+                flists_local.append(build_local_index(
+                    directories=[ldir], rebuild_index=rebuild_index))
 
             def copy_file0(finfo):
                 """ callback """
