@@ -34,9 +34,11 @@ class FileSync(object):
 
         for fn_ in self.flists[0].filelist_name_dict:
             finfo0 = self.flists[0].filelist_name_dict[fn_]
-            fmd5_0 = finfo0[0].md5sum
+            _md = finfo0[0].md5sum
+            fmd5_0 = _md if _md else finfo0[0].get_md5()
             if use_sha1:
-                fmd5_0 = finfo0[0].sha1sum
+                _sh = finfo0[0].sha1sum
+                fmd5_0 = _sh if _sh else finfo0[0].get_sha1()
             fmtim0 = finfo0[0].filestat.st_mtime
             for flist in self.flists[1:]:
                 hash_dict = flist.filelist_md5_dict
@@ -46,13 +48,16 @@ class FileSync(object):
                     list_a_not_b.append(finfo0)
                 elif fmd5_0 not in hash_dict:
                     tmp = flist.filelist_name_dict[fn_][0]
-                    fmd5_1 = tmp.md5sum
+                    fmd5_1 = tmp.md5sum if tmp.md5sum else tmp.get_md5()
                     if use_sha1:
-                        fmd5_1 = tmp.sha1sum
-                    fmtim1 = tmp.get_stat().st_mtime
+                        fmd5_1 = tmp.sha1sum if tmp.sha1sum else tmp.get_sha1()
+                    fmtim1 = tmp.filestat.st_mtime
                     fmtim1 += 12 * 3600
                     if fmd5_0 != fmd5_1 and fmtim0 > fmtim1:
-                        print('compare', fn_, fmtim0, fmtim1, fmd5_0, fmd5_1)
+                        print('compare fn=%s, ' % fn_ +
+                              'fname=%s, ' % tmp.filename +
+                              'ft0=%s, ft1=%s, ' % (fmtim0, fmtim1) +
+                              'fm0=%s, fm1=%s' % (fmd5_0, fmd5_1))
                         list_a_not_b.append(finfo0)
 
         for flist in self.flists[1:]:

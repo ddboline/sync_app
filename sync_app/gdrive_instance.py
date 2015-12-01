@@ -91,7 +91,7 @@ class GdriveInstance(object):
         with open('%s.new' % exportfile, 'wb') as outfile:
             outfile.write(furl)
         if md5sum:
-            from .util import get_md5
+            from sync_app.util import get_md5
             md_ = get_md5('%s.new' % exportfile)
             if md_ != md5sum:
                 raise TypeError

@@ -11,7 +11,7 @@ from onedrivesdk import get_default_client, Folder, Item
 from onedrivesdk.helpers import GetAuthCodeServer
 import cPickle as pickle
 
-from .util import HOMEDIR
+from sync_app.util import HOMEDIR
 
 
 class OneDriveInstance(object):
@@ -95,7 +95,7 @@ class OneDriveInstance(object):
             os.makedirs(dirname)
         self.client.item(id=did).download(exportfile + '.new')
         if sha1sum:
-            from .util import get_sha1
+            from sync_app.util import get_sha1
             sha = get_sha1(exportfile + '.new')
             if sha != sha1sum:
                 raise TypeError('%s %s' % (sha, sha1sum))

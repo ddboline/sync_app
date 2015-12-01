@@ -8,8 +8,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import os
 
-from .file_list import FileList
-from .file_info_s3 import FileInfoS3
+from sync_app.file_list import FileList
+from sync_app.file_info_s3 import FileInfoS3
 
 BASE_DIR = '%s/S3' % os.getenv('HOME')
 

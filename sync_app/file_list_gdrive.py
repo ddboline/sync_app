@@ -8,9 +8,9 @@ from __future__ import (absolute_import, division, print_function,
 
 import os
 
-from .file_list import FileList
-from .gdrive_instance import GdriveInstance
-from .file_info_gdrive import BASE_DIR, FileInfoGdrive
+from sync_app.file_list import FileList
+from sync_app.gdrive_instance import GdriveInstance
+from sync_app.file_info_gdrive import BASE_DIR, FileInfoGdrive
 
 
 class FileListGdrive(FileList):

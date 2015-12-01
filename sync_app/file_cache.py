@@ -13,9 +13,9 @@ try:
 except ImportError:
     import pickle
 
-from .file_info import FileInfo
-from .file_list import FileList
-from .util import run_command
+from sync_app.file_info import FileInfo
+from sync_app.file_list import FileList
+from sync_app.util import run_command
 
 
 class FileListCache(object):

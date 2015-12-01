@@ -9,7 +9,7 @@ from __future__ import (absolute_import, division, print_function,
 import os
 from dateutil.parser import parse
 
-from .file_info import FileInfo
+from sync_app.file_info import FileInfo
 
 BASE_DIR = '%s/OneDrive' % os.getenv('HOME')
 

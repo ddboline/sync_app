@@ -8,9 +8,9 @@ from __future__ import (absolute_import, division, print_function,
 
 import os
 
-from .util import walk_wrapper
-from .file_list import FileList
-from .file_info_local import FileInfoLocal
+from sync_app.util import walk_wrapper
+from sync_app.file_list import FileList
+from sync_app.file_info_local import FileInfoLocal
 
 
 class FileListLocal(FileList):
@@ -55,7 +55,7 @@ class FileListLocal(FileList):
                                     finfo = ffn
                     if not finfo:
                         finfo = FileInfoLocal(fn=fullfn)
-                        self.append(finfo)
+                    self.append(finfo)
 
         if type(directory) == list:
             for d__ in directory:

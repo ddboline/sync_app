@@ -9,8 +9,8 @@ from __future__ import (absolute_import, division, print_function,
 import os
 import argparse
 
-from .file_cache import FileListCache
-from .file_sync import FileSync
+from sync_app.file_cache import FileListCache
+from sync_app.file_sync import FileSync
 
 try:
     from apiclient.errors import UnknownFileType
@@ -27,8 +27,8 @@ LOCAL_DIRECTORIES = ('Documents/AudioBooks', 'Documents/mp3',
 
 def build_onedrive_index(searchstr=None, verbose=True):
     """ build OneDrive index """
-    from .onedrive_instance import OneDriveInstance
-    from .file_list_onedrive import FileListOneDrive
+    from sync_app.onedrive_instance import OneDriveInstance
+    from sync_app.file_list_onedrive import FileListOneDrive
 
     onedrive = OneDriveInstance()
     flist = FileListOneDrive(onedrive=onedrive)
@@ -41,8 +41,8 @@ def build_onedrive_index(searchstr=None, verbose=True):
 
 def build_gdrive_index(searchstr=None, verbose=True):
     """ build GDrive index """
-    from .gdrive_instance import GdriveInstance
-    from .file_list_gdrive import FileListGdrive
+    from sync_app.gdrive_instance import GdriveInstance
+    from sync_app.file_list_gdrive import FileListGdrive
 
     gdrive = GdriveInstance()
     flist = FileListGdrive(gdrive=gdrive)
@@ -55,8 +55,8 @@ def build_gdrive_index(searchstr=None, verbose=True):
 
 def build_s3_index():
     """ build S3 index """
-    from .s3_instance import S3Instance
-    from .file_list_s3 import FileListS3
+    from sync_app.s3_instance import S3Instance
+    from sync_app.file_list_s3 import FileListS3
 
     s3_ = S3Instance()
     flist = FileListS3(s3=s3_)
@@ -68,7 +68,7 @@ def build_s3_index():
 
 def build_local_index(directories=None, rebuild_index=False):
     """ build local index """
-    from .file_list_local import FileListLocal
+    from sync_app.file_list_local import FileListLocal
 
     if not directories:
         return False
@@ -95,7 +95,7 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
             if not dry_run and os.path.exists(df_):
                 os.remove(df_)
 
-    from .file_list_gdrive import BASE_DIR as BASE_DIR_GDRIVE
+    from sync_app.file_list_gdrive import BASE_DIR as BASE_DIR_GDRIVE
     print('build gdrive')
     flist_gdrive = build_gdrive_index()
     print('build local gdrive')
@@ -136,7 +136,7 @@ def sync_onedrive(dry_run=False, delete_file=None, rebuild_index=False):
             if not dry_run and os.path.exists(df_):
                 os.remove(df_)
 
-    from .file_list_onedrive import BASE_DIR as BASE_DIR_ONEDRIVE
+    from sync_app.file_list_onedrive import BASE_DIR as BASE_DIR_ONEDRIVE
     print('build onedrive')
     flist_onedrive = build_onedrive_index()
     print('build local onedrive')
@@ -179,7 +179,7 @@ def sync_s3(dry_run=False, delete_file=None, rebuild_index=False):
                 if not dry_run:
                     os.remove(df_)
 
-    from .file_list_s3 import BASE_DIR as BASE_DIR_S3
+    from sync_app.file_list_s3 import BASE_DIR as BASE_DIR_S3
     print('build s3')
     flist_s3 = build_s3_index()
     print('build local s3')
@@ -332,8 +332,8 @@ def list_drive_parse():
             except ValueError:
                 search_strings.append(arg)
 
-    from .gdrive_instance import GdriveInstance
-    from .file_list_gdrive import FileListGdrive
+    from sync_app.gdrive_instance import GdriveInstance
+    from sync_app.file_list_gdrive import FileListGdrive
     gdrive = GdriveInstance(number_to_process=number_to_list)
     flist_gdrive = FileListGdrive(gdrive=gdrive)
 
@@ -384,7 +384,7 @@ def list_drive_parse():
 
 def parse_s3_args():
     """ Parse command line arguments """
-    from .s3_instance import S3Instance
+    from sync_app.s3_instance import S3Instance
     commands = ('list', 'search', 'get', 'upload', 'delete', 'delete_bucket')
     bucket_name = None
     cmd = 'list'
@@ -473,8 +473,8 @@ def list_onedrive_parse():
             except ValueError:
                 search_strings.append(arg)
 
-    from .onedrive_instance import OneDriveInstance
-    from .file_list_onedrive import FileListOneDrive
+    from sync_app.onedrive_instance import OneDriveInstance
+    from sync_app.file_list_onedrive import FileListOneDrive
     onedrive = OneDriveInstance(number_to_process=number_to_list)
     flist_onedrive = FileListOneDrive(onedrive=onedrive)
 

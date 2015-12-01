@@ -8,8 +8,8 @@ from __future__ import (absolute_import, division, print_function,
 
 import os
 
-from .file_list import FileList
-from .file_info_onedrive import (FileInfoOneDrive, BASE_DIR)
+from sync_app.file_list import FileList
+from sync_app.file_info_onedrive import (FileInfoOneDrive, BASE_DIR)
 
 
 class FileListOneDrive(FileList):

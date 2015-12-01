@@ -8,7 +8,7 @@ from __future__ import (absolute_import, division, print_function,
 
 from dateutil.parser import parse
 
-from .file_info import FileInfo
+from sync_app.file_info import FileInfo
 
 
 class FileInfoS3(FileInfo):

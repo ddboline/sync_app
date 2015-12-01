@@ -11,9 +11,9 @@ from concurrent.futures import ProcessPoolExecutor
 
 import os
 
-from .util import get_md5, get_sha1
+from sync_app.util import get_md5, get_sha1
 
-from .file_info import FileInfo
+from sync_app.file_info import FileInfo, StatTuple
 
 _pool = ProcessPoolExecutor(max_workers=mp.cpu_count())
 
@@ -51,9 +51,8 @@ class FileInfoLocal(FileInfo):
     def get_stat(self):
         """ Wrapper around os.stat """
         if os.path.exists(self.filename):
-            return os.stat(self.filename)
-        else:
-            return self.filestat
+            self.filestat = StatTuple(os.stat(self.filename))
+        return self.filestat
 
 
 def test_file_info_local():
@@ -66,7 +65,7 @@ def test_file_info_local():
         FileInfoLocal(fn='apsodfij')
     test_tmp()
 
-    from .file_info import StatTuple
+    from sync_app.file_info import StatTuple
     test_dict = {'st_mtime': 1234567, 'st_size': 7654321}
     fs_ = StatTuple(**test_dict)
     fn_ = 'tests/test_dir/hello_world.txt'
