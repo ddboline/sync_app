@@ -123,6 +123,18 @@ def get_sha1(fname):
         return get_sha1_old(fname)
 
 
+def get_random_hex_string(nbytes):
+    ''' use os.urandom to create n byte random string, output integer '''
+    from binascii import b2a_hex
+    return int(b2a_hex(os.urandom(nbytes)), 16)
+
+
+def get_random_base64_string(nbytes):
+    ''' use os.urandom to create n byte random string, output integer '''
+    from binascii import b2a_base64
+    return b2a_base64(os.urandom(nbytes)).strip()
+
+
 def test_get_sha1():
     """ test get_sha1 """
     tmp = get_sha1_old('tests/test_dir/hello_world.txt')

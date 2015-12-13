@@ -15,7 +15,7 @@ import unittest
 CURDIR = os.path.abspath(os.curdir)
 os.sys.path.append(CURDIR)
 
-from sync_app.util import get_md5
+from sync_app.util import get_md5, get_random_hex_string
 from sync_app.file_info_s3 import FileInfoS3
 from sync_app.file_list_s3 import FileListS3
 from sync_app.s3_instance import S3Instance
@@ -50,7 +50,7 @@ class TestSyncAppS3(unittest.TestCase):
 
     def test_s3_upload_search(self):
         """ integration test, upload, search, download, delete """
-        bname = 'test_bucket_ddboline_20150521'
+        bname = 'test_bucket_ddboline_20150521_%06x' % get_random_hex_string(4)
         self.s3_.create_bucket(bname)
         self.s3_.upload(bname, TEST_FILE, os.path.abspath(TEST_FILE))
         self.s3_.get_list_of_keys(bucket_name=bname,

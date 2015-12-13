@@ -10,12 +10,13 @@ from __future__ import unicode_literals
 
 import os
 import hashlib
+import shutil
 import unittest
 
 CURDIR = os.path.abspath(os.curdir)
 os.sys.path.append(CURDIR)
 
-from sync_app.util import get_sha1
+from sync_app.util import get_sha1, get_random_hex_string
 from sync_app.file_list_onedrive import FileListOneDrive
 from sync_app.onedrive_instance import OneDriveInstance
 
@@ -59,18 +60,21 @@ class TestSyncAppOneDrive(unittest.TestCase):
             print(flist_onedrive.get_export_path(finfo))
 
         flist_onedrive.get_or_create_directory(TEST_DIR)
-        fid = flist_onedrive.upload_file(TEST_FILE, pathname=TEST_DIR)
+        test_file = '%s.%06x.txt' % (TEST_FILE, get_random_hex_string(4))
+        shutil.copy(TEST_FILE, test_file)
+        fid = flist_onedrive.upload_file(test_file, pathname=TEST_DIR)
         print(fid)
 
         finf_ = flist_onedrive.filelist_id_dict[fid]
         finf_.download()
 
-        fname = '%s/OneDrive/%s' % (HOMEDIR, TEST_FILE)
+        fname = '%s/OneDrive/%s' % (HOMEDIR, test_file)
 
         self.assertEqual(fid, finf_.onedriveid)
 
         finf_.delete()
-        flist_onedrive.delete_directory(os.path.dirname(TEST_FILE))
+        flist_onedrive.delete_directory(os.path.dirname(test_file))
+        os.remove(test_file)
 
         self.assertEqual(flist_onedrive.filelist_id_dict[fid].exportpath,
                          '%s/OneDrive/%s' % (HOMEDIR, TEST_DIR))

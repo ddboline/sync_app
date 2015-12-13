@@ -10,12 +10,13 @@ from __future__ import unicode_literals
 
 import os
 import hashlib
+import shutil
 import unittest
 
 CURDIR = os.path.abspath(os.curdir)
 os.sys.path.append(CURDIR)
 
-from sync_app.util import get_md5
+from sync_app.util import get_md5, get_random_hex_string
 from sync_app.file_list_gdrive import FileListGdrive
 from sync_app.gdrive_instance import GdriveInstance
 
@@ -51,18 +52,21 @@ class TestSyncAppGdrive(unittest.TestCase):
 
         self.gdrive.get_folders(flist_gdrive.append_dir)
 
-        flist_gdrive.get_or_create_directory(os.path.dirname(TEST_FILE))
-        fid = flist_gdrive.upload_file(TEST_FILE)
-        sstr = os.path.basename(TEST_FILE)
+        flist_gdrive.get_or_create_directory(TEST_DIR)
+        test_file = '%s.%06x.txt' % (TEST_FILE, get_random_hex_string(4))
+        shutil.copy(TEST_FILE, test_file)
+        fid = flist_gdrive.upload_file(test_file)
+        sstr = os.path.basename(test_file)
         self.gdrive.list_files(flist_gdrive.append_item, searchstr=sstr)
         self.gdrive.get_folders(flist_gdrive.append_dir)
         finf_ = flist_gdrive.filelist_id_dict[fid]
         finf_.download()
-        fname = '%s/gDrive/%s' % (HOMEDIR, TEST_FILE)
+        fname = '%s/gDrive/%s' % (HOMEDIR, test_file)
 
         self.assertEqual(fid, finf_.gdriveid)
         finf_.delete()
-        flist_gdrive.delete_directory(os.path.dirname(TEST_FILE))
+        flist_gdrive.delete_directory(TEST_DIR)
+        os.remove(test_file)
         self.assertEqual(flist_gdrive.filelist_id_dict[fid].exportpath,
                          '%s/gDrive/%s' % (HOMEDIR, TEST_DIR))
         self.assertEqual(flist_gdrive.filelist_id_dict[fid].md5sum,
