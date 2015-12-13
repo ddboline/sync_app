@@ -9,7 +9,10 @@ from __future__ import (absolute_import, division, print_function,
 import os
 from onedrivesdk import get_default_client, Folder, Item
 from onedrivesdk.helpers import GetAuthCodeServer
-import cPickle as pickle
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 from sync_app.util import HOMEDIR
 
