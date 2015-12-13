@@ -9,5 +9,8 @@ sudo apt-get install -y --force-yes python3-boto python3-google-api-python-clien
                                     python3-dateutil python3-nose python3-setuptools \
                                     python3-requests python3-coverage python3-onedrivesdk
 
-scp ddboline@ddbolineathome.mooo.com:~/setup_files/build/ddboline_personal_scripts/client_secrets.json sync_app/
-scp ddboline@ddbolineathome.mooo.com:~/setup_files/build/ddboline_personal_scripts/*.dat .
+scp ddboline@ddbolineathome.mooo.com:~/setup_files/build/sync_app/sync_app/client_secrets.json sync_app/
+scp ddboline@ddbolineathome.mooo.com:~/setup_files/build/sync_app/*.dat .
+scp ddboline@ddbolineathome.mooo.com:~/setup_files/build/sync_app/session.pkl .
+mkdir ~/.onedrive
+scp ddboline@ddbolineathome.mooo.com:~/.onedrive/credentials ~/.onedrive/
