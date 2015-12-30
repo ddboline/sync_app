@@ -98,8 +98,9 @@ class GdriveInstance(object):
         os.rename('%s.new' % exportfile, exportfile)
         return True
 
-    def upload(self, fname, parent_id=None):
+    def upload(self, fname, parent_id):
         """ upload fname and assign parent_id if provided """
+        assert parent_id is not None
         fn_ = os.path.basename(fname)
         body_obj = {'title': fn_}
         request = self.service.files().insert(body=body_obj, media_body=fname)
@@ -119,8 +120,9 @@ class GdriveInstance(object):
                                               removeParents=current_pid)
         return request.execute()
 
-    def create_directory(self, dname, parent_id=None):
+    def create_directory(self, dname, parent_id):
         """ create directory, assign parent_id if supplied """
+        assert parent_id is not None
         dname = os.path.basename(dname)
         body_obj = {'title': dname,
                     'mimeType': 'application/vnd.google-apps.folder'}
@@ -148,7 +150,7 @@ class GdriveInstance(object):
         return parents_output
 
 
-def test_gdrivce_instance():
+def test_gdrive_instance():
     """ test GdriveInstance """
     from nose.tools import raises
     tmp = GdriveInstance()

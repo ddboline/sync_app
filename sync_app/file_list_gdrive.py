@@ -24,6 +24,7 @@ class FileListGdrive(FileList):
         self.directory_id_dict = {}
         self.directory_name_dict = {}
         self.gdrive = gdrive
+        self.root_directory = None
 
     def __getitem__(self, key):
         for dict_ in (self.filelist_id_dict, self.directory_id_dict,
@@ -65,6 +66,8 @@ class FileListGdrive(FileList):
         if item['mimeType'] != 'application/vnd.google-apps.folder':
             return finfo
 
+        if finfo.isroot:
+            self.root_directory = finfo
         self.filelist_id_dict[finfo.gdriveid] = finfo
         self.directory_id_dict[finfo.gdriveid] = finfo
         self.directory_name_dict[finfo.filename] = finfo
@@ -93,6 +96,8 @@ class FileListGdrive(FileList):
             fullpath = 'My Drive'
         elif 'My Drive' not in fullpath:
             fullpath = 'My Drive/' + fullpath
+        elif 'New Folder' in fullpath:
+            raise Exception('Do not want New Folder')
         fullpath = fullpath.replace('My Drive', BASE_DIR)
         if abspath:
             fullpath = os.path.dirname(fullpath)
@@ -126,7 +131,13 @@ class FileListGdrive(FileList):
     def get_or_create_directory(self, dname):
         """ create directory on gdrive """
         pid_ = None
-        dn_list = dname.replace(BASE_DIR + '/', '').split('/')
+        if self.root_directory:
+            pid_ = self.root_directory.parentid
+        dn_list = dname.replace(BASE_DIR, '').split('/')
+        if dn_list and dn_list[0] == '':
+            dn_list.pop(0)
+        if not dn_list:
+            return pid_
 
         if dn_list[0] in self.directory_name_dict \
                 and self.directory_name_dict[dn_list[0]].isroot:
