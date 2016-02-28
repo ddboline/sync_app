@@ -39,6 +39,20 @@ def build_onedrive_index(searchstr=None, verbose=True):
     return flist
 
 
+def build_box_index(searchstr=None, verbose=True):
+    """ build Box index """
+    from sync_app.box_instance import BoxInstance
+    from sync_app.file_list_box import FileListBox
+
+    box = BoxInstance()
+    flist = FileListBox(box=box)
+    #### always rebuild index
+    if verbose:
+        print('download file metadata')
+    flist.fill_file_list(searchstr=searchstr, verbose=verbose)
+    return flist
+
+
 def build_gdrive_index(searchstr=None, verbose=True):
     """ build GDrive index """
     from sync_app.gdrive_instance import GdriveInstance
@@ -170,6 +184,48 @@ def sync_onedrive(dry_run=False, delete_file=None, rebuild_index=False):
                         use_sha1=True)
 
 
+def sync_box(dry_run=False, delete_file=None, rebuild_index=False):
+    """ build box index """
+    if delete_file:
+        for df_ in delete_file:
+            print('delete %s' % df_)
+            if not dry_run and os.path.exists(df_):
+                os.remove(df_)
+
+    from sync_app.file_list_box import BASE_DIR as BASE_DIR_BOX
+    print('build box')
+    flist_box = build_box_index()
+    print('build local box')
+    flist_local = build_local_index(directories=[BASE_DIR_BOX],
+                                    rebuild_index=rebuild_index)
+    fsync = FileSync(flists=[flist_box, flist_local])
+
+    def upload_file(finfo):
+        """ callback to upload to box """
+        print('upload', finfo.filename)
+        if not dry_run:
+            try:
+                return flist_box.upload_file(finfo.filename)
+            except UnknownFileType:
+                return
+
+    def download_file(finfo):
+        """ callback to download from box """
+        if delete_file and finfo.filename in delete_file:
+            print('delete %s' % finfo.filename)
+            if not dry_run:
+                return finfo.delete()
+        else:
+            print('download', finfo.urlname, finfo.filename)
+            if not dry_run:
+                print('not dry_run %s' % finfo)
+                return finfo.download()
+        return
+
+    fsync.compare_lists(callback0=download_file, callback1=upload_file,
+                        use_sha1=True)
+
+
 def sync_s3(dry_run=False, delete_file=None, rebuild_index=False):
     """ sync with s3 """
     if delete_file:
@@ -254,14 +310,15 @@ def sync_local(dry_run=False, delete_file=None, rebuild_index=False):
 
 def sync_arg_parse():
     """ parse args """
-    commands = ('all', 'gdrive', 'onedrive', 's3', 'local', 'dry_run',
+    commands = ('all', 'gdrive', 'onedrive', 's3', 'box', 'local', 'dry_run',
                 'delete')
     help_text = 'usage: ./sync.py <%s> [rebuild]' % '|'.join(commands)
     parser = argparse.ArgumentParser(description='sync app')
     parser.add_argument('command', nargs='*', help=help_text)
     args = parser.parse_args()
 
-    do_local, do_gdrive, do_onedrive, do_s3, do_dry_run, do_rebuild = 6*[False]
+    do_local, do_gdrive, do_onedrive, do_s3, do_box, do_dry_run, do_rebuild = \
+        7*[False]
     delete_f = []
 
     for arg in getattr(args, 'command'):
@@ -276,6 +333,8 @@ def sync_arg_parse():
             do_gdrive = True
         if arg in ('onedrive', 'all'):
             do_onedrive = True
+        if arg in ('box', 'all'):
+            do_box = True
         if arg in ('s3', 'all'):
             do_s3 = True
         if arg == 'dry_run':
@@ -295,6 +354,9 @@ def sync_arg_parse():
     if do_onedrive:
         sync_onedrive(dry_run=do_dry_run, delete_file=delete_f,
                       rebuild_index=do_rebuild)
+    if do_box:
+        sync_box(dry_run=do_dry_run, delete_file=delete_f,
+                 rebuild_index=do_rebuild)
     if do_local:
         sync_local(dry_run=do_dry_run, delete_file=delete_f,
                    rebuild_index=do_rebuild)
@@ -521,3 +583,83 @@ def list_onedrive_parse():
                     if search_string == key:
                         for finf in val:
                             onedrive.delete_file(fileid=finf.onedriveid)
+
+
+def list_box_parse():
+    """ main routine, parse arguments """
+    commands = ('list', 'search', 'upload', 'directories', 'delete')
+    cmd = 'list'
+    search_strings = []
+    parent_directory = None
+    number_to_list = -1
+
+    for arg in os.sys.argv:
+        if 'list_box_files' in arg:
+            continue
+        elif arg in ['h', '--help', '-h']:
+            print('list_box_files <' + '|'.join(commands) +
+                  '> <file/key> directory=<id of directory>')
+            exit(0)
+        elif arg in commands:
+            cmd = arg
+        elif 'directory=' in arg:
+            parent_directory = arg.replace('directory=', '')
+        elif arg.startswith('-n'):
+            try:
+                number_to_list = int(arg.split('-n')[1])
+            except ValueError:
+                raise
+        else:
+            try:
+                number_to_list = int(arg)
+            except ValueError:
+                search_strings.append(arg)
+
+    from sync_app.box_instance import BoxInstance
+    from sync_app.file_list_box import FileListBox
+    box = BoxInstance(number_to_process=number_to_list)
+    flist_box = FileListBox(box=box)
+
+    if cmd == 'list':
+        flist_box.fill_file_list(
+            verbose=False, number_to_process=number_to_list)
+        for key, val in flist_box.filelist_id_dict.items():
+            if parent_directory \
+                    and parent_directory not in os.path.dirname(val.filename):
+                continue
+            if val.sha1sum:
+                print(key, val)
+    elif cmd == 'search':
+        flist_box.fill_file_list(verbose=False)
+        if search_strings:
+            for search_string in search_strings:
+                for key, val in flist_box.filelist_id_dict.items():
+                    if val.sha1sum and search_string in val.filename:
+                        print(key, val.filename)
+    elif cmd == 'directories':
+        box.get_folders(flist_box.append_dir)
+        for key, val in flist_box.directory_name_dict.items():
+            if search_strings and not any(st_ in key for st_ in
+                                          search_strings):
+                continue
+            export_path = flist_box.get_export_path(val, abspath=False)
+            print(key, '%s/%s' % (export_path, val.filename))
+    elif cmd == 'upload':
+        box.get_folders(flist_box.append_dir)
+        for fname in search_strings:
+            flist_box.upload_file(fname=fname, pathname=parent_directory)
+    elif cmd == 'delete':
+        flist_box.fill_file_list(verbose=False)
+        for search_string in search_strings:
+            if os.path.exists(search_string):
+                fn_ = os.path.basename(search_string)
+                for key, val in flist_box.filelist_name_dict.items():
+                    if fn_ == key:
+                        for finf in val:
+                            fid_ = finf.boxid
+                            box.delete_file(fileid=fid_)
+            else:
+                for key, val in flist_box.filelist_name_dict.items():
+                    if search_string == key:
+                        for finf in val:
+                            box.delete_file(fileid=finf.boxid)

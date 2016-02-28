@@ -8,12 +8,12 @@ from __future__ import (absolute_import, division, print_function,
 
 import os
 from onedrivesdk import get_default_client, Folder, Item
-from onedrivesdk.helpers import GetAuthCodeServer
 try:
     import cPickle as pickle
 except ImportError:
     import pickle
 
+from sync_app.get_auth_code_server import get_auth_code
 from sync_app.util import HOMEDIR
 
 
@@ -50,16 +50,16 @@ class OneDriveInstance(object):
                                          scopes=['wl.signin',
                                                  'wl.offline_access',
                                                  'onedrive.readwrite'])
-        if os.path.exists('session.pkl'):
-            with open('session.pkl', 'rb') as pfile:
+        if os.path.exists('.onedrive_session.pkl'):
+            with open('.onedrive_session.pkl', 'rb') as pfile:
                 self.client.auth_provider._session = pickle.load(pfile)
         else:
             auth_url = \
                 self.client.auth_provider.get_auth_url(self.redirect_uri)
-            code = GetAuthCodeServer.get_auth_code(auth_url, self.redirect_uri)
+            code = get_auth_code(auth_url, self.redirect_uri)
             self.client.auth_provider.authenticate(code, self.redirect_uri,
                                                    self.client_secret)
-            with open('session.pkl', 'wb') as pfile:
+            with open('.onedrive_session.pkl', 'wb') as pfile:
                 pickle.dump(self.client.auth_provider._session, pfile)
 
         return self.client

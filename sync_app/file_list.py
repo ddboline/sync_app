@@ -12,7 +12,7 @@ from __future__ import (absolute_import, division, print_function,
 import os
 from collections import defaultdict
 
-FILE_LIST_TYPES = ('local', 'remote', 'gdrive', 's3', 'onedrive')
+FILE_LIST_TYPES = ('local', 'remote', 'gdrive', 's3', 'onedrive', 'box')
 
 
 class FileList(object):

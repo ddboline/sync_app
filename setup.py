@@ -29,5 +29,6 @@ setup(
                    'list_drive_files = sync_app.sync_utils:list_drive_parse',
                    'list_onedrive_files = '
                    'sync_app.sync_utils:list_onedrive_parse',
+                   'list_box_files = sync_app.sync_utils:list_box_parse',
                    'list_s3_files = sync_app.sync_utils:parse_s3_args']}
 )
