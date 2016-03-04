@@ -148,7 +148,7 @@ class FileListOneDrive(FileList):
         pid_ = 'root'
         if pathname:
             dname = pathname
-            pid_ = self.get_or_create_directory(dname)
+        pid_ = self.get_or_create_directory(dname)
         item = self.onedrive.upload(fname, parent_id=pid_)
         item['parentid'] = pid_
         self.append_item(item)

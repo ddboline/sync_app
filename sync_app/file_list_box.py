@@ -148,8 +148,9 @@ class FileListBox(FileList):
         pid_ = '0'
         if pathname:
             dname = pathname
-            pid_ = self.get_or_create_directory(dname)
+        pid_ = self.get_or_create_directory(dname)
         item = self.box.upload(fname, parent_id=pid_)
+        print('fname %s pid %s' % (fname, pid_))
         item['parentid'] = pid_
         self.append_item(item)
         return item['id']
