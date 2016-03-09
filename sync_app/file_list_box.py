@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import os
+from collections import defaultdict
 
 from sync_app.file_list import FileList
 from sync_app.file_info_box import (FileInfoBox, BASE_DIR)
@@ -21,7 +22,7 @@ class FileListBox(FileList):
                           filelist_type='box')
         self.filelist_id_dict = {}
         self.directory_id_dict = {}
-        self.directory_name_dict = {}
+        self.directory_name_dict = defaultdict(dict)
         self.box = box
 
     def __getitem__(self, key):
@@ -60,13 +61,15 @@ class FileListBox(FileList):
 
     def append_dir(self, item):
         """ append directory to FileList """
+        if item is None:
+            return None
         finfo = FileInfoBox(box=self.box, item=item)
-        if item.get('type') != 'folder':
+        if item.get('type', '') != 'folder':
             return finfo
 
         self.filelist_id_dict[finfo.boxid] = finfo
         self.directory_id_dict[finfo.boxid] = finfo
-        self.directory_name_dict[finfo.filename] = finfo
+        self.directory_name_dict[finfo.filename][finfo.parentid] = finfo
 
     def get_export_path(self, finfo, abspath=True, is_dir=False):
         """ determine export path for given finfo object"""
@@ -122,15 +125,25 @@ class FileListBox(FileList):
         dn_list = dname.replace(BASE_DIR + '/', '').split('/')
 
         if dn_list[0] in self.directory_name_dict:
-            pid_ = self.directory_name_dict[dn_list[0]].boxid
+            head = list(self.directory_name_dict[dn_list[0]].values())[0]
+            pid_ = head.boxid
+        elif dn_list[0] == '':
+            pid_ = '0'
         else:
             item = self.box.create_directory(dn_list[0], parent_id=pid_)
-            self.append_dir(item)
-            pid_ = item['id']
+            if item is not None:
+                self.append_dir(item)
+                pid_ = item['id']
+            else:
+                raise Exception('failed to create directory', pid_, dn_list[0])
         for dn_ in dn_list[1:]:
-            if dn_ in self.directory_name_dict \
-                    and pid_ == self.directory_name_dict[dn_].parentid:
-                pid_ = self.directory_name_dict[dn_].boxid
+            if dn_ in self.directory_name_dict:
+                if pid_ in self.directory_name_dict[dn_]:
+                    pid_ = self.directory_name_dict[dn_][pid_].boxid
+                else:
+                    item = self.box.create_directory(dn_, parent_id=pid_)
+                    self.append_dir(item)
+                    pid_ = item['id']
             else:
                 item = self.box.create_directory(dn_, parent_id=pid_)
                 self.append_dir(item)

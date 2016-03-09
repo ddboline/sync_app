@@ -62,7 +62,8 @@ class TestSyncAppLocal(unittest.TestCase):
             if hasattr(out, 'encode'):
                 out = out.encode()
             md_.update(out)
-        self.assertEqual(md_.hexdigest(), '0438950f76b792619335c1df44bfb843')
+        print(output)
+        self.assertEqual(md_.hexdigest(), 'cd3bf7a0a388d94ef5626fb9d5ca1632')
 
     def test_file_list_cache(self):
         """ Test FileListCache class """
@@ -85,7 +86,8 @@ class TestSyncAppLocal(unittest.TestCase):
             if hasattr(out, 'encode'):
                 out = out.encode()
             md_.update(out)
-        self.assertEqual(md_.hexdigest(), '0438950f76b792619335c1df44bfb843')
+        print(output)
+        self.assertEqual(md_.hexdigest(), 'cd3bf7a0a388d94ef5626fb9d5ca1632')
 
         flist = FileListLocal(cache_file_list=flist)
         flist.fill_file_list(directory=TEST_DIR)

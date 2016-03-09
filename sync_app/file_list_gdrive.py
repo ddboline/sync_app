@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import os
+from collections import defaultdict
 
 from sync_app.file_list import FileList
 from sync_app.gdrive_instance import GdriveInstance
@@ -22,7 +23,7 @@ class FileListGdrive(FileList):
                           filelist_type='gdrive')
         self.filelist_id_dict = {}
         self.directory_id_dict = {}
-        self.directory_name_dict = {}
+        self.directory_name_dict = defaultdict(dict)
         self.gdrive = gdrive
         self.root_directory = None
 
@@ -70,7 +71,7 @@ class FileListGdrive(FileList):
             self.root_directory = finfo
         self.filelist_id_dict[finfo.gdriveid] = finfo
         self.directory_id_dict[finfo.gdriveid] = finfo
-        self.directory_name_dict[finfo.filename] = finfo
+        self.directory_name_dict[finfo.filename][finfo.parentid] = finfo
 
     def get_export_path(self, finfo, abspath=True, is_dir=False):
         """ determine export path for given finfo object"""
@@ -140,14 +141,15 @@ class FileListGdrive(FileList):
             return pid_
 
         if dn_list[0] in self.directory_name_dict \
-                and self.directory_name_dict[dn_list[0]].isroot:
-            pid_ = self.directory_name_dict[dn_list[0]].gdriveid
+                and pid_ in self.directory_name_dict[dn_list[0]] \
+                and self.directory_name_dict[dn_list[0]][pid_].isroot:
+            pid_ = self.directory_name_dict[dn_list[0]][pid_].gdriveid
         else:
             pid_ = self.gdrive.create_directory(dn_list[0], parent_id=pid_)
         for dn_ in dn_list[1:]:
             if dn_ in self.directory_name_dict \
-                    and pid_ == self.directory_name_dict[dn_].parentid:
-                pid_ = self.directory_name_dict[dn_].gdriveid
+                    and pid_ in self.directory_name_dict[dn_]:
+                pid_ = self.directory_name_dict[dn_][pid_].gdriveid
             else:
                 pid_ = self.gdrive.create_directory(dn_, parent_id=pid_)
         return pid_
@@ -157,16 +159,19 @@ class FileListGdrive(FileList):
         pid_list = []
         dn_list = dname.replace(BASE_DIR + '/', '').split('/')
 
-        if dn_list[0] in self.directory_name_dict \
-                and self.directory_name_dict[dn_list[0]].isroot:
-            pid_ = self.directory_name_dict[dn_list[0]].gdriveid
-            pid_list.append(pid_)
+        if dn_list[0] in self.directory_name_dict:
+            if list(self.directory_name_dict[dn_list[0]].values())[0].isroot:
+                pid_ = list(
+                    self.directory_name_dict[dn_list[0]].values())[0].gdriveid
+                pid_list.append(pid_)
+            else:
+                return ''
         else:
             return ''
         for dn_ in dn_list[1:]:
             if dn_ in self.directory_name_dict \
-                    and pid_ == self.directory_name_dict[dn_].parentid:
-                pid_ = self.directory_name_dict[dn_].gdriveid
+                    and pid_ in self.directory_name_dict[dn_]:
+                pid_ = self.directory_name_dict[dn_][pid_].gdriveid
                 pid_list.append(pid_)
             else:
                 return ''

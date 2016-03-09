@@ -55,6 +55,7 @@ class TestSyncAppBox(unittest.TestCase):
         self.box.list_files(flist_box.append_item)
 
         for directory, finfo in flist_box.directory_name_dict.items():
+            finfo = finfo.values()[0]
             print(directory)
             print(flist_box.get_export_path(finfo))
 
@@ -90,7 +91,7 @@ class TestSyncAppBox(unittest.TestCase):
         self.box.get_folders(flist_box.append_dir)
         flist_box.fix_export_path()
         print(flist_box.directory_name_dict)
-        id_ = flist_box.directory_name_dict['Imported'].boxid
+        id_ = flist_box.directory_name_dict['Imported'].values()[0].boxid
         val = flist_box.directory_id_dict[id_]
         print(val)
         self.assertEqual(val.exportpath, '%s/Box/Documents' % HOMEDIR)
@@ -101,7 +102,7 @@ class TestSyncAppBox(unittest.TestCase):
         self.box.get_folders(flist_box.append_dir)
         flist_box.fix_export_path()
         print(flist_box.directory_name_dict)
-        finf_ = flist_box.directory_name_dict['Imported']
+        finf_ = flist_box.directory_name_dict['Imported'].values()[0]
 
         self.assertEqual(finf_.exportpath, '%s/Box/Documents' % HOMEDIR)
 

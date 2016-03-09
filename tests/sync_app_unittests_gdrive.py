@@ -80,7 +80,7 @@ class TestSyncAppGdrive(unittest.TestCase):
         flist_gdrive = FileListGdrive()
         self.gdrive.get_folders(flist_gdrive.append_dir)
         flist_gdrive.fix_export_path()
-        id_ = flist_gdrive.directory_name_dict['share'].gdriveid
+        id_ = flist_gdrive.directory_name_dict['share'].values()[0].gdriveid
         val = flist_gdrive.directory_id_dict[id_]
         self.assertEqual(val.exportpath,
                          '%s/gDrive/ATLAS/code/' % HOMEDIR +
@@ -92,7 +92,7 @@ class TestSyncAppGdrive(unittest.TestCase):
         self.gdrive.get_folders(flist_gdrive.append_dir)
         flist_gdrive.fix_export_path()
 
-        finf_ = flist_gdrive.directory_name_dict['share']
+        finf_ = flist_gdrive.directory_name_dict['share'].values()[0]
 
         self.assertEqual(finf_.exportpath,
                          '%s/gDrive/ATLAS/code/' % HOMEDIR +

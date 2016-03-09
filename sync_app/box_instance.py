@@ -80,12 +80,15 @@ class BoxInstance(object):
 
     def list_files(self, callback_fn):
         """ list non-directory files """
-        fields = ['id', 'size', 'etag', 'description', 'parent', 'name', 'type', 'modified_at', 'sha1']
+        fields = ['id', 'size', 'etag', 'description', 'parent', 'name',
+                  'type', 'modified_at', 'sha1']
+
         def walk_nodes(parentid='0'):
             parent_node = self.client.folder(folder_id=parentid).get()
             cur_offset = 0
             while True:
-                new_items = parent_node.get_items(limit=100, offset=cur_offset, fields=fields)
+                new_items = parent_node.get_items(limit=100, offset=cur_offset,
+                                                  fields=fields)
                 if not new_items:
                     break
                 for item in new_items:
@@ -95,7 +98,7 @@ class BoxInstance(object):
                         walk_nodes(parentid=item['id'])
                     else:
                         callback_fn(item)
-                print(cur_offset)
+                #print(parent_node._response_object['name'], cur_offset)
                 cur_offset += 100
         walk_nodes(parentid='0')
 
@@ -137,7 +140,7 @@ class BoxInstance(object):
         try:
             file_obj = parent.upload(file_path=fname, file_name=bname).get()
         except BoxAPIException as exc:
-            print('BoxAPIException %s' % exc)
+            print('BoxAPIException upload %s' % exc)
             raise
         item = file_obj._response_object
         item['parentid'] = parent_id
@@ -151,7 +154,7 @@ class BoxInstance(object):
         try:
             parent.create_subfolder(dname)
         except BoxAPIException as exc:
-            print('BoxAPIException %s' % exc)
+            print('create_directory BoxAPIException %s %s' % (dname, exc))
             pass
         parent = parent.get()
         item = parent._response_object

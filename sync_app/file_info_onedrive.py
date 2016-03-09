@@ -22,13 +22,14 @@ class FileInfoOneDrive(FileInfo):
     __slots__ = FileInfo.__slots__ + list(FILE_INFO_SLOTS)
 
     def __init__(self, gid='', fn='', sha1='', onedrive=None, item=None,
-                 in_tuple=None, mime='', sha1sum=None):
+                 in_tuple=None, mime='', sha1sum=None, pid='root'):
         FileInfo.__init__(self, fn=fn, sha1=sha1)
         self.onedriveid = gid
         self.onedrive = onedrive
         self.mimetype = mime
         self.exportpath = ''
         self.sha1sum = sha1
+        self.parentid = pid
         if item:
             self.fill_item(item)
         if in_tuple:
@@ -56,6 +57,7 @@ class FileInfoOneDrive(FileInfo):
                'sha1sum=%s, ' % self.sha1sum +\
                'size=%s, ' % self.filestat.st_size +\
                'st_mime=%s, ' % self.filestat.st_mtime +\
+               'pid=%s, ' % self.parentid +\
                'id=%s)>' % self.onedriveid
 
     def output_cache_tuple(self):
@@ -92,7 +94,8 @@ def test_file_info_onedrive():
                            fn='/home/ddboline/OneDrive/temp1.xml')
     test = '<FileInfoOneDrive(fn=/home/ddboline/OneDrive/temp1.xml, ' \
            'url=, path=, sha1sum=63f959b57ab0d1ef4e96a8dc4df3055456a80705, ' \
-           'size=0, st_mime=0, id=0BxGM0lfCdptnNzJsblNEa1ZzUU0)>'
+           'size=0, st_mime=0, pid=root, id=0BxGM0lfCdptnNzJsblNEa1ZzUU0)>'
+    print(tmp)
     assert '%s' % tmp == test
 
     test_tuple = tmp.output_cache_tuple()
