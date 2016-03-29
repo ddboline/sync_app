@@ -10,7 +10,7 @@ import os
 from collections import defaultdict
 
 from sync_app.file_list import FileList
-from sync_app.gdrive_instance import GdriveInstance
+from sync_app.gdrive_instance import GdriveInstance, fields
 from sync_app.file_info_gdrive import BASE_DIR, FileInfoGdrive
 
 
@@ -23,7 +23,7 @@ class FileListGdrive(FileList):
                           filelist_type='gdrive')
         self.filelist_id_dict = {}
         self.directory_id_dict = {}
-        self.directory_name_dict = defaultdict(dict)
+        self.directory_name_dict = defaultdict(list)
         self.gdrive = gdrive
         self.root_directory = None
 
@@ -41,7 +41,13 @@ class FileListGdrive(FileList):
 
     def append_item(self, item):
         """ append file to FileList, fill dict's """
+        if item['mimeType'] == 'application/vnd.google-apps.folder':
+            return self.append_dir(item)
         finfo = FileInfoGdrive(gdrive=self.gdrive, item=item)
+
+        root_dir_ = self.get_parent_directories(finfo)
+        if not self.root_directory:
+            self.root_directory = root_dir_
 
         ### Fix paths
         finfo.exportpath = self.get_export_path(finfo, abspath=False)
@@ -67,11 +73,25 @@ class FileListGdrive(FileList):
         if item['mimeType'] != 'application/vnd.google-apps.folder':
             return finfo
 
-        if finfo.isroot:
-            self.root_directory = finfo
         self.filelist_id_dict[finfo.gdriveid] = finfo
         self.directory_id_dict[finfo.gdriveid] = finfo
-        self.directory_name_dict[finfo.filename][finfo.parentid] = finfo
+        self.directory_name_dict[finfo.filename].append(finfo)
+        return finfo
+
+    def get_parent_directories(self, finfo):
+        pid = finfo.parentid
+        while pid is not None:
+            newfinfo = self.filelist_id_dict.get(pid, None)
+            if newfinfo is None:
+                request = self.gdrive.service.files().get(fileId=pid,
+                                                          fields=fields)
+                response = request.execute()
+                finfo = self.append_item(response)
+                pid = finfo.parentid
+            else:
+                finfo = newfinfo
+                pid = finfo.parentid
+        return finfo
 
     def get_export_path(self, finfo, abspath=True, is_dir=False):
         """ determine export path for given finfo object"""
@@ -87,7 +107,8 @@ class FileListGdrive(FileList):
             else:
                 if not self.gdrive:
                     self.gdrive = GdriveInstance()
-                request = self.gdrive.service.files().get(fileId=pid)
+                request = self.gdrive.service.files().get(fileId=pid,
+                                                          fields=fields)
                 response = request.execute()
                 finf = self.append_item(response)
                 pid = finf.parentid
@@ -111,6 +132,11 @@ class FileListGdrive(FileList):
         for _, finfo in self.directory_id_dict.items():
             finfo.exportpath = self.get_export_path(finfo, is_dir=True)
 
+    def get_folders(self):
+        self.gdrive.get_folders(self.append_dir)
+        finfo = self.filelist_id_dict.values()[0]
+        self.root_directory = self.get_parent_directories(finfo)
+
     def fill_file_list(self, number_to_process=-1, searchstr=None,
                        verbose=True):
         """ fill GDrive file list"""
@@ -119,7 +145,8 @@ class FileListGdrive(FileList):
         if verbose:
             print('get_folders')
         self.gdrive.number_to_process = -1
-        self.gdrive.get_folders(self.append_dir)
+#        if not self.filelist_id_dict:
+#            self.get_folders()
         if verbose:
             print('list_files')
         self.gdrive.number_to_process = number_to_process
@@ -133,50 +160,57 @@ class FileListGdrive(FileList):
         """ create directory on gdrive """
         pid_ = None
         if self.root_directory:
-            pid_ = self.root_directory.parentid
-        dn_list = dname.replace(BASE_DIR, '').split('/')
-        if dn_list and dn_list[0] == '':
-            dn_list.pop(0)
-        if not dn_list:
-            return pid_
-
-        if dn_list[0] in self.directory_name_dict \
-                and pid_ in self.directory_name_dict[dn_list[0]] \
-                and self.directory_name_dict[dn_list[0]][pid_].isroot:
-            pid_ = self.directory_name_dict[dn_list[0]][pid_].gdriveid
+            pid_ = self.root_directory.gdriveid
         else:
-            pid_ = self.gdrive.create_directory(dn_list[0], parent_id=pid_)
+            print('no root directory', dname, self.directory_name_dict.keys())
+
+        dn_list = dname.replace(BASE_DIR, 'My Drive').split('/')
+
+        if dn_list[0] != 'My Drive':
+            dn_list.insert(0, 'My Drive')
+        assert dn_list[0] == 'My Drive'
+        assert pid_ is not None
+
         for dn_ in dn_list[1:]:
-            if dn_ in self.directory_name_dict \
-                    and pid_ in self.directory_name_dict[dn_]:
-                pid_ = self.directory_name_dict[dn_][pid_].gdriveid
-            else:
-                pid_ = self.gdrive.create_directory(dn_, parent_id=pid_)
+            new_pid_ = None
+            for item in self.directory_name_dict.get(dn_, []):
+                if item.parentid == pid_:
+                    new_pid_ = item.gdriveid
+                    break
+            if new_pid_:
+                pid_ = new_pid_
+                continue
+            item = self.gdrive.create_directory(dn_, parent_id=pid_)
+            finf = self.append_dir(item)
+            pid_ = finf.gdriveid
+            print('create directory %s %s' % (dn_, pid_))
         return pid_
 
     def delete_directory(self, dname):
         """ delete directory on gdrive """
-        pid_list = []
-        dn_list = dname.replace(BASE_DIR + '/', '').split('/')
-
-        if dn_list[0] in self.directory_name_dict:
-            if list(self.directory_name_dict[dn_list[0]].values())[0].isroot:
-                pid_ = list(
-                    self.directory_name_dict[dn_list[0]].values())[0].gdriveid
-                pid_list.append(pid_)
-            else:
-                return ''
+        pid_ = None
+        if self.root_directory:
+            pid_ = self.root_directory.gdriveid
         else:
-            return ''
+            print('no root directory', dname, self.directory_name_dict.keys())
+
+        dn_list = dname.replace(BASE_DIR, 'My Drive').split('/')
+
+        if dn_list[0] != 'My Drive':
+            dn_list.insert(0, 'My Drive')
+        assert dn_list[0] == 'My Drive'
+        assert pid_ is not None
+
         for dn_ in dn_list[1:]:
-            if dn_ in self.directory_name_dict \
-                    and pid_ in self.directory_name_dict[dn_]:
-                pid_ = self.directory_name_dict[dn_][pid_].gdriveid
-                pid_list.append(pid_)
-            else:
-                return ''
-        for pid in pid_list[::-1]:
-            self.gdrive.delete_file(pid)
+            new_pid_ = None
+            for item in self.directory_name_dict.get(dn_, []):
+                if item.parentid == pid_:
+                    new_pid_ = item.gdriveid
+                    break
+            if new_pid_:
+                pid_ = new_pid_
+                continue
+        self.gdrive.delete_file(pid_)
         return ''
 
     def upload_file(self, fname, pathname=None):

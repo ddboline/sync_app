@@ -128,6 +128,8 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
 
     def download_file(finfo):
         """ callback to download from gdrive """
+        print(finfo)
+        return
         if 'https' in finfo.urlname:
             if delete_file and finfo.filename in delete_file:
                 print('delete %s' % finfo.filename)
@@ -417,7 +419,7 @@ def list_drive_parse():
                     if val.md5sum:
                         print(key, val.filename)
     elif cmd == 'directories':
-        gdrive.get_folders(flist_gdrive.append_dir)
+        flist_gdrive.get_folders()
         for key, val in flist_gdrive.directory_name_dict.items():
             if search_strings and not any(st_ in key for st_ in
                                           search_strings):
@@ -427,7 +429,7 @@ def list_drive_parse():
                 export_path += '/gDrive'
             print(key, '%s/%s' % (export_path, val.filename))
     elif cmd == 'upload':
-        gdrive.get_folders(flist_gdrive.append_dir)
+        flist_gdrive.get_folders()
         for fname in search_strings:
             flist_gdrive.upload_file(fname=fname, pathname=parent_directory)
     elif cmd == 'delete':

@@ -38,7 +38,7 @@ class TestSyncAppGdrive(unittest.TestCase):
         """ Test GdriveInstance.list_files """
         def get_title(item):
             """ callback fn """
-            self.test_title = item['title']
+            self.test_title = item['name']
         self.gdrive.list_files(get_title, searchstr=TEST_GDR)
         md_ = hashlib.md5()
         if hasattr(self.test_title, 'encode'):
@@ -50,15 +50,14 @@ class TestSyncAppGdrive(unittest.TestCase):
         """ Test GdriveInstance.upload """
         flist_gdrive = FileListGdrive(gdrive=self.gdrive)
 
-        self.gdrive.get_folders(flist_gdrive.append_dir)
-
+        flist_gdrive.get_folders()
         flist_gdrive.get_or_create_directory(TEST_DIR)
         test_file = '%s.%06x.txt' % (TEST_FILE, get_random_hex_string(4))
         shutil.copy(TEST_FILE, test_file)
         fid = flist_gdrive.upload_file(test_file)
         sstr = os.path.basename(test_file)
         self.gdrive.list_files(flist_gdrive.append_item, searchstr=sstr)
-        self.gdrive.get_folders(flist_gdrive.append_dir)
+#        flist_gdrive.get_folders()
         finf_ = flist_gdrive.filelist_id_dict[fid]
         finf_.download()
         fname = '%s/gDrive/%s' % (HOMEDIR, test_file)
@@ -76,11 +75,10 @@ class TestSyncAppGdrive(unittest.TestCase):
 
     def test_gdrive_search_directory(self):
         """ Test FileListGdrive """
-        self.gdrive = GdriveInstance()
-        flist_gdrive = FileListGdrive()
-        self.gdrive.get_folders(flist_gdrive.append_dir)
+        flist_gdrive = FileListGdrive(gdrive=self.gdrive)
+        flist_gdrive.get_folders()
         flist_gdrive.fix_export_path()
-        id_ = flist_gdrive.directory_name_dict['share'].values()[0].gdriveid
+        id_ = flist_gdrive.directory_name_dict['share'][0].gdriveid
         val = flist_gdrive.directory_id_dict[id_]
         self.assertEqual(val.exportpath,
                          '%s/gDrive/ATLAS/code/' % HOMEDIR +
@@ -89,10 +87,10 @@ class TestSyncAppGdrive(unittest.TestCase):
     def test_gdrive_list_directories(self):
         """ Test FileListGdrive """
         flist_gdrive = FileListGdrive(gdrive=self.gdrive)
-        self.gdrive.get_folders(flist_gdrive.append_dir)
+        flist_gdrive.get_folders()
         flist_gdrive.fix_export_path()
 
-        finf_ = flist_gdrive.directory_name_dict['share'].values()[0]
+        finf_ = flist_gdrive.directory_name_dict['share'][0]
 
         self.assertEqual(finf_.exportpath,
                          '%s/gDrive/ATLAS/code/' % HOMEDIR +
@@ -100,12 +98,12 @@ class TestSyncAppGdrive(unittest.TestCase):
 
     def test_gdrive_create_directory(self):
         """ Test GdriveInstance.insert """
-        body_obj = {'title': 'test_directory',
+        body_obj = {'name': 'test_directory',
                     'mimeType': 'application/vnd.google-apps.folder'}
-        request = self.gdrive.service.files().insert(body=body_obj)
+        request = self.gdrive.service.files().create(body=body_obj)
         response = request.execute()
-        flist_gdrive = FileListGdrive()
-        self.gdrive.get_folders(flist_gdrive.append_dir)
+        flist_gdrive = FileListGdrive(gdrive=self.gdrive)
+        flist_gdrive.get_folders()
         flist_gdrive.fix_export_path()
         fid = response['id']
         self.gdrive.delete_file(fid)
