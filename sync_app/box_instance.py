@@ -78,10 +78,11 @@ class BoxInstance(object):
 
         return self.client
 
-    def list_files(self, callback_fn):
+    def list_files(self, callback_fn, number_to_process=-1):
         """ list non-directory files """
         fields = ['id', 'size', 'etag', 'description', 'parent', 'name',
                   'type', 'modified_at', 'sha1']
+        number_complete = {'count': 0}
 
         def walk_nodes(parentid='0'):
             parent_node = self.client.folder(folder_id=parentid).get()
@@ -92,6 +93,10 @@ class BoxInstance(object):
                 if not new_items:
                     break
                 for item in new_items:
+                    if number_to_process > 0 \
+                            and number_complete['count'] > number_to_process:
+                        break
+                    number_complete['count'] += 1
                     item = item._response_object
                     item['parentid'] = parentid
                     if item.get('type', '') == 'folder':
@@ -102,8 +107,9 @@ class BoxInstance(object):
                 cur_offset += 100
         walk_nodes(parentid='0')
 
-    def get_folders(self, callback_fn):
+    def get_folders(self, callback_fn, number_to_process=-1):
         """ get folders """
+        number_complete = {'count': 0}
         def walk_nodes(parentid='0'):
             parent_node = self.client.folder(folder_id=parentid).get()
             item_col = parent_node._response_object.get('item_collection', {})
@@ -111,6 +117,10 @@ class BoxInstance(object):
             for item in entries:
                 item['parentid'] = parentid
                 if item.get('type', '') == 'folder':
+                    if number_to_process > 0 \
+                            and number_complete['count'] > number_to_process:
+                        return
+                    number_complete['count'] += 1
                     node = self.client.folder(folder_id=item['id']).get()
                     node = node._response_object
                     node['parentid'] = item['parentid']
@@ -175,8 +185,8 @@ class BoxInstance(object):
 
 def test_box_instance():
     box = BoxInstance()
-    box.get_folders(lambda x: print(x))
-    box.list_files(lambda x: print(x))
+    box.get_folders(lambda x: print(x), number_to_process=10)
+    box.list_files(lambda x: print(x), number_to_process=10)
     newdir = box.create_directory('test')
     item = box.upload(fname='tests/test_dir/hello_world.txt',
                       parent_id=newdir['id'])
