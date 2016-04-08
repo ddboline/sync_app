@@ -100,7 +100,7 @@ class TestSyncAppGdrive(unittest.TestCase):
         """ Test GdriveInstance.insert """
         body_obj = {'name': 'test_directory',
                     'mimeType': 'application/vnd.google-apps.folder'}
-        request = self.gdrive.service.files().create(body=body_obj)
+        request = self.gdrive.gfiles.create(body=body_obj)
         response = request.execute()
         flist_gdrive = FileListGdrive(gdrive=self.gdrive)
         flist_gdrive.get_folders()
