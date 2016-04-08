@@ -10,7 +10,7 @@ import os
 from collections import defaultdict
 
 from sync_app.file_list import FileList
-from sync_app.gdrive_instance import GdriveInstance, fields
+from sync_app.gdrive_instance import GdriveInstance
 from sync_app.file_info_gdrive import BASE_DIR, FileInfoGdrive
 
 
@@ -63,6 +63,14 @@ class FileListGdrive(FileList):
                 if finfo.md5sum == ffn.md5sum:
                     return finfo
 
+        if finfo.filename in self.filelist:
+            finf_ = self.filelist[finfo.filename]
+            if finf_.md5sum == finfo.md5sum:
+                print(finfo.filename)
+                finfo.delete()
+            else:
+                print(finfo.mimetype)
+                print(self.filelist[finfo.filename].mimetype)
         self.append(finfo)
         self.filelist_id_dict[finfo.gdriveid] = finfo
         return finfo
@@ -83,9 +91,7 @@ class FileListGdrive(FileList):
         while pid is not None:
             newfinfo = self.filelist_id_dict.get(pid, None)
             if newfinfo is None:
-                request = self.gdrive.service.files().get(fileId=pid,
-                                                          fields=fields)
-                response = request.execute()
+                response = self.gdrive.get_file(pid)
                 finfo = self.append_item(response)
                 pid = finfo.parentid
             else:
@@ -107,9 +113,7 @@ class FileListGdrive(FileList):
             else:
                 if not self.gdrive:
                     self.gdrive = GdriveInstance()
-                request = self.gdrive.service.files().get(fileId=pid,
-                                                          fields=fields)
-                response = request.execute()
+                response = self.gdrive.get_file(pid)
                 finf = self.append_item(response)
                 pid = finf.parentid
                 fullpath.append(os.path.basename(finf.filename))
@@ -145,8 +149,6 @@ class FileListGdrive(FileList):
         if verbose:
             print('get_folders')
         self.gdrive.number_to_process = -1
-#        if not self.filelist_id_dict:
-#            self.get_folders()
         if verbose:
             print('list_files')
         self.gdrive.number_to_process = number_to_process
@@ -215,6 +217,8 @@ class FileListGdrive(FileList):
 
     def upload_file(self, fname, pathname=None):
         """ upload file """
+        if fname in self.filelist:
+            return self.filelist[fname]
         dname = os.path.dirname(fname)
         if pathname:
             dname = pathname
