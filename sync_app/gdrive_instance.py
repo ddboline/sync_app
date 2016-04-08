@@ -50,6 +50,28 @@ def get_credentials():
     return credentials
 
 
+def t_execute(request):
+    timeout = 1
+    while True:
+        try:
+            return request.execute()
+        except HttpError as exc:
+            if 'user rate limit exceeded' in exc.content.lower():
+                print('timeout %s' % timeout)
+                time.sleep(timeout)
+                timeout *= 2
+                if timeout >= 64:
+                    raise
+            elif 'sufficient permissions' in exc.content.lower():
+                raise
+            else:
+                print(dir(exc))
+                print(exc.resp)
+#                import pdb
+#                pdb.set_trace()
+                raise
+
+
 class GdriveInstance(object):
     """ class to make use of google python api """
 
@@ -65,6 +87,7 @@ class GdriveInstance(object):
         self.credentials = get_credentials()
         http = self.credentials.authorize(httplib2.Http())
         self.service = discovery.build(app, version, http=http)
+        self.gfiles = self.service.files()
 
         self.number_to_process = number_to_process
 
@@ -84,7 +107,7 @@ class GdriveInstance(object):
 
     def process_request(self, request, callback_fn=None):
         """ call process_response until new_request exists or until stopped """
-        response = request.execute()
+        response = t_execute(request)
 
         new_request = True
         while new_request:
@@ -94,16 +117,16 @@ class GdriveInstance(object):
             if next_token is None:
                 return
 
-            new_request = self.service.files().list(pageToken=next_token,
-                                                    fields=list_fields)
+            new_request = self.gfiles.list(pageToken=next_token,
+                                           fields=list_fields)
             if not new_request:
                 return
             request = new_request
             try:
-                response = request.execute()
+                response = t_execute(request)
             except HttpError:
                 time.sleep(5)
-                response = request.execute()
+                response = t_execute(request)
         return
 
     def list_files(self, callback_fn, searchstr=None):
@@ -112,15 +135,19 @@ class GdriveInstance(object):
         if searchstr:
             query_string += ' and name contains "%s"' % searchstr
 
-        request = self.service.files().list(q=query_string, fields=list_fields)
+        request = self.gfiles.list(q=query_string, fields=list_fields)
         return self.process_request(request, callback_fn)
+
+    def get_file(self, fid):
+        request = self.gfiles.get(fileId=fid, fields=fields)
+        return t_execute(request)
 
     def get_folders(self, callback_fn, searchstr=None):
         """ get folders """
         query_string = 'mimeType = "application/vnd.google-apps.folder"'
         if searchstr:
             query_string += ' and name contains "%s"' % searchstr
-        request = self.service.files().list(q=query_string, fields=list_fields)
+        request = self.gfiles.list(q=query_string, fields=list_fields)
         return self.process_request(request, callback_fn)
 
     def download(self, fileid, exportfile, md5sum=None, export_mimetype=None):
@@ -129,10 +156,10 @@ class GdriveInstance(object):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         if export_mimetype:
-            request = self.service.files().export_media(
-                fileId=fileid, mimeType=export_mimetype)
+            request = self.gfiles.export_media(fileId=fileid,
+                                               mimeType=export_mimetype)
         else:
-            request = self.service.files().get_media(fileId=fileid)
+            request = self.gfiles.get_media(fileId=fileid)
         with open('%s.new' % exportfile, 'wb') as outfile:
             downloader = MediaIoBaseDownload(outfile, request)
             while True:
@@ -153,22 +180,25 @@ class GdriveInstance(object):
         fn_ = os.path.basename(fname)
         body_obj = {'name': fn_,
                     'parents': [parent_id]}
-        request = self.service.files().create(body=body_obj, media_body=fname)
-        response = request.execute()
+        request = self.gfiles.create(body=body_obj, media_body=fname)
+        response = t_execute(request)
         fid = response['id']
         return fid
 
     def set_parent_id(self, fid, parent_id):
         """ set parent_id """
-        request = self.service.files().get(fileId=fid,
-                                           fileds=fields)
-        response = request.execute()
+        request = self.get_file(fid)
+        response = t_execute(request)
         previous_pids = response['parents']
-        request = self.service.files().update(fileId=fid,
-                                              addParents=parent_id,
-                                              removeParents=previous_pids,
-                                              fields=fields)
-        return request.execute()
+        request = self.gfiles.update(fileId=fid, addParents=parent_id,
+                                     removeParents=previous_pids,
+                                     fields=fields)
+        return t_execute(request)
+
+    def rename(self, fid, new_filename):
+        body_obj = {'name': new_filename}
+        request = self.gfiles.update(fileId=fid, body=body_obj, fields=fields)
+        return t_execute(request)
 
     def create_directory(self, dname, parent_id):
         """ create directory, assign parent_id if supplied """
@@ -178,14 +208,19 @@ class GdriveInstance(object):
                     'mimeType': 'application/vnd.google-apps.folder',
                     'parents': [parent_id]}
 #        print(body_obj)
-        request = self.service.files().create(body=body_obj, fields=fields)
-        response = request.execute()
+        request = self.gfiles.create(body=body_obj, fields=fields)
+        response = t_execute(request)
         return response
 
     def delete_file(self, fileid):
         """ delete file by fileid """
-        request = self.service.files().delete(fileId=fileid)
-        return request.execute()
+        request = self.gfiles.delete(fileId=fileid)
+        try:
+            response = t_execute(request)
+        except Exception as exc:
+            print(exc)
+            return False
+        return response
 
     def get_parents(self, fids=None):
         """ get parents of files by fileid """
@@ -193,8 +228,8 @@ class GdriveInstance(object):
             return
         parents_output = []
         for fid in fids:
-            request = self.service.files().get(fileId=fid, fields=fields)
-            response = request.execute()
+            request = self.get_file(fid)
+            response = t_execute(request)
             parents_output.extend(response['parents'])
         return parents_output
 
