@@ -110,6 +110,7 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
                 os.remove(df_)
 
     from sync_app.file_list_gdrive import BASE_DIR as BASE_DIR_GDRIVE
+    from sync_app.file_info_gdrive import GOOGLEAPP_MIMETYPES
     print('build gdrive')
     flist_gdrive = build_gdrive_index()
     print('build local gdrive')
@@ -124,12 +125,13 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
             try:
                 return flist_gdrive.upload_file(finfo.filename)
             except UnknownFileType:
+                print('unknown file type', finfo.filename)
                 return
 
     def download_file(finfo):
         """ callback to download from gdrive """
-        print(finfo)
-        return
+#        print(finfo)
+#        return
         if 'https' in finfo.urlname:
             if delete_file and finfo.filename in delete_file:
                 print('delete %s' % finfo.filename)
@@ -137,7 +139,22 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
                     return finfo.delete()
             else:
                 print('download', finfo.urlname, finfo.filename)
-                if not dry_run:
+                if finfo.mimetype in GOOGLEAPP_MIMETYPES:
+#                    print(finfo.filename, os.path.exists(finfo.filename),
+#                          finfo.filestat.st_mtime)
+                    if '.JPG.JPG' in finfo.filename \
+                            or '.AVI.AVI' in finfo.filename:
+                        of = finfo.filename
+                        nf = of.replace('.JPG.JPG',
+                                        '').replace('.AVI.AVI', '')
+                        if os.path.exists(of):
+                            os.rename(of, nf)
+                        nf = nf.split('/')[-1]
+                        flist_gdrive.gdrive.rename(finfo.gdriveid, nf)
+                        flist_local.file
+                        return
+
+                if not dry_run and finfo.mimetype:
                     return finfo.download()
         return
 

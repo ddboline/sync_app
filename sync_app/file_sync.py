@@ -7,6 +7,35 @@
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
+import os
+
+
+def compare_objects(obj0, obj1, use_sha1=False):
+    """ should obj0 replace obj1? """
+    if obj0.filename != obj1.filename:
+        # different filenames
+        return False
+    md50 = obj0.md5sum
+    md51 = obj1.md5sum
+    sha0 = obj0.sha1sum
+    sha1 = obj1.sha1sum
+    fmtim0 = obj0.filestat.st_mtime
+    fmtim1 = obj1.filestat.st_mtime
+    if ('application/vnd.google-apps' in getattr(obj0, 'mimetype', '')
+            and os.path.exists(obj0.filename)):
+        if fmtim0 > fmtim1:
+            return True
+    if use_sha1:
+        if sha0 and sha1 and sha0 == sha1:
+            # identical files
+            return False
+    else:
+        if md50 and md51 and md50 == md51:
+            # identical files
+            return False
+    if fmtim0 > fmtim1:
+        # obj0 is newer than obj1
+        return True
 
 
 class FileSync(object):
@@ -45,6 +74,14 @@ class FileSync(object):
                 if use_sha1:
                     hash_dict = flist.filelist_sha1_dict
                 if fn_ not in flist.filelist_name_dict:
+                    fn_exists = False
+                    for finf in finfo0:
+                        if ('application/vnd.google-apps'
+                                in getattr(finf, 'mimetype', '')
+                                and os.path.exists(finf.filename)):
+                            fn_exists = True
+                    if fn_exists:
+                        continue
                     list_a_not_b.append(finfo0)
                 elif fmd5_0 not in hash_dict:
                     tmp = flist.filelist_name_dict[fn_][0]
@@ -63,6 +100,12 @@ class FileSync(object):
         for flist in self.flists[1:]:
             for fn_, finfo1 in flist.filelist_name_dict.items():
                 if fn_ not in self.flists[0].filelist_name_dict:
+                    fn_exists = False
+                    for finf in finfo1:
+                        if finf.filename in self.flists[0].filelist:
+                            fn_exists = True
+                    if fn_exists:
+                        continue
                     list_b_not_a.append(finfo1)
 
         for finfo in list_a_not_b:
