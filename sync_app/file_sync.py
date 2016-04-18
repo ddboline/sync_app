@@ -9,6 +9,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 import os
 
+from sync_app.util import MIMETYPE_SUFFIXES, GOOGLEAPP_MIMETYPES
+
 
 def compare_objects(obj0, obj1, use_sha1=False):
     """ should obj0 replace obj1? """
@@ -75,12 +77,20 @@ class FileSync(object):
                     hash_dict = flist.filelist_sha1_dict
                 if fn_ not in flist.filelist_name_dict:
                     fn_exists = False
+                    fmtim1 = -1
                     for finf in finfo0:
                         if ('application/vnd.google-apps'
-                                in getattr(finf, 'mimetype', '')
-                                and os.path.exists(finf.filename)):
-                            fn_exists = True
+                                in getattr(finf, 'mimetype', '')):
+                            mtype = getattr(finf, 'mimetype')
+                            mtype = GOOGLEAPP_MIMETYPES.get(mtype)
+                            ext = MIMETYPE_SUFFIXES.get(mtype)
+                            fnexp = '%s.%s' % (finf.filename, ext)
+                            if (os.path.exists(finf.filename)
+                                    or os.path.exists(fnexp)):
+                                fn_exists = True
+                                fmtim1 = finf.filestat.st_mtime
                     if fn_exists:
+                        print(fn_, fmtim0, fmtim1)
                         continue
                     list_a_not_b.append(finfo0)
                 elif fmd5_0 not in hash_dict:
@@ -90,6 +100,9 @@ class FileSync(object):
                         fmd5_1 = tmp.sha1sum if tmp.sha1sum else tmp.get_sha1()
                     fmtim1 = tmp.filestat.st_mtime
                     fmtim1 += 12 * 3600
+                    if fmtim0 > fmtim1:
+                        print('compare lists', fn_, fmd5_0, fmd5_1, fmtim0,
+                              fmtim1)
                     if fmd5_0 != fmd5_1 and fmtim0 > fmtim1:
                         print('compare fn=%s, ' % fn_ +
                               'fname=%s, ' % tmp.filename +
