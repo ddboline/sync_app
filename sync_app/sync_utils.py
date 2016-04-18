@@ -11,6 +11,7 @@ import argparse
 
 from sync_app.file_cache import FileListCache
 from sync_app.file_sync import FileSync
+from sync_app.util import MIMETYPE_SUFFIXES, GOOGLEAPP_MIMETYPES
 
 try:
     from apiclient.errors import UnknownFileType
@@ -110,7 +111,6 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
                 os.remove(df_)
 
     from sync_app.file_list_gdrive import BASE_DIR as BASE_DIR_GDRIVE
-    from sync_app.file_info_gdrive import GOOGLEAPP_MIMETYPES
     print('build gdrive')
     flist_gdrive = build_gdrive_index()
     print('build local gdrive')
@@ -130,32 +130,21 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
 
     def download_file(finfo):
         """ callback to download from gdrive """
-#        print(finfo)
-#        return
-        if 'https' in finfo.urlname:
-            if delete_file and finfo.filename in delete_file:
-                print('delete %s' % finfo.filename)
-                if not dry_run:
-                    return finfo.delete()
-            else:
-                print('download', finfo.urlname, finfo.filename)
-                if finfo.mimetype in GOOGLEAPP_MIMETYPES:
-#                    print(finfo.filename, os.path.exists(finfo.filename),
-#                          finfo.filestat.st_mtime)
-                    if '.JPG.JPG' in finfo.filename \
-                            or '.AVI.AVI' in finfo.filename:
-                        of = finfo.filename
-                        nf = of.replace('.JPG.JPG',
-                                        '').replace('.AVI.AVI', '')
-                        if os.path.exists(of):
-                            os.rename(of, nf)
-                        nf = nf.split('/')[-1]
-                        flist_gdrive.gdrive.rename(finfo.gdriveid, nf)
-                        flist_local.file
-                        return
+        if delete_file and finfo.filename in delete_file:
+            print('delete %s' % finfo.filename)
+            if not dry_run:
+                return finfo.delete()
+        else:
+            fname = finfo.filename
+            if finfo.mimetype in GOOGLEAPP_MIMETYPES:
+                mtype = GOOGLEAPP_MIMETYPES[finfo.mimetype]
+                ext = MIMETYPE_SUFFIXES[mtype]
+                if not fname.endswith(ext):
+                    fname = '%s.%s' % (fname, ext)
+            print('download', finfo.urlname, fname)
 
-                if not dry_run and finfo.mimetype:
-                    return finfo.download()
+            if not dry_run and finfo.mimetype:
+                return finfo.download()
         return
 
     fsync.compare_lists(callback0=download_file, callback1=upload_file)
