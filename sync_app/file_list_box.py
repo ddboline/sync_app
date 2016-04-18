@@ -71,6 +71,19 @@ class FileListBox(FileList):
         self.directory_id_dict[finfo.boxid] = finfo
         self.directory_name_dict[finfo.filename][finfo.parentid] = finfo
 
+    def get_parent_directories(self, finfo):
+        pid = finfo.parentid
+        while pid is not None:
+            newfinfo = self.filelist_id_dict.get(pid, None)
+            if newfinfo is None:
+                newfinfo = self.box.client.folder(folder_id=pid).get()
+                finfo = self.append_dir(newfinfo)
+                pid = finfo.parentid
+            else:
+                finfo = newfinfo
+                pid = finfo.parentid
+        return finfo
+
     def get_export_path(self, finfo, abspath=True, is_dir=False):
         """ determine export path for given finfo object"""
         fullpath = []
