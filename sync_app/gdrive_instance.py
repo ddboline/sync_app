@@ -162,7 +162,11 @@ class GdriveInstance(object):
             request = self.gfiles.get_media(fileId=fileid)
         with open('%s.new' % exportfile, 'wb') as outfile:
             downloader = MediaIoBaseDownload(outfile, request)
-            status, done = downloader.next_chunk()
+            try:
+                status, done = downloader.next_chunk()
+            except HttpError as exc:
+                print(exc)
+                return False
         if md5sum:
             from sync_app.util import get_md5
             md_ = get_md5('%s.new' % exportfile)
