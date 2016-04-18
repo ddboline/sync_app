@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import os
+import time
 from onedrivesdk import get_default_client, Folder, Item
 try:
     import cPickle as pickle
@@ -15,6 +16,19 @@ except ImportError:
 
 from sync_app.get_auth_code_server import get_auth_code
 from sync_app.util import HOMEDIR
+
+
+def t_get(request):
+    timeout = 1
+    while True:
+        try:
+            return request.get()
+        except Exception as exc:
+            print('timeout %s, %s' % (timeout, exc))
+            time.sleep(timeout)
+            timeout *= 2
+            if timeout >= 64:
+                raise
 
 
 class OneDriveInstance(object):
@@ -68,7 +82,7 @@ class OneDriveInstance(object):
         """ list non-directory files """
         def walk_nodes(parentid='root'):
             parent_node = self.client.item(id=parentid)
-            for node in parent_node.children.get():
+            for node in t_get(parent_node.children):
                 item = node.to_dict()
                 item['parentid'] = parentid
                 if 'folder' in item and item['folder']['childCount'] > 0:
@@ -82,7 +96,7 @@ class OneDriveInstance(object):
         """ get folders """
         def walk_nodes(parentid='root'):
             parent_node = self.client.item(id=parentid)
-            for node in parent_node.children.get():
+            for node in t_get(parent_node.children):
                 item = node.to_dict()
                 item['parentid'] = parentid
                 if 'folder' in item:
