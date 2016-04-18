@@ -110,6 +110,7 @@ class BoxInstance(object):
     def get_folders(self, callback_fn, number_to_process=-1):
         """ get folders """
         number_complete = {'count': 0}
+
         def walk_nodes(parentid='0'):
             parent_node = self.client.folder(folder_id=parentid).get()
             item_col = parent_node._response_object.get('item_collection', {})

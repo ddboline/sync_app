@@ -7,27 +7,12 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import os
-
-from sync_app.file_info import FileInfo
-
 from dateutil.parser import parse
 
+from sync_app.file_info import FileInfo
+from sync_app.util import MIMETYPE_SUFFIXES, GOOGLEAPP_MIMETYPES
+
 BASE_DIR = '%s/gDrive' % os.getenv('HOME')
-
-GOOGLEAPP_MIMETYPES = {
-    'application/vnd.google-apps.document':
-    'application/vnd.oasis.opendocument.text',
-    'application/vnd.google-apps.drawing': 'image/png',
-    'application/vnd.google-apps.form': 'application/pdf',
-    'application/vnd.google-apps.map': 'application/pdf',
-    'application/vnd.google-apps.presentation': 'application/pdf',
-    'application/vnd.google-apps.spreadsheet':
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
-
-GDRIVE_MIMETYPES = (
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'text/csv', 'image/png', 'application/vnd.oasis.opendocument.text',
-    'application/pdf')
 
 FILE_INFO_SLOTS = ('gdriveid', 'mimetype', 'parentid', 'exporturls',
                    'exportpath', 'isroot', 'gdrive')
@@ -64,7 +49,8 @@ class FileInfoGdrive(FileInfo):
                                         md5sum=self.md5sum,
                                         export_mimetype=export_mimetype)
         else:
-            path_ = '%s/%s' % (BASE_DIR, self.filename)
+            ext = MIMETYPE_SUFFIXES[export_mimetype]
+            path_ = '%s/%s.%s' % (BASE_DIR, self.filename, ext)
             return self.gdrive.download(self.gdriveid, path_,
                                         md5sum=self.md5sum,
                                         export_mimetype=export_mimetype)
@@ -102,8 +88,8 @@ class FileInfoGdrive(FileInfo):
         if 'md5Checksum' in item:
             self.md5sum = item['md5Checksum']
         _temp = {}
-        if 'modifiedDate' in item:
-            _temp['st_mtime'] = int(parse(item['modifiedDate']).strftime("%s"))
+        if 'modifiedTime' in item:
+            _temp['st_mtime'] = int(parse(item['modifiedTime']).strftime("%s"))
         if 'fileSize' in item:
             _temp['st_size'] = item['fileSize']
         self.fill_stat(**_temp)
