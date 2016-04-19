@@ -43,6 +43,9 @@ class FileInfoGdrive(FileInfo):
 
     def download(self):
         """ wrapper around GDriveInstance.download """
+        if self.mimetype in ('application/vnd.google-apps.map',
+                             'application/vnd.google-apps.form'):
+            return False
         export_mimetype = GOOGLEAPP_MIMETYPES.get(self.mimetype, None)
         if BASE_DIR in self.filename:
             return self.gdrive.download(self.gdriveid, self.filename,

@@ -90,7 +90,6 @@ class FileSync(object):
                                 fn_exists = True
                                 fmtim1 = finf.filestat.st_mtime
                     if fn_exists:
-                        print(fn_, fmtim0, fmtim1)
                         continue
                     list_a_not_b.append(finfo0)
                 elif fmd5_0 not in hash_dict:

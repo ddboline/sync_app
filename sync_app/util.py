@@ -20,8 +20,6 @@ GOOGLEAPP_MIMETYPES = {
     'application/vnd.google-apps.document':
     'application/vnd.oasis.opendocument.text',
     'application/vnd.google-apps.drawing': 'image/png',
-    'application/vnd.google-apps.form': 'application/pdf',
-    'application/vnd.google-apps.map': 'application/pdf',
     'application/vnd.google-apps.presentation': 'application/pdf',
     'application/vnd.google-apps.spreadsheet':
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}

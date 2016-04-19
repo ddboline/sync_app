@@ -57,7 +57,8 @@ def t_execute(request):
             return request.execute()
         except HttpError as exc:
             if 'user rate limit exceeded' in exc.content.lower():
-                print('timeout %s' % timeout)
+                if timeout > 1:
+                    print('timeout %s' % timeout)
                 time.sleep(timeout)
                 timeout *= 2
                 if timeout >= 64:
@@ -67,8 +68,6 @@ def t_execute(request):
             else:
                 print(dir(exc))
                 print(exc.resp)
-#                import pdb
-#                pdb.set_trace()
                 raise
 
 
@@ -126,6 +125,7 @@ class GdriveInstance(object):
                 response = t_execute(request)
             except HttpError:
                 time.sleep(5)
+                print('HttpError')
                 response = t_execute(request)
         return
 
@@ -165,8 +165,8 @@ class GdriveInstance(object):
             try:
                 status, done = downloader.next_chunk()
             except HttpError as exc:
-                print(exc)
-                return False
+                print('download', exc)
+                raise
         if md5sum:
             from sync_app.util import get_md5
             md_ = get_md5('%s.new' % exportfile)
@@ -219,8 +219,9 @@ class GdriveInstance(object):
         try:
             response = t_execute(request)
         except Exception as exc:
-            print(exc)
-            return False
+            print('delete', exc)
+            raise
+#            return False
         return response
 
     def get_parents(self, fids=None):

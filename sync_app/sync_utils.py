@@ -8,6 +8,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import os
 import argparse
+from apiclient.errors import HttpError
 
 from sync_app.file_cache import FileListCache
 from sync_app.file_sync import FileSync
@@ -135,6 +136,9 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
             if not dry_run:
                 return finfo.delete()
         else:
+            if finfo.mimetype in ('application/vnd.google-apps.map',
+                                  'application/vnd.google-apps.form'):
+                return False
             fname = finfo.filename
             if finfo.mimetype in GOOGLEAPP_MIMETYPES:
                 mtype = GOOGLEAPP_MIMETYPES[finfo.mimetype]
@@ -144,7 +148,11 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
             print('download', finfo.urlname, fname)
 
             if not dry_run and finfo.mimetype:
-                return finfo.download()
+                try:
+                    return finfo.download()
+                except HttpError as exc:
+                    print(exc, finfo.mimetype)
+                    return False
         return
 
     fsync.compare_lists(callback0=download_file, callback1=upload_file)

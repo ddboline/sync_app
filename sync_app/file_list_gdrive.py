@@ -8,6 +8,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import os
 from collections import defaultdict
+from apiclient.errors import HttpError
 
 from sync_app.file_list import FileList
 from sync_app.gdrive_instance import GdriveInstance
@@ -67,10 +68,12 @@ class FileListGdrive(FileList):
             finf_ = self.filelist[finfo.filename]
             if finf_.md5sum == finfo.md5sum:
                 print(finfo.filename)
-                finfo.delete()
+                try:
+                    finfo.delete()
+                except HttpError:
+                    pass
             else:
-                print(finfo.mimetype)
-                print(self.filelist[finfo.filename].mimetype)
+                print(finfo.filename, self.filelist[finfo.filename].mimetype)
         self.append(finfo)
         self.filelist_id_dict[finfo.gdriveid] = finfo
         return finfo
