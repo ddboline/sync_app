@@ -171,7 +171,7 @@ class GdriveInstance(object):
             from sync_app.util import get_md5
             md_ = get_md5('%s.new' % exportfile)
             if md_ != md5sum:
-                raise TypeError
+                raise TypeError('md_ %s md5sum %s' % (md_, md5sum))
         os.rename('%s.new' % exportfile, exportfile)
         return True
 
