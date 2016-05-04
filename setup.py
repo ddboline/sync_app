@@ -14,7 +14,7 @@ from setuptools import setup
 
 setup(
     name='sync_app',
-    version='0.0.2.6',
+    version='0.0.2.7',
     author='Daniel Boline',
     author_email='ddboline@gmail.com',
     description='sync_app',
@@ -26,9 +26,9 @@ setup(
     package_data={'sync_app': ['templates/*.html']},
     entry_points={'console_scripts':
                   ['sync-app = sync_app.sync_utils:sync_arg_parse',
-                   'list_drive_files = sync_app.sync_utils:list_drive_parse',
-                   'list_onedrive_files = '
+                   'list-drive-files = sync_app.sync_utils:list_drive_parse',
+                   'list-onedrive-files = '
                    'sync_app.sync_utils:list_onedrive_parse',
-                   'list_box_files = sync_app.sync_utils:list_box_parse',
-                   'list_s3_files = sync_app.sync_utils:parse_s3_args']}
+                   'list-box-files = sync_app.sync_utils:list_box_parse',
+                   'list-s3-files = sync_app.sync_utils:parse_s3_args']}
 )
