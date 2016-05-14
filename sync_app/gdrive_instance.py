@@ -168,10 +168,13 @@ class GdriveInstance(object):
                 print('download', exc)
                 raise
         if md5sum:
-            from sync_app.util import get_md5
+            from sync_app.util import get_md5, get_filetype
             md_ = get_md5('%s.new' % exportfile)
             if md_ != md5sum:
-                raise TypeError('md_ %s md5sum %s' % (md_, md5sum))
+                if 'PDF document' in get_filetype('%s.new' % exportfile):
+                    pass
+                else:
+                    raise TypeError('md_ %s md5sum %s' % (md_, md5sum))
         os.rename('%s.new' % exportfile, exportfile)
         return True
 

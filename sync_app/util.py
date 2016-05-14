@@ -108,6 +108,12 @@ def get_md5(fname):
         return get_md5_old(fname)
 
 
+def get_filetype(fname):
+    with run_command('file %s' % cleanup_path(fname), do_popen=True) as pop_:
+        output = ' '.join(pop_.stdout.read().split()[1:])
+    return output.decode()
+
+
 def test_get_md5():
     """ test get_md5 """
     tmp = get_md5_old('tests/test_dir/hello_world.txt')
