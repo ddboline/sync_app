@@ -67,7 +67,8 @@ def t_execute(request):
                 raise
             else:
                 print(dir(exc))
-                print(exc.resp)
+                print('content', exc.content)
+                print('response', exc.resp)
                 raise
 
 
