@@ -14,7 +14,7 @@ from setuptools import setup
 
 setup(
     name='sync_app',
-    version='0.0.2.8',
+    version='0.0.2.9',
     author='Daniel Boline',
     author_email='ddboline@gmail.com',
     description='sync_app',
