@@ -164,7 +164,10 @@ class GdriveInstance(object):
         with open('%s.new' % exportfile, 'wb') as outfile:
             downloader = MediaIoBaseDownload(outfile, request)
             try:
-                status, done = downloader.next_chunk()
+                done = False
+                while not done:
+                    status, done = downloader.next_chunk()
+                    print(status.progress()*100)
             except HttpError as exc:
                 print('download', exc)
                 raise
@@ -172,10 +175,13 @@ class GdriveInstance(object):
             from sync_app.util import get_md5, get_filetype
             md_ = get_md5('%s.new' % exportfile)
             if md_ != md5sum:
-                if 'PDF document' in get_filetype('%s.new' % exportfile):
+                ftype = get_filetype('%s.new' % exportfile)
+                if 'PDF document' in ftype or 'JPEG image data' in ftype:
                     pass
                 else:
-                    raise TypeError('md_ %s md5sum %s' % (md_, md5sum))
+                    print(get_filetype('%s.new' % exportfile))
+                    raise TypeError('%s md_ %s md5sum %s' % (exportfile, md_,
+                                                             md5sum))
         os.rename('%s.new' % exportfile, exportfile)
         return True
 
