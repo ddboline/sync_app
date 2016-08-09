@@ -11,7 +11,7 @@ from collections import defaultdict
 from apiclient.errors import HttpError
 
 from sync_app.file_list import FileList
-from sync_app.gdrive_instance import GdriveInstance
+from sync_app.gdrive_instance import GdriveInstance, TExecuteException
 from sync_app.file_info_gdrive import BASE_DIR, FileInfoGdrive
 
 
@@ -46,10 +46,6 @@ class FileListGdrive(FileList):
             return self.append_dir(item)
         finfo = FileInfoGdrive(gdrive=self.gdrive, item=item)
 
-        root_dir_ = self.get_parent_directories(finfo)
-        if not self.root_directory:
-            self.root_directory = root_dir_
-
         ### Fix paths
         finfo.exportpath = self.get_export_path(finfo, abspath=False)
         if not finfo.urlname:
@@ -83,6 +79,10 @@ class FileListGdrive(FileList):
         finfo = FileInfoGdrive(gdrive=self.gdrive, item=item)
         if item['mimeType'] != 'application/vnd.google-apps.folder':
             return finfo
+
+        root_dir_ = self.get_parent_directories(finfo)
+        if not self.root_directory:
+            self.root_directory = root_dir_
 
         self.filelist_id_dict[finfo.gdriveid] = finfo
         self.directory_id_dict[finfo.gdriveid] = finfo
@@ -178,17 +178,25 @@ class FileListGdrive(FileList):
 
         for dn_ in dn_list[1:]:
             new_pid_ = None
+            old_pid_ = None
             for item in self.directory_name_dict.get(dn_, []):
                 if item.parentid == pid_:
                     new_pid_ = item.gdriveid
                     break
             if new_pid_:
+                old_pid_ = pid_
                 pid_ = new_pid_
                 continue
-            item = self.gdrive.create_directory(dn_, parent_id=pid_)
+            try:
+                item = self.gdrive.create_directory(dn_, parent_id=pid_)
+            except TExecuteException:
+                print('dn:', dn_, pid_, old_pid_)
+                print('finfo:', self.filelist_id_dict[pid_])
+                print('finfo:', self.directory_id_dict[pid_])
+                raise
             finf = self.append_dir(item)
             pid_ = finf.gdriveid
-            print('create directory %s %s' % (dn_, pid_))
+            print('create directory %s %s %s' % (dname, dn_, pid_))
         return pid_
 
     def delete_directory(self, dname):

@@ -7,6 +7,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import os
+import socket
 import time
 import httplib2
 import oauth2client
@@ -22,6 +23,10 @@ APPLICATION_NAME = 'Python API'
 fields = ', '.join(('id', 'name', 'md5Checksum', 'modifiedTime', 'size',
                     'parents', 'fileExtension', 'mimeType', 'webContentLink'))
 list_fields = 'kind, nextPageToken, files(%s)' % fields
+
+
+class TExecuteException(Exception):
+    pass
 
 
 def get_credentials():
@@ -55,6 +60,8 @@ def t_execute(request):
     while True:
         try:
             return request.execute()
+        except socket.error:
+            time.sleep(timeout)
         except HttpError as exc:
             if 'user rate limit exceeded' in exc.content.lower():
                 if timeout > 1:
@@ -64,12 +71,12 @@ def t_execute(request):
                 if timeout >= 64:
                     raise
             elif 'sufficient permissions' in exc.content.lower():
-                raise
+                raise TExecuteException('insufficient permission')
             else:
                 print(dir(exc))
                 print('content', exc.content)
                 print('response', exc.resp)
-                raise
+                raise TExecuteException(exc)
 
 
 class GdriveInstance(object):
@@ -220,7 +227,13 @@ class GdriveInstance(object):
                     'parents': [parent_id]}
 #        print(body_obj)
         request = self.gfiles.create(body=body_obj, fields=fields)
-        response = t_execute(request)
+        try:
+            response = t_execute(request)
+        except TExecuteException:
+            print('dname:', dname)
+            print('parent_id:', parent_id)
+            print('body_obj:', body_obj)
+            raise
         return response
 
     def delete_file(self, fileid):
