@@ -174,7 +174,9 @@ class GdriveInstance(object):
                 done = False
                 while not done:
                     status, done = downloader.next_chunk()
-                    print(status.progress()*100)
+                    prog = status.progress()
+                    if prog < 1.0:
+                        print(status.progress()*100)
             except HttpError as exc:
                 print('download', exc)
                 raise
