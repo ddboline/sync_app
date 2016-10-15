@@ -23,6 +23,7 @@ APPLICATION_NAME = 'Python API'
 fields = ', '.join(('id', 'name', 'md5Checksum', 'modifiedTime', 'size',
                     'parents', 'fileExtension', 'mimeType', 'webContentLink'))
 list_fields = 'kind, nextPageToken, files(%s)' % fields
+CHUNKSIZE = 2 * 1024 * 1024
 
 
 class TExecuteException(Exception):
@@ -175,8 +176,11 @@ class GdriveInstance(object):
                 while not done:
                     status, done = downloader.next_chunk()
                     prog = status.progress()
+                    if status.total_size is None:
+                        break
                     if prog < 1.0:
-                        print(status.progress()*100)
+                        print('total_size', status.total_size)
+                        print('progress', status.progress() * 100)
             except HttpError as exc:
                 print('download', exc)
                 raise
