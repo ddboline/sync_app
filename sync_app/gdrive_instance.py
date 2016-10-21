@@ -279,7 +279,7 @@ def test_gdrive_instance():
     assert tmp.process_request(MockRequest()) is None
     assert tmp.get_parents() is None
 
-    @raises(HttpError)
+    @raises(TExecuteException)
     def test_tmp():
         """ ... """
         tmp.get_parents(fids=range(10))
