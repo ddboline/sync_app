@@ -134,7 +134,8 @@ class OneDriveInstance(object):
         newitem.name = dname
         newitem.folder = newfolder
 
-        result = self.client.item(id=parent_id).children.add(newitem).to_dict()
+        tmp = self.client.item(id=parent_id).children.add(newitem)
+        result = tmp.to_dict()
         result['parentid'] = parent_id
         return result
 
