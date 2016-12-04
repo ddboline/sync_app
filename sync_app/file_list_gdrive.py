@@ -66,7 +66,7 @@ class FileListGdrive(FileList):
                 print(finfo.filename)
                 try:
                     finfo.delete()
-                except HttpError:
+                except (HttpError, TExecuteException):
                     pass
             else:
                 print(finfo.filename, self.filelist[finfo.filename].mimetype)
