@@ -140,14 +140,16 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
                                   'application/vnd.google-apps.form'):
                 return False
             fname = finfo.filename
-            if finfo.mimetype in GOOGLEAPP_MIMETYPES:
-                mtype = GOOGLEAPP_MIMETYPES[finfo.mimetype]
+            if (finfo.mimetype in GOOGLEAPP_MIMETYPES or
+                    finfo.mimetype in MIMETYPE_SUFFIXES):
+                mtype = GOOGLEAPP_MIMETYPES.get(finfo.mimetype, finfo.mimetype)
                 ext = MIMETYPE_SUFFIXES[mtype]
                 if not fname.lower().endswith(ext):
                     fname = '%s.%s' % (fname, ext)
                 if fname.lower().endswith('.{ext}.{ext}'.format(ext=ext)):
+                    print("don't download", finfo.filename, fname, ext)
                     return False
-            print('download', finfo.urlname, fname)
+            print('download', finfo.urlname, fname, finfo.mimetype)
 
             if not dry_run and finfo.mimetype:
                 try:

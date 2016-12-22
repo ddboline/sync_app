@@ -106,7 +106,11 @@ class FileInfoGdrive(FileInfo):
             self.urlname = item['webContentLink']
         if 'fileExtension' in item:
             fext = item['fileExtension']
+        # this is meant to fix a very specific bug, not a good idea in general
+        if self.filename.lower().endswith('.{f}.{f}'.format(f=fext)):
+            self.filename = '.'.join(self.filename.split('.')[:-1])
         if fext not in self.filename.lower():
+            print('file extension', self.filename, fext)
             self.filename += '.%s' % fext
 
 

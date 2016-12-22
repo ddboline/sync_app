@@ -27,6 +27,7 @@ GOOGLEAPP_MIMETYPES = {
 MIMETYPE_SUFFIXES = {
     'application/vnd.oasis.opendocument.text': 'odt',
     'image/png': 'png', 'application/pdf': 'pdf',
+    'image/jpeg': 'jpg',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
     'xlsx'}
 
