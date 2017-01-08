@@ -1,7 +1,7 @@
 #!/bin/bash
 
 sudo /opt/conda/bin/conda install -c https://conda.anaconda.org/ddboline --yes \
-        boto python-dateutil pip pytz nose google-api-python-client coverage onedrivesdk
+        boto python-dateutil pip pytz pytest pytest-cov google-api-python-client coverage onedrivesdk
 
 ### TODO: how do I fix this in conda build?
 sudo chmod a+r /opt/conda/lib/python3.*/site-packages/httplib2/cacerts.txt
