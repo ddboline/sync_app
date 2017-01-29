@@ -62,13 +62,17 @@ class FileListGdrive(FileList):
 
         if finfo.filename in self.filelist:
             finf_ = self.filelist[finfo.filename]
-            if finf_.md5sum == finfo.md5sum:
-                print(finfo.filename)
+            if finf_.md5sum == finfo.md5sum and finf_.owned_by_me and \
+                    finfo.owned_by_me:
+                print('try deleteing duplicate %s of %s' % (finfo.filename,
+                                                            finf_.filename))
                 try:
                     finfo.delete()
-                except (HttpError, TExecuteException):
+                except (HttpError, TExecuteException) as exc:
+                    print('failed with error', exc)
+                    import pdb; pdb.set_trace()
                     pass
-            else:
+            elif finfo.owned_by_me:
                 print(finfo.filename, self.filelist[finfo.filename].mimetype)
         self.append(finfo)
         self.filelist_id_dict[finfo.gdriveid] = finfo
