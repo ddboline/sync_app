@@ -21,7 +21,8 @@ CLIENT_SECRET_FILE = 'sync_app/client_secrets.json'
 APPLICATION_NAME = 'Python API'
 
 fields = ', '.join(('id', 'name', 'md5Checksum', 'modifiedTime', 'size',
-                    'parents', 'fileExtension', 'mimeType', 'webContentLink'))
+                    'parents', 'fileExtension', 'mimeType', 'webContentLink',
+                    'owners'))
 list_fields = 'kind, nextPageToken, files(%s)' % fields
 CHUNKSIZE = 2 * 1024 * 1024
 

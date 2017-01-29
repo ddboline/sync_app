@@ -15,7 +15,7 @@ from sync_app.util import MIMETYPE_SUFFIXES, GOOGLEAPP_MIMETYPES
 BASE_DIR = '%s/gDrive' % os.getenv('HOME')
 
 FILE_INFO_SLOTS = ('gdriveid', 'mimetype', 'parentid', 'exporturls',
-                   'exportpath', 'isroot', 'gdrive')
+                   'exportpath', 'isroot', 'gdrive', 'owned_by_me')
 
 
 class FileInfoGdrive(FileInfo):
@@ -32,6 +32,7 @@ class FileInfoGdrive(FileInfo):
         self.mimetype = mime
         self.parentid = pid
         self.exportpath = ''
+        self.owned_by_me = True
         if item:
             self.fill_item(item)
         if in_tuple:
@@ -112,6 +113,8 @@ class FileInfoGdrive(FileInfo):
         if fext not in self.filename.lower():
             print('file extension', self.filename, fext)
             self.filename += '.%s' % fext
+        if 'owners' in item:
+            self.owned_by_me = any(x.get('me', False) for x in item['owners'])
 
 
 def test_file_info_gdrive():
