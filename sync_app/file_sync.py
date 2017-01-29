@@ -112,6 +112,11 @@ class FileSync(object):
         for flist in self.flists[1:]:
             for fn_, finfo1 in flist.filelist_name_dict.items():
                 if fn_ not in self.flists[0].filelist_name_dict:
+                    tmp = fn_.split('.')[-2:]
+                    if len(tmp) > 1 and tmp[0] == tmp[1]:
+                        test = '.'.join(fn_.split('.')[:-1])
+                        if test in self.flists[0].filelist_name_dict:
+                            continue
                     fn_exists = False
                     for finf in finfo1:
                         if finf.filename in self.flists[0].filelist:
