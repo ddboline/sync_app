@@ -76,6 +76,11 @@ class FileSync(object):
                 if use_sha1:
                     hash_dict = flist.filelist_sha1_dict
                 if fn_ not in flist.filelist_name_dict:
+                    tmp = fn_.split('.')[-2:]
+                    if len(tmp) > 1 and tmp[0] == tmp[1]:
+                        test = '.'.join(fn_.split('.')[:-1])
+                        if test in self.flists[0].filelist_name_dict:
+                            continue
                     fn_exists = False
                     fmtim1 = -1
                     for finf in finfo0:
