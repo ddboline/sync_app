@@ -1,3 +1,3 @@
 #!/bin/bash
 
-pytest --cov=sync_app sync_app/*.py tests/*.py
+py.test3 --cov=sync_app sync_app/*.py tests/*.py
