@@ -36,10 +36,12 @@ class TestSyncAppOneDrive(unittest.TestCase):
 
     def test_onedrive_list_files(self):
         """ Test OneDriveInstance.list_files """
+
         def get_title(item):
             """ callback fn """
             if TEST_GDR in item['name']:
                 self.test_title = item['name']
+
         self.onedrive.list_files(get_title)
         print(dir(self.onedrive.client.auth_provider))
         md_ = hashlib.md5()
@@ -81,8 +83,7 @@ class TestSyncAppOneDrive(unittest.TestCase):
                          '%s/OneDrive/%s' % (HOMEDIR, TEST_DIR))
         self.assertEqual(flist_onedrive.filelist_id_dict[fid].sha1sum,
                          'a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b')
-        self.assertEqual(get_sha1(fname),
-                         'a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b')
+        self.assertEqual(get_sha1(fname), 'a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b')
         os.remove(fname)
 
     def test_onedrive_search_directory(self):

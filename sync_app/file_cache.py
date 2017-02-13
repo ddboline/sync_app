@@ -3,8 +3,7 @@
 """
     FileCache class, cache objects to pickle file
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import os
 import gzip
@@ -20,6 +19,7 @@ from sync_app.util import run_command
 
 class FileListCache(object):
     """ class to manage caching objects """
+
     def __init__(self, pickle_file=''):
         self.pickle_file = pickle_file
         self.__cache_file_list_dict = {}
@@ -59,7 +59,8 @@ class FileListCache(object):
         run_command('mv %s.tmp %s' % (self.pickle_file, self.pickle_file))
         return True
 
-    def get_cache_file_list(self, file_list_obj=None,
+    def get_cache_file_list(self,
+                            file_list_obj=None,
                             file_info_class=FileInfo,
                             file_list_class=FileList):
         """ read list from cache file """
@@ -118,4 +119,5 @@ def test_add_filelist_to_cache():
     def test_tmp():
         """ nost test """
         tmp.add_filelist_to_cache(file_list=1)
+
     test_tmp()

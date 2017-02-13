@@ -5,8 +5,7 @@
     first run to identify new files, modified files
     second run to copy new files, most recently modified files
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 import os
 
 from sync_app.util import MIMETYPE_SUFFIXES, GOOGLEAPP_MIMETYPES
@@ -23,8 +22,8 @@ def compare_objects(obj0, obj1, use_sha1=False):
     sha1 = obj1.sha1sum
     fmtim0 = obj0.filestat.st_mtime
     fmtim1 = obj1.filestat.st_mtime
-    if ('application/vnd.google-apps' in getattr(obj0, 'mimetype', '')
-            and os.path.exists(obj0.filename)):
+    if ('application/vnd.google-apps' in getattr(obj0, 'mimetype', '') and
+            os.path.exists(obj0.filename)):
         if fmtim0 > fmtim1:
             return True
     if use_sha1:
@@ -42,13 +41,15 @@ def compare_objects(obj0, obj1, use_sha1=False):
 
 class FileSync(object):
     """ Sync Directories """
+
     def __init__(self, flists=None):
         """ Init function """
         self.flists = []
         if flists:
             for flist in flists:
-                if not all(hasattr(flist, x) for x in ('filelist',
-                           'filelist_md5_dict', 'filelist_name_dict')):
+                if not all(
+                        hasattr(flist, x)
+                        for x in ('filelist', 'filelist_md5_dict', 'filelist_name_dict')):
                     continue
                 self.flists.append(flist)
 
@@ -84,14 +85,12 @@ class FileSync(object):
                     fn_exists = False
                     fmtim1 = -1
                     for finf in finfo0:
-                        if ('application/vnd.google-apps'
-                                in getattr(finf, 'mimetype', '')):
+                        if ('application/vnd.google-apps' in getattr(finf, 'mimetype', '')):
                             mtype = getattr(finf, 'mimetype')
                             mtype = GOOGLEAPP_MIMETYPES.get(mtype)
                             ext = MIMETYPE_SUFFIXES.get(mtype)
                             fnexp = '%s.%s' % (finf.filename, ext)
-                            if (os.path.exists(finf.filename)
-                                    or os.path.exists(fnexp)):
+                            if (os.path.exists(finf.filename) or os.path.exists(fnexp)):
                                 fn_exists = True
                                 fmtim1 = finf.filestat.st_mtime
                     if fn_exists:
@@ -105,13 +104,11 @@ class FileSync(object):
                     fmtim1 = tmp.filestat.st_mtime
                     fmtim1 += 12 * 3600
                     if fmtim0 > fmtim1:
-                        print('compare lists', fn_, fmd5_0, fmd5_1, fmtim0,
-                              fmtim1)
+                        print('compare lists', fn_, fmd5_0, fmd5_1, fmtim0, fmtim1)
                     if fmd5_0 != fmd5_1 and fmtim0 > fmtim1:
-                        print('compare fn=%s, ' % fn_ +
-                              'fname=%s, ' % tmp.filename +
-                              'ft0=%s, ft1=%s, ' % (fmtim0, fmtim1) +
-                              'fm0=%s, fm1=%s' % (fmd5_0, fmd5_1))
+                        print('compare fn=%s, ' % fn_ + 'fname=%s, ' % tmp.filename +
+                              'ft0=%s, ft1=%s, ' % (fmtim0, fmtim1) + 'fm0=%s, fm1=%s' % (fmd5_0,
+                                                                                          fmd5_1))
                         list_a_not_b.append(finfo0)
 
         for flist in self.flists[1:]:

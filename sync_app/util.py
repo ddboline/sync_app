@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 """ Utility functions """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import os
 import hashlib
@@ -19,26 +18,30 @@ HOMEDIR = os.getenv('HOME')
 GOOGLEAPP_MIMETYPES = {
     'application/vnd.google-apps.document':
     'application/vnd.oasis.opendocument.text',
-    'application/vnd.google-apps.drawing': 'image/png',
-    'application/vnd.google-apps.presentation': 'application/pdf',
+    'application/vnd.google-apps.drawing':
+    'image/png',
+    'application/vnd.google-apps.presentation':
+    'application/pdf',
     'application/vnd.google-apps.spreadsheet':
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+}
 
 MIMETYPE_SUFFIXES = {
     'application/vnd.oasis.opendocument.text': 'odt',
-    'image/png': 'png', 'application/pdf': 'pdf',
+    'image/png': 'png',
+    'application/pdf': 'pdf',
     'image/jpeg': 'jpg',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-    'xlsx'}
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx'
+}
 
 
 class PopenWrapperClass(object):
     """ wrapper around subprocess.Popen """
+
     def __init__(self, command):
         """ init """
         self.command = command
-        self.pop_ = Popen(self.command, shell=True, stdout=PIPE,
-                          close_fds=True)
+        self.pop_ = Popen(self.command, shell=True, stdout=PIPE, close_fds=True)
 
     def __enter__(self):
         """ enter """
@@ -47,8 +50,7 @@ class PopenWrapperClass(object):
     def __exit__(self, exc_type, exc_value, traceback):
         """ exit """
         if hasattr(self.pop_, '__exit__'):
-            return getattr(self.pop_, '__exit__')(exc_type, exc_value,
-                                                  traceback)
+            return getattr(self.pop_, '__exit__')(exc_type, exc_value, traceback)
         self.pop_.wait()
         if exc_type or exc_value or traceback:
             return False
@@ -56,8 +58,7 @@ class PopenWrapperClass(object):
             return True
 
 
-def run_command(command, do_popen=False, turn_on_commands=True,
-                single_line=False):
+def run_command(command, do_popen=False, turn_on_commands=True, single_line=False):
     """ wrapper around os.system """
     if not turn_on_commands:
         print(command)
@@ -101,8 +102,7 @@ def get_md5_old(fname):
 def get_md5(fname):
     """ system md5 function """
     try:
-        with run_command('md5sum "%s" 2> /dev/null' % cleanup_path(fname),
-                         do_popen=True) as pop_:
+        with run_command('md5sum "%s" 2> /dev/null' % cleanup_path(fname), do_popen=True) as pop_:
             output = pop_.stdout.read().split()[0]
         return output.decode()
     except IndexError:
@@ -136,8 +136,7 @@ def get_sha1_old(fname):
 def get_sha1(fname):
     """ system sha1 function """
     try:
-        with run_command('sha1sum "%s" 2> /dev/null' % cleanup_path(fname),
-                         do_popen=True) as pop_:
+        with run_command('sha1sum "%s" 2> /dev/null' % cleanup_path(fname), do_popen=True) as pop_:
             output = pop_.stdout.read().split()[0]
         return output.decode()
     except IndexError:

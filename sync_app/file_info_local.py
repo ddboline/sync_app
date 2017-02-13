@@ -3,8 +3,7 @@
 """
     extract FileInfo object for local files
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import multiprocessing as mp
 from concurrent.futures import ProcessPoolExecutor
@@ -31,8 +30,7 @@ class FileInfoLocal(FileInfo):
                 print('ERROR')
                 raise TypeError
             _url = 'file://%s' % absfn
-        FileInfo.__init__(self, fn=absfn, url=_url, md5=md5, sha1=sha1, fs=fs,
-                          in_tuple=in_tuple)
+        FileInfo.__init__(self, fn=absfn, url=_url, md5=md5, sha1=sha1, fs=fs, in_tuple=in_tuple)
 
     def get_md5(self):
         """ Wrapper around sync_utils.get_md5 """
@@ -63,6 +61,7 @@ def test_file_info_local():
     def test_tmp():
         """ ... """
         FileInfoLocal(fn='apsodfij')
+
     test_tmp()
 
     from sync_app.file_info import StatTuple
@@ -70,9 +69,11 @@ def test_file_info_local():
     fs_ = StatTuple(**test_dict)
     fn_ = 'tests/test_dir/hello_world.txt'
     afn_ = os.path.abspath(fn_)
-    tmp = '%s' % FileInfoLocal(fn=fn_, md5='8ddd8be4b179a529afa5f2ffae4b9858',
-                               sha1='a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b',
-                               fs=fs_)
+    tmp = '%s' % FileInfoLocal(
+        fn=fn_,
+        md5='8ddd8be4b179a529afa5f2ffae4b9858',
+        sha1='a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b',
+        fs=fs_)
     test = '<FileInfo(fn=%s, ' % afn_ + 'url=file://%s, ' % afn_ + \
            'md5=8ddd8be4b179a529afa5f2ffae4b9858, ' \
            'sha1=a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b, size=7654321)>'

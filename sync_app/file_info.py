@@ -10,8 +10,7 @@
             sha1sum of the file
             output of os.stat
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 STAT_ATTRS = ('st_mtime', 'st_size')
 FILE_INFO_SLOTS = ('filename', 'urlname', 'md5sum', 'sha1sum', 'filestat')
@@ -53,8 +52,7 @@ class FileInfo(object):
     """
     __slots__ = list(FILE_INFO_SLOTS)
 
-    def __init__(self, fn='', url='', md5=None, sha1=None, fs=None,
-                 in_tuple=None):
+    def __init__(self, fn='', url='', md5=None, sha1=None, fs=None, in_tuple=None):
         """ Init function, define sensible defaults """
         self.filename = fn
         self.urlname = url
@@ -96,8 +94,8 @@ class FileInfo(object):
             self.md5sum = self.md5sum.result()
         if hasattr(self.sha1sum, 'result'):
             self.sha1sum = self.sha1sum.result()
-        return (self.filename, self.urlname, self.md5sum, self.sha1sum,
-                self.filestat.st_mtime, self.filestat.st_size)
+        return (self.filename, self.urlname, self.md5sum, self.sha1sum, self.filestat.st_mtime,
+                self.filestat.st_size)
 
     def input_cache_tuple(self, in_tuple):
         """ deserialize FileInfo """
@@ -121,12 +119,17 @@ def test_file_info():
     test_dict = {'st_mtime': 1234567, 'st_size': 7654321}
     fs_ = StatTuple(**test_dict)
     fn_ = 'tests/test_dir/hello_world.txt'
-    tmp = FileInfo(fn=fn_, url='file://%s' % os.path.abspath(fn_),
-                   md5='8ddd8be4b179a529afa5f2ffae4b9858',
-                   sha1='a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b', fs=fs_)
-    test = {'filename': 'tests/test_dir/hello_world.txt',
-            'md5sum': '8ddd8be4b179a529afa5f2ffae4b9858',
-            'sha1sum': 'a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b'}
+    tmp = FileInfo(
+        fn=fn_,
+        url='file://%s' % os.path.abspath(fn_),
+        md5='8ddd8be4b179a529afa5f2ffae4b9858',
+        sha1='a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b',
+        fs=fs_)
+    test = {
+        'filename': 'tests/test_dir/hello_world.txt',
+        'md5sum': '8ddd8be4b179a529afa5f2ffae4b9858',
+        'sha1sum': 'a0b65939670bc2c010f4d5d6a0b3e4e4590fb92b'
+    }
 
     for key in FILE_INFO_SLOTS:
         if key == 'urlname':

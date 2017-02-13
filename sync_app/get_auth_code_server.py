@@ -55,8 +55,7 @@ def get_auth_code(auth_url, redirect_uri):
     print(auth_url, host, port)
     # Set up HTTP server and thread
     code_acquired = threading.Event()
-    s = GetAuthCodeServer((host, port), code_acquired,
-                          GetAuthCodeRequestHandler)
+    s = GetAuthCodeServer((host, port), code_acquired, GetAuthCodeRequestHandler)
     th = threading.Thread(target=s.serve_forever)
     th.start()
     webbrowser.open(auth_url)
@@ -103,6 +102,5 @@ class GetAuthCodeRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(bytes(
-            '<script type="text/javascript">window.close()</script>'
-            .encode("utf-8")))
+        self.wfile.write(
+            bytes('<script type="text/javascript">window.close()</script>'.encode("utf-8")))

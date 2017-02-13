@@ -36,9 +36,11 @@ class TestSyncAppGdrive(unittest.TestCase):
 
     def test_gdrive_list_files(self):
         """ Test GdriveInstance.list_files """
+
         def get_title(item):
             """ callback fn """
             self.test_title = item['name']
+
         self.gdrive.list_files(get_title, searchstr=TEST_GDR)
         md_ = hashlib.md5()
         if hasattr(self.test_title, 'encode'):
@@ -57,7 +59,7 @@ class TestSyncAppGdrive(unittest.TestCase):
         fid = flist_gdrive.upload_file(test_file)
         sstr = os.path.basename(test_file)
         self.gdrive.list_files(flist_gdrive.append_item, searchstr=sstr)
-#        flist_gdrive.get_folders()
+        #        flist_gdrive.get_folders()
         finf_ = flist_gdrive.filelist_id_dict[fid]
         finf_.download()
         fname = '%s/gDrive/%s' % (HOMEDIR, test_file)
@@ -81,8 +83,7 @@ class TestSyncAppGdrive(unittest.TestCase):
         id_ = flist_gdrive.directory_name_dict['share'][0].gdriveid
         val = flist_gdrive.directory_id_dict[id_]
         self.assertEqual(val.exportpath,
-                         '%s/gDrive/ATLAS/code/' % HOMEDIR +
-                         'ISF_Calo_Validation/17.2.4.10')
+                         '%s/gDrive/ATLAS/code/' % HOMEDIR + 'ISF_Calo_Validation/17.2.4.10')
 
     def test_gdrive_list_directories(self):
         """ Test FileListGdrive """
@@ -93,13 +94,11 @@ class TestSyncAppGdrive(unittest.TestCase):
         finf_ = flist_gdrive.directory_name_dict['share'][0]
 
         self.assertEqual(finf_.exportpath,
-                         '%s/gDrive/ATLAS/code/' % HOMEDIR +
-                         'ISF_Calo_Validation/17.2.4.10')
+                         '%s/gDrive/ATLAS/code/' % HOMEDIR + 'ISF_Calo_Validation/17.2.4.10')
 
     def test_gdrive_create_directory(self):
         """ Test GdriveInstance.insert """
-        body_obj = {'name': 'test_directory',
-                    'mimeType': 'application/vnd.google-apps.folder'}
+        body_obj = {'name': 'test_directory', 'mimeType': 'application/vnd.google-apps.folder'}
         request = self.gdrive.gfiles.create(body=body_obj)
         response = request.execute()
         flist_gdrive = FileListGdrive(gdrive=self.gdrive)
@@ -107,8 +106,8 @@ class TestSyncAppGdrive(unittest.TestCase):
         flist_gdrive.fix_export_path()
         fid = response['id']
         self.gdrive.delete_file(fid)
-        self.assertEqual('test_directory',
-                         flist_gdrive.filelist_id_dict[fid].filename)
+        self.assertEqual('test_directory', flist_gdrive.filelist_id_dict[fid].filename)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -3,8 +3,7 @@
 """
     extract FileList object for files in AWS S3
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import os
 
@@ -19,8 +18,7 @@ class FileListS3(FileList):
 
     def __init__(self, filelist=None, bucket=None, s3=None):
         """ Init function """
-        FileList.__init__(self, filelist=filelist, basedir=bucket,
-                          filelist_type='s3')
+        FileList.__init__(self, filelist=filelist, basedir=bucket, filelist_type='s3')
         self.s3_ = s3
         self.filelist_key_dict = {}
 
@@ -43,6 +41,5 @@ class FileListS3(FileList):
 
     def fill_file_list(self, bucket=None):
         """ fill s3 filelist  """
-        self.s3_.get_list_of_keys(bucket_name=bucket,
-                                  callback_fn=self.append_item)
+        self.s3_.get_list_of_keys(bucket_name=bucket, callback_fn=self.append_item)
         self.fill_hash_dicts()

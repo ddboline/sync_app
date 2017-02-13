@@ -36,8 +36,7 @@ class TestSyncAppLocal(unittest.TestCase):
     def test_file_info_local(self):
         """ Test FileInfoLocal class """
         finfo = FileInfoLocal(fn=TEST_FILE)
-        output = '%s %s %s %d' % (finfo.filename, finfo.urlname,
-                                  finfo.md5sum.result(),
+        output = '%s %s %s %d' % (finfo.filename, finfo.urlname, finfo.md5sum.result(),
                                   finfo.filestat.st_size)
         output = output.replace(CURDIR, '')
 
@@ -53,8 +52,7 @@ class TestSyncAppLocal(unittest.TestCase):
         flist.fill_file_list(directory=TEST_DIR)
         output = []
         for fl_ in flist:
-            temp_ = '%s %s %s %d' % (fl_.filename, fl_.urlname, fl_.md5sum,
-                                     fl_.filestat.st_size)
+            temp_ = '%s %s %s %d' % (fl_.filename, fl_.urlname, fl_.md5sum, fl_.filestat.st_size)
             output.append(temp_.replace(CURDIR, ''))
         output = sorted(output)
         md_ = hashlib.md5()
@@ -77,8 +75,7 @@ class TestSyncAppLocal(unittest.TestCase):
         flist = fcache.get_cache_file_list()
         output = []
         for fl_ in flist:
-            temp_ = '%s %s %s %d' % (fl_.filename, fl_.urlname, fl_.md5sum,
-                                     fl_.filestat.st_size)
+            temp_ = '%s %s %s %d' % (fl_.filename, fl_.urlname, fl_.md5sum, fl_.filestat.st_size)
             output.append(temp_.replace(CURDIR, ''))
         output = sorted(output)
         md_ = hashlib.md5()
@@ -92,11 +89,11 @@ class TestSyncAppLocal(unittest.TestCase):
         flist = FileListLocal(cache_file_list=flist)
         flist.fill_file_list(directory=TEST_DIR)
         md_ = hashlib.md5()
-        md_.update(('%s' % sorted((_ for _ in flist),
-                                  key=lambda x: x.filename)).encode())
-        self.assertIn(md_.hexdigest(), ['4fd66d0de026e7d9de08a29efd707ab2',
-                                        'ca97fddb40f753e245a18f540f5b116e',
-                                        'a2c60299334f38042bdfc49292d524a5'])
+        md_.update(('%s' % sorted((_ for _ in flist), key=lambda x: x.filename)).encode())
+        self.assertIn(md_.hexdigest(), [
+            '4fd66d0de026e7d9de08a29efd707ab2', 'ca97fddb40f753e245a18f540f5b116e',
+            'a2c60299334f38042bdfc49292d524a5'
+        ])
 
 
 if __name__ == '__main__':

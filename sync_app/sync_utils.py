@@ -3,8 +3,7 @@
 """
     Utility functions
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import os
 import argparse
@@ -17,14 +16,15 @@ from sync_app.util import MIMETYPE_SUFFIXES, GOOGLEAPP_MIMETYPES
 try:
     from apiclient.errors import UnknownFileType
 except ImportError:
+
     class UknownFileType(Exception):
         """ dummy exception """
         pass
 
-LOCAL_DISKS = ('/home/ddboline', '/media/sabrent2000', '/media/caviar2000',
-               '/media/western2000')
-LOCAL_DIRECTORIES = ('Documents/AudioBooks', 'Documents/mp3',
-                     'Documents/podcasts', 'Documents/video', 'D0_Backup')
+
+LOCAL_DISKS = ('/home/ddboline', '/media/sabrent2000', '/media/caviar2000', '/media/western2000')
+LOCAL_DIRECTORIES = ('Documents/AudioBooks', 'Documents/mp3', 'Documents/podcasts',
+                     'Documents/video', 'D0_Backup')
 
 
 def build_onedrive_index(searchstr=None, verbose=True):
@@ -88,8 +88,7 @@ def build_local_index(directories=None, rebuild_index=False):
 
     if not directories:
         return False
-    fcache = FileListCache(pickle_file='%s/.local_file_list_cache.pkl.gz' %
-                           os.getenv('HOME'))
+    fcache = FileListCache(pickle_file='%s/.local_file_list_cache.pkl.gz' % os.getenv('HOME'))
     flist_cache = None
     if not rebuild_index:
         flist_cache = fcache.get_cache_file_list(file_list_class=FileListLocal)
@@ -115,8 +114,7 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
     print('build gdrive')
     flist_gdrive = build_gdrive_index()
     print('build local gdrive')
-    flist_local = build_local_index(directories=[BASE_DIR_GDRIVE],
-                                    rebuild_index=rebuild_index)
+    flist_local = build_local_index(directories=[BASE_DIR_GDRIVE], rebuild_index=rebuild_index)
     fsync = FileSync(flists=[flist_gdrive, flist_local])
 
     def upload_file(finfo):
@@ -140,8 +138,7 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
                                   'application/vnd.google-apps.form'):
                 return False
             fname = finfo.filename
-            if (finfo.mimetype in GOOGLEAPP_MIMETYPES or
-                    finfo.mimetype in MIMETYPE_SUFFIXES):
+            if (finfo.mimetype in GOOGLEAPP_MIMETYPES or finfo.mimetype in MIMETYPE_SUFFIXES):
                 mtype = GOOGLEAPP_MIMETYPES.get(finfo.mimetype, finfo.mimetype)
                 ext = MIMETYPE_SUFFIXES[mtype]
                 if not fname.lower().endswith(ext):
@@ -174,8 +171,7 @@ def sync_onedrive(dry_run=False, delete_file=None, rebuild_index=False):
     print('build onedrive')
     flist_onedrive = build_onedrive_index()
     print('build local onedrive')
-    flist_local = build_local_index(directories=[BASE_DIR_ONEDRIVE],
-                                    rebuild_index=rebuild_index)
+    flist_local = build_local_index(directories=[BASE_DIR_ONEDRIVE], rebuild_index=rebuild_index)
     fsync = FileSync(flists=[flist_onedrive, flist_local])
 
     def upload_file(finfo):
@@ -200,8 +196,7 @@ def sync_onedrive(dry_run=False, delete_file=None, rebuild_index=False):
                 return finfo.download()
         return
 
-    fsync.compare_lists(callback0=download_file, callback1=upload_file,
-                        use_sha1=True)
+    fsync.compare_lists(callback0=download_file, callback1=upload_file, use_sha1=True)
 
 
 def sync_box(dry_run=False, delete_file=None, rebuild_index=False):
@@ -216,8 +211,7 @@ def sync_box(dry_run=False, delete_file=None, rebuild_index=False):
     print('build box')
     flist_box = build_box_index()
     print('build local box')
-    flist_local = build_local_index(directories=[BASE_DIR_BOX],
-                                    rebuild_index=rebuild_index)
+    flist_local = build_local_index(directories=[BASE_DIR_BOX], rebuild_index=rebuild_index)
     fsync = FileSync(flists=[flist_box, flist_local])
 
     def upload_file(finfo):
@@ -242,8 +236,7 @@ def sync_box(dry_run=False, delete_file=None, rebuild_index=False):
                 return finfo.download()
         return
 
-    fsync.compare_lists(callback0=download_file, callback1=upload_file,
-                        use_sha1=True)
+    fsync.compare_lists(callback0=download_file, callback1=upload_file, use_sha1=True)
 
 
 def sync_s3(dry_run=False, delete_file=None, rebuild_index=False):
@@ -259,8 +252,7 @@ def sync_s3(dry_run=False, delete_file=None, rebuild_index=False):
     print('build s3')
     flist_s3 = build_s3_index()
     print('build local s3')
-    flist_local = build_local_index(directories=[BASE_DIR_S3],
-                                    rebuild_index=rebuild_index)
+    flist_local = build_local_index(directories=[BASE_DIR_S3], rebuild_index=rebuild_index)
     fsync = FileSync(flists=[flist_s3, flist_local])
 
     def upload_file(finfo):
@@ -306,8 +298,8 @@ def sync_local(dry_run=False, delete_file=None, rebuild_index=False):
             for disk in ldisks:
                 ldir = '/'.join([disk, directory])
                 print('build local %s' % ldir)
-                flists_local.append(build_local_index(
-                    directories=[ldir], rebuild_index=rebuild_index))
+                flists_local.append(
+                    build_local_index(directories=[ldir], rebuild_index=rebuild_index))
 
             def copy_file0(finfo):
                 """ callback """
@@ -324,14 +316,12 @@ def sync_local(dry_run=False, delete_file=None, rebuild_index=False):
 
     sync_local_directories(LOCAL_DIRECTORIES, LOCAL_DISKS)
     sync_local_directories(('dilepton2_backup', 'dilepton_tower_backup'),
-                           ('/media/sabrent2000', '/media/caviar2000',
-                            '/media/western2000'))
+                           ('/media/sabrent2000', '/media/caviar2000', '/media/western2000'))
 
 
 def sync_arg_parse():
     """ parse args """
-    commands = ('all', 'gdrive', 'onedrive', 's3', 'box', 'local', 'dry_run',
-                'delete')
+    commands = ('all', 'gdrive', 'onedrive', 's3', 'box', 'local', 'dry_run', 'delete')
     help_text = 'usage: ./sync.py <%s> [rebuild]' % '|'.join(commands)
     parser = argparse.ArgumentParser(description='sync app')
     parser.add_argument('command', nargs='*', help=help_text)
@@ -366,20 +356,15 @@ def sync_arg_parse():
                 delete_f.append(temp_)
 
     if do_s3:
-        sync_s3(dry_run=do_dry_run, delete_file=delete_f,
-                rebuild_index=do_rebuild)
+        sync_s3(dry_run=do_dry_run, delete_file=delete_f, rebuild_index=do_rebuild)
     if do_gdrive:
-        sync_gdrive(dry_run=do_dry_run, delete_file=delete_f,
-                    rebuild_index=do_rebuild)
+        sync_gdrive(dry_run=do_dry_run, delete_file=delete_f, rebuild_index=do_rebuild)
     if do_onedrive:
-        sync_onedrive(dry_run=do_dry_run, delete_file=delete_f,
-                      rebuild_index=do_rebuild)
+        sync_onedrive(dry_run=do_dry_run, delete_file=delete_f, rebuild_index=do_rebuild)
     if do_box:
-        sync_box(dry_run=do_dry_run, delete_file=delete_f,
-                 rebuild_index=do_rebuild)
+        sync_box(dry_run=do_dry_run, delete_file=delete_f, rebuild_index=do_rebuild)
     if do_local:
-        sync_local(dry_run=do_dry_run, delete_file=delete_f,
-                   rebuild_index=do_rebuild)
+        sync_local(dry_run=do_dry_run, delete_file=delete_f, rebuild_index=do_rebuild)
 
     return
 
@@ -420,8 +405,7 @@ def list_drive_parse():
     flist_gdrive = FileListGdrive(gdrive=gdrive)
 
     if cmd == 'list':
-        flist_gdrive.fill_file_list(verbose=False,
-                                    number_to_process=number_to_list)
+        flist_gdrive.fill_file_list(verbose=False, number_to_process=number_to_list)
         for key, val in flist_gdrive.filelist_id_dict.items():
             if parent_directory \
                     and parent_directory not in os.path.dirname(val.filename):
@@ -431,16 +415,14 @@ def list_drive_parse():
     elif cmd == 'search':
         if search_strings:
             for search_string in search_strings:
-                flist_gdrive.fill_file_list(verbose=False,
-                                            searchstr=search_string)
+                flist_gdrive.fill_file_list(verbose=False, searchstr=search_string)
                 for key, val in flist_gdrive.filelist_id_dict.items():
                     if val.md5sum:
                         print(key, val.filename)
     elif cmd == 'directories':
         flist_gdrive.get_folders()
         for key, val in flist_gdrive.directory_name_dict.items():
-            if search_strings and not any(st_ in key for st_ in
-                                          search_strings):
+            if search_strings and not any(st_ in key for st_ in search_strings):
                 continue
             export_path = flist_gdrive.get_export_path(val, abspath=False)
             if val.isroot:
@@ -491,24 +473,23 @@ def parse_s3_args():
             print('\n'.join(s3_.get_list_of_buckets()))
         else:
             if bucket_name:
-                for key in s3_.get_list_of_keys(bucket_name=bucket_name,
-                                                callback_fn=lambda x: 0):
+                for key in s3_.get_list_of_keys(bucket_name=bucket_name, callback_fn=lambda x: 0):
                     if kname and not any(_ in key.key for _ in kname):
                         continue
                     try:
-                        print(key.key, key.etag.replace('"', ''),
-                              key.last_modified, key.bucket.name)
+                        print(key.key, key.etag.replace('"', ''), key.last_modified,
+                              key.bucket.name)
                     except IOError:
                         raise
             else:
                 for bucket_name in s3_.get_list_of_buckets():
-                    for key in s3_.get_list_of_keys(bucket_name=bucket_name,
-                                                    callback_fn=lambda x: 0):
+                    for key in s3_.get_list_of_keys(
+                            bucket_name=bucket_name, callback_fn=lambda x: 0):
                         if kname and not any(_ in key.key for _ in kname):
                             continue
                         try:
-                            print(key.key, key.etag.replace('"', ''),
-                                  key.last_modified, key.bucket.name)
+                            print(key.key, key.etag.replace('"', ''), key.last_modified,
+                                  key.bucket.name)
                         except IOError:
                             raise
     elif cmd == 'get':
@@ -561,8 +542,7 @@ def list_onedrive_parse():
     flist_onedrive = FileListOneDrive(onedrive=onedrive)
 
     if cmd == 'list':
-        flist_onedrive.fill_file_list(
-            verbose=False, number_to_process=number_to_list)
+        flist_onedrive.fill_file_list(verbose=False, number_to_process=number_to_list)
         for key, val in flist_onedrive.filelist_id_dict.items():
             if parent_directory \
                     and parent_directory not in os.path.dirname(val.filename):
@@ -579,8 +559,7 @@ def list_onedrive_parse():
     elif cmd == 'directories':
         onedrive.get_folders(flist_onedrive.append_dir)
         for key, val in flist_onedrive.directory_name_dict.items():
-            if search_strings and not any(st_ in key for st_ in
-                                          search_strings):
+            if search_strings and not any(st_ in key for st_ in search_strings):
                 continue
             export_path = flist_onedrive.get_export_path(val, abspath=False)
             print(key, '%s/%s' % (export_path, val.filename))
@@ -641,8 +620,7 @@ def list_box_parse():
     flist_box = FileListBox(box=box)
 
     if cmd == 'list':
-        flist_box.fill_file_list(
-            verbose=False, number_to_process=number_to_list)
+        flist_box.fill_file_list(verbose=False, number_to_process=number_to_list)
         for key, val in flist_box.filelist_id_dict.items():
             if parent_directory \
                     and parent_directory not in os.path.dirname(val.filename):
@@ -659,8 +637,7 @@ def list_box_parse():
     elif cmd == 'directories':
         box.get_folders(flist_box.append_dir)
         for key, val in flist_box.directory_name_dict.items():
-            if search_strings and not any(st_ in key for st_ in
-                                          search_strings):
+            if search_strings and not any(st_ in key for st_ in search_strings):
                 continue
             export_path = flist_box.get_export_path(val, abspath=False)
             print(key, '%s/%s' % (export_path, val.filename))

@@ -3,8 +3,7 @@
 """
     extract FileList object for files in onedrive
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import os
 from collections import defaultdict
@@ -18,16 +17,14 @@ class FileListOneDrive(FileList):
 
     def __init__(self, filelist=None, basedir=None, onedrive=None):
         """ Init Function """
-        FileList.__init__(self, filelist=filelist, basedir=basedir,
-                          filelist_type='onedrive')
+        FileList.__init__(self, filelist=filelist, basedir=basedir, filelist_type='onedrive')
         self.filelist_id_dict = {}
         self.directory_id_dict = {}
         self.directory_name_dict = defaultdict(dict)
         self.onedrive = onedrive
 
     def __getitem__(self, key):
-        for dict_ in (self.filelist_id_dict, self.directory_id_dict,
-                      self.directory_name_dict):
+        for dict_ in (self.filelist_id_dict, self.directory_id_dict, self.directory_name_dict):
             if key in dict_:
                 return dict_[key]
         return FileList.__getitem__(self, key)
@@ -45,8 +42,7 @@ class FileListOneDrive(FileList):
         finfo.exportpath = self.get_export_path(finfo, abspath=False)
         if not finfo.urlname:
             finfo.urlname = 'onedrive://%s' % (finfo.exportpath)
-        finfo.filename = '%s/%s' % (finfo.exportpath,
-                                    os.path.basename(finfo.filename))
+        finfo.filename = '%s/%s' % (finfo.exportpath, os.path.basename(finfo.filename))
 
         if finfo.onedriveid in self.filelist_id_dict:
             return finfo
@@ -99,8 +95,7 @@ class FileListOneDrive(FileList):
         for _, finfo in self.directory_id_dict.items():
             finfo.exportpath = self.get_export_path(finfo, is_dir=True)
 
-    def fill_file_list(self, number_to_process=-1, searchstr=None,
-                       verbose=True):
+    def fill_file_list(self, number_to_process=-1, searchstr=None, verbose=True):
         """ fill OneDrive file list"""
         if not self.onedrive:
             raise Exception('what happened?')

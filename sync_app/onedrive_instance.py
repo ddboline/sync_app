@@ -3,8 +3,7 @@
 """
     Class to interface with MSFT OneDrive api
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import os
 import time
@@ -48,8 +47,7 @@ class OneDriveInstance(object):
         self.read_credentials()
         self.client = self.get_auth()
 
-    def read_credentials(self,
-                         credential_file=HOMEDIR+'/.onedrive/credentials'):
+    def read_credentials(self, credential_file=HOMEDIR + '/.onedrive/credentials'):
         """ read credentials from file """
         with open(credential_file, 'r') as credfile:
             for line in credfile:
@@ -60,10 +58,9 @@ class OneDriveInstance(object):
 
     def get_auth(self):
         """ do authorization """
-        self.client = get_default_client(client_id=self.client_id,
-                                         scopes=['wl.signin',
-                                                 'wl.offline_access',
-                                                 'onedrive.readwrite'])
+        self.client = get_default_client(
+            client_id=self.client_id,
+            scopes=['wl.signin', 'wl.offline_access', 'onedrive.readwrite'])
         if os.path.exists('.onedrive_session.pkl'):
             with open('.onedrive_session.pkl', 'rb') as pfile:
                 self.client.auth_provider._session = pickle.load(pfile)
@@ -71,8 +68,7 @@ class OneDriveInstance(object):
             auth_url = \
                 self.client.auth_provider.get_auth_url(self.redirect_uri)
             code = get_auth_code(auth_url, self.redirect_uri)
-            self.client.auth_provider.authenticate(code, self.redirect_uri,
-                                                   self.client_secret)
+            self.client.auth_provider.authenticate(code, self.redirect_uri, self.client_secret)
             with open('.onedrive_session.pkl', 'wb') as pfile:
                 pickle.dump(self.client.auth_provider._session, pfile)
 
@@ -80,6 +76,7 @@ class OneDriveInstance(object):
 
     def list_files(self, callback_fn):
         """ list non-directory files """
+
         def walk_nodes(parentid='root'):
             parent_node = self.client.item(id=parentid)
             for node in t_get(parent_node.children):
@@ -94,6 +91,7 @@ class OneDriveInstance(object):
 
     def get_folders(self, callback_fn):
         """ get folders """
+
         def walk_nodes(parentid='root'):
             parent_node = self.client.item(id=parentid)
             for node in t_get(parent_node.children):
@@ -103,6 +101,7 @@ class OneDriveInstance(object):
                     callback_fn(item)
                     if item['folder']['childCount'] > 0:
                         walk_nodes(parentid=item['id'])
+
         walk_nodes(parentid='root')
 
     def download(self, did, exportfile, sha1sum=None):

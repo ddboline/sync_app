@@ -3,8 +3,7 @@
 """
     extract FileInfo object for files in onedrive
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import os
 from dateutil.parser import parse
@@ -13,16 +12,23 @@ from sync_app.file_info import FileInfo
 
 BASE_DIR = '%s/OneDrive' % os.getenv('HOME')
 
-FILE_INFO_SLOTS = ('onedriveid', 'mimetype', 'exportpath',
-                   'onedrive', 'sha1sum', 'parentid')
+FILE_INFO_SLOTS = ('onedriveid', 'mimetype', 'exportpath', 'onedrive', 'sha1sum', 'parentid')
 
 
 class FileInfoOneDrive(FileInfo):
     """ OneDrive File Info """
     __slots__ = FileInfo.__slots__ + list(FILE_INFO_SLOTS)
 
-    def __init__(self, gid='', fn='', sha1='', onedrive=None, item=None,
-                 in_tuple=None, mime='', sha1sum=None, pid='root'):
+    def __init__(self,
+                 gid='',
+                 fn='',
+                 sha1='',
+                 onedrive=None,
+                 item=None,
+                 in_tuple=None,
+                 mime='',
+                 sha1sum=None,
+                 pid='root'):
         FileInfo.__init__(self, fn=fn, sha1=sha1)
         self.onedriveid = gid
         self.onedrive = onedrive
@@ -42,12 +48,10 @@ class FileInfoOneDrive(FileInfo):
     def download(self):
         """ wrapper around OneDriveInstance.download """
         if BASE_DIR in self.filename:
-            return self.onedrive.download(self.onedriveid, self.filename,
-                                          sha1sum=self.sha1sum)
+            return self.onedrive.download(self.onedriveid, self.filename, sha1sum=self.sha1sum)
         else:
             path_ = '%s/%s' % (BASE_DIR, self.filename)
-            return self.onedrive.download(self.urlname, path_,
-                                          sha1sum=self.sha1sum)
+            return self.onedrive.download(self.urlname, path_, sha1sum=self.sha1sum)
 
     def __repr__(self):
         """ nice string representation """
@@ -61,9 +65,9 @@ class FileInfoOneDrive(FileInfo):
                'id=%s)>' % self.onedriveid
 
     def output_cache_tuple(self):
-        return (self.filename, self.urlname, self.sha1sum,
-                self.filestat.st_mtime, self.filestat.st_size, self.onedriveid,
-                self.mimetype, self.exportpath, self.onedrive)
+        return (self.filename, self.urlname, self.sha1sum, self.filestat.st_mtime,
+                self.filestat.st_size, self.onedriveid, self.mimetype, self.exportpath,
+                self.onedrive)
 
     def input_cache_tuple(self, in_tuple):
         self.filename, self.urlname, self.sha1sum, \
@@ -76,22 +80,21 @@ class FileInfoOneDrive(FileInfo):
         self.filename = item['name']
         self.parentid = item['parentid']
         _temp = {}
-        _temp['st_mtime'] = int(
-            parse(item['lastModifiedDateTime']).strftime("%s"))
+        _temp['st_mtime'] = int(parse(item['lastModifiedDateTime']).strftime("%s"))
         _temp['st_size'] = item['size']
         self.fill_stat(**_temp)
         if 'file' in item:
             self.mimetype = item['file'].get('mimeType', 'None')
             if 'hashes' in item['file']:
-                self.sha1sum = item['file']['hashes'].get('sha1Hash',
-                                                          '').lower()
+                self.sha1sum = item['file']['hashes'].get('sha1Hash', '').lower()
 
 
 def test_file_info_onedrive():
     """ Test FileInfoOneDrive """
-    tmp = FileInfoOneDrive(gid='0BxGM0lfCdptnNzJsblNEa1ZzUU0',
-                           sha1='63f959b57ab0d1ef4e96a8dc4df3055456a80705',
-                           fn='/home/ddboline/OneDrive/temp1.xml')
+    tmp = FileInfoOneDrive(
+        gid='0BxGM0lfCdptnNzJsblNEa1ZzUU0',
+        sha1='63f959b57ab0d1ef4e96a8dc4df3055456a80705',
+        fn='/home/ddboline/OneDrive/temp1.xml')
     test = '<FileInfoOneDrive(fn=/home/ddboline/OneDrive/temp1.xml, ' \
            'url=, path=, sha1sum=63f959b57ab0d1ef4e96a8dc4df3055456a80705, ' \
            'size=0, st_mime=0, pid=root, id=0BxGM0lfCdptnNzJsblNEa1ZzUU0)>'

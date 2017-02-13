@@ -6,8 +6,7 @@
         container for list of FileInfo object
         dicts to efficiently search within filelist
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import os
 from collections import defaultdict
@@ -17,6 +16,7 @@ FILE_LIST_TYPES = ('local', 'remote', 'gdrive', 's3', 'onedrive', 'box')
 
 class FileList(object):
     """ file list class """
+
     def __init__(self, filelist=None, filelist_type=None, basedir=None):
         self.filelist = filelist if filelist else {}
         self.filelist_name_dict = defaultdict(list)
@@ -73,8 +73,8 @@ class FileList(object):
 
     def append(self, file_info_obj):
         """ append to list, fill dicts """
-        if not all(hasattr(file_info_obj, at) for at in ('filename', 'urlname',
-                   'md5sum', 'filestat')):
+        if not all(
+                hasattr(file_info_obj, at) for at in ('filename', 'urlname', 'md5sum', 'filestat')):
             raise ValueError('this object won\'t work')
         ffn_ = file_info_obj.filename
         if ffn_ in self.filelist:
@@ -119,12 +119,14 @@ def test_file_list():
     def test_tmp():
         """ ... """
         tmp.filelist = 1
+
     test_tmp()
 
     @raises(ValueError)
     def test_tmp1():
         """ ... """
         tmp.append(1)
+
     test_tmp1()
 
 

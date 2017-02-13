@@ -3,8 +3,7 @@
 """
     S3 Instance class, manage connection to s3
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import os
 import boto
@@ -20,14 +19,16 @@ def read_keys():
                 aws_secret_access_key = line.split('=')[-1].strip()
     return aws_access_key_id, aws_secret_access_key
 
+
 AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY = read_keys()
 
 
 class S3Instance(object):
     """ S3Instance class to interact with S3 via Boto """
+
     def __init__(self):
-        self.s3_ = boto.connect_s3(aws_access_key_id=AWS_ACCESS_KEY_ID,
-                                   aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+        self.s3_ = boto.connect_s3(
+            aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
 
     def get_list_of_buckets(self):
         """ get list of buckets """

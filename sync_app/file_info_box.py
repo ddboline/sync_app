@@ -3,8 +3,7 @@
 """
     extract FileInfo object for files in box
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import os
 import datetime
@@ -14,16 +13,23 @@ from sync_app.file_info import FileInfo
 
 BASE_DIR = '%s/Box' % os.getenv('HOME')
 
-FILE_INFO_SLOTS = ('boxid', 'mimetype', 'exportpath',
-                   'box', 'sha1sum', 'parentid')
+FILE_INFO_SLOTS = ('boxid', 'mimetype', 'exportpath', 'box', 'sha1sum', 'parentid')
 
 
 class FileInfoBox(FileInfo):
     """ Box File Info """
     __slots__ = FileInfo.__slots__ + list(FILE_INFO_SLOTS)
 
-    def __init__(self, gid='', fn='', sha1='', box=None, item=None,
-                 in_tuple=None, mime='', sha1sum=None, pid='0'):
+    def __init__(self,
+                 gid='',
+                 fn='',
+                 sha1='',
+                 box=None,
+                 item=None,
+                 in_tuple=None,
+                 mime='',
+                 sha1sum=None,
+                 pid='0'):
         FileInfo.__init__(self, fn=fn, sha1=sha1)
         self.boxid = gid
         self.box = box
@@ -43,8 +49,7 @@ class FileInfoBox(FileInfo):
     def download(self):
         """ wrapper around BoxInstance.download """
         if BASE_DIR in self.filename:
-            return self.box.download(self.boxid, self.filename,
-                                     sha1sum=self.sha1sum)
+            return self.box.download(self.boxid, self.filename, sha1sum=self.sha1sum)
         else:
             path_ = '%s/%s' % (BASE_DIR, self.filename)
             return self.box.download(self.boxid, path_, sha1sum=self.sha1sum)
@@ -61,9 +66,8 @@ class FileInfoBox(FileInfo):
                'id=%s)>' % self.boxid
 
     def output_cache_tuple(self):
-        return (self.filename, self.urlname, self.sha1sum,
-                self.filestat.st_mtime, self.filestat.st_size, self.boxid,
-                self.mimetype, self.exportpath, self.box)
+        return (self.filename, self.urlname, self.sha1sum, self.filestat.st_mtime,
+                self.filestat.st_size, self.boxid, self.mimetype, self.exportpath, self.box)
 
     def input_cache_tuple(self, in_tuple):
         self.filename, self.urlname, self.sha1sum, \
@@ -88,9 +92,10 @@ class FileInfoBox(FileInfo):
 
 def test_file_info_box():
     """ Test FileInfoBox """
-    tmp = FileInfoBox(gid='0BxGM0lfCdptnNzJsblNEa1ZzUU0',
-                      sha1='63f959b57ab0d1ef4e96a8dc4df3055456a80705',
-                      fn='/home/ddboline/Box/temp1.xml')
+    tmp = FileInfoBox(
+        gid='0BxGM0lfCdptnNzJsblNEa1ZzUU0',
+        sha1='63f959b57ab0d1ef4e96a8dc4df3055456a80705',
+        fn='/home/ddboline/Box/temp1.xml')
     test = '<FileInfoBox(fn=/home/ddboline/Box/temp1.xml, ' \
            'url=, path=, sha1sum=63f959b57ab0d1ef4e96a8dc4df3055456a80705, ' \
            'size=0, st_mime=0, pid=0, id=0BxGM0lfCdptnNzJsblNEa1ZzUU0)>'

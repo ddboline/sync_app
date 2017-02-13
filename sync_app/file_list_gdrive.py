@@ -3,8 +3,7 @@
 """
     extract FileList object for files in gdrive
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import os
 from collections import defaultdict
@@ -20,8 +19,7 @@ class FileListGdrive(FileList):
 
     def __init__(self, filelist=None, basedir=None, gdrive=None):
         """ Init Function """
-        FileList.__init__(self, filelist=filelist, basedir=basedir,
-                          filelist_type='gdrive')
+        FileList.__init__(self, filelist=filelist, basedir=basedir, filelist_type='gdrive')
         self.filelist_id_dict = {}
         self.directory_id_dict = {}
         self.directory_name_dict = defaultdict(list)
@@ -29,8 +27,7 @@ class FileListGdrive(FileList):
         self.root_directory = None
 
     def __getitem__(self, key):
-        for dict_ in (self.filelist_id_dict, self.directory_id_dict,
-                      self.directory_name_dict):
+        for dict_ in (self.filelist_id_dict, self.directory_id_dict, self.directory_name_dict):
             if key in dict_:
                 return dict_[key]
         return FileList.__getitem__(self, key)
@@ -50,8 +47,7 @@ class FileListGdrive(FileList):
         finfo.exportpath = self.get_export_path(finfo, abspath=False)
         if not finfo.urlname:
             finfo.urlname = 'gdrive://%s' % (finfo.exportpath)
-        finfo.filename = '%s/%s' % (finfo.exportpath,
-                                    os.path.basename(finfo.filename))
+        finfo.filename = '%s/%s' % (finfo.exportpath, os.path.basename(finfo.filename))
 
         if finfo.gdriveid in self.filelist_id_dict:
             return finfo
@@ -64,13 +60,13 @@ class FileListGdrive(FileList):
             finf_ = self.filelist[finfo.filename]
             if finf_.md5sum == finfo.md5sum and finf_.owned_by_me and \
                     finfo.owned_by_me:
-                print('try deleteing duplicate %s of %s' % (finfo.filename,
-                                                            finf_.filename))
+                print('try deleteing duplicate %s of %s' % (finfo.filename, finf_.filename))
                 try:
                     finfo.delete()
                 except (HttpError, TExecuteException) as exc:
                     print('failed with error', exc)
-                    import pdb; pdb.set_trace()
+                    import pdb
+                    pdb.set_trace()
                     pass
             elif finfo.owned_by_me:
                 print(finfo.filename, self.filelist[finfo.filename].mimetype)
@@ -148,8 +144,7 @@ class FileListGdrive(FileList):
         finfo = self.filelist_id_dict.values()[0]
         self.root_directory = self.get_parent_directories(finfo)
 
-    def fill_file_list(self, number_to_process=-1, searchstr=None,
-                       verbose=True):
+    def fill_file_list(self, number_to_process=-1, searchstr=None, verbose=True):
         """ fill GDrive file list"""
         if not self.gdrive:
             self.gdrive = GdriveInstance()

@@ -3,8 +3,7 @@
 """
     Class to interface with google drive api
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import os
 import socket
@@ -20,9 +19,8 @@ SCOPES = 'https://www.googleapis.com/auth/drive'
 CLIENT_SECRET_FILE = 'sync_app/client_secrets.json'
 APPLICATION_NAME = 'Python API'
 
-fields = ', '.join(('id', 'name', 'md5Checksum', 'modifiedTime', 'size',
-                    'parents', 'fileExtension', 'mimeType', 'webContentLink',
-                    'owners'))
+fields = ', '.join(('id', 'name', 'md5Checksum', 'modifiedTime', 'size', 'parents', 'fileExtension',
+                    'mimeType', 'webContentLink', 'owners'))
 list_fields = 'kind, nextPageToken, files(%s)' % fields
 CHUNKSIZE = 2 * 1024 * 1024
 
@@ -44,8 +42,7 @@ def get_credentials():
     credential_dir = os.path.join(home_dir, '.gdrive')
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir,
-                                   'gdrive.json')
+    credential_path = os.path.join(credential_dir, 'gdrive.json')
 
     store = oauth2client.file.Storage(credential_path)
     credentials = store.get()
@@ -126,8 +123,7 @@ class GdriveInstance(object):
             if next_token is None:
                 return
 
-            new_request = self.gfiles.list(pageToken=next_token,
-                                           fields=list_fields)
+            new_request = self.gfiles.list(pageToken=next_token, fields=list_fields)
             if not new_request:
                 return
             request = new_request
@@ -166,8 +162,7 @@ class GdriveInstance(object):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
         if export_mimetype:
-            request = self.gfiles.export_media(fileId=fileid,
-                                               mimeType=export_mimetype)
+            request = self.gfiles.export_media(fileId=fileid, mimeType=export_mimetype)
         else:
             request = self.gfiles.get_media(fileId=fileid)
         with open('%s.new' % exportfile, 'wb') as outfile:
@@ -194,8 +189,7 @@ class GdriveInstance(object):
                     pass
                 else:
                     print(get_filetype('%s.new' % exportfile))
-                    raise TypeError('%s md_ %s md5sum %s' % (exportfile, md_,
-                                                             md5sum))
+                    raise TypeError('%s md_ %s md5sum %s' % (exportfile, md_, md5sum))
         os.rename('%s.new' % exportfile, exportfile)
         return True
 
@@ -203,8 +197,7 @@ class GdriveInstance(object):
         """ upload fname and assign parent_id if provided """
         assert parent_id is not None
         fn_ = os.path.basename(fname)
-        body_obj = {'name': fn_,
-                    'parents': [parent_id]}
+        body_obj = {'name': fn_, 'parents': [parent_id]}
         request = self.gfiles.create(body=body_obj, media_body=fname)
         response = t_execute(request)
         fid = response['id']
@@ -215,9 +208,8 @@ class GdriveInstance(object):
         request = self.get_file(fid)
         response = t_execute(request)
         previous_pids = response['parents']
-        request = self.gfiles.update(fileId=fid, addParents=parent_id,
-                                     removeParents=previous_pids,
-                                     fields=fields)
+        request = self.gfiles.update(
+            fileId=fid, addParents=parent_id, removeParents=previous_pids, fields=fields)
         return t_execute(request)
 
     def rename(self, fid, new_filename):
@@ -229,10 +221,12 @@ class GdriveInstance(object):
         """ create directory, assign parent_id if supplied """
         assert parent_id is not None
         dname = os.path.basename(dname)
-        body_obj = {'name': dname,
-                    'mimeType': 'application/vnd.google-apps.folder',
-                    'parents': [parent_id]}
-#        print(body_obj)
+        body_obj = {
+            'name': dname,
+            'mimeType': 'application/vnd.google-apps.folder',
+            'parents': [parent_id]
+        }
+        #        print(body_obj)
         request = self.gfiles.create(body=body_obj, fields=fields)
         try:
             response = t_execute(request)
@@ -251,6 +245,7 @@ class GdriveInstance(object):
         except Exception as exc:
             print('delete', exc)
             raise
+
 #            return False
         return response
 
@@ -274,9 +269,11 @@ def test_gdrive_instance():
 
     class MockRequest(object):
         """ ... """
+
         def execute(self):
             """ ... """
             pass
+
     assert tmp.process_request(MockRequest()) is None
     assert tmp.get_parents() is None
 
@@ -284,4 +281,5 @@ def test_gdrive_instance():
     def test_tmp():
         """ ... """
         tmp.get_parents(fids=range(10))
+
     test_tmp()
