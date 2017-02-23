@@ -141,7 +141,7 @@ class FileListGdrive(FileList):
 
     def get_folders(self):
         self.gdrive.get_folders(self.append_dir)
-        finfo = self.filelist_id_dict.values()[0]
+        finfo = iter(self.filelist_id_dict.values()).next()
         self.root_directory = self.get_parent_directories(finfo)
 
     def fill_file_list(self, number_to_process=-1, searchstr=None, verbose=True):

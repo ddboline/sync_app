@@ -133,7 +133,7 @@ class FileListBox(FileList):
         dn_list = dname.replace(BASE_DIR + '/', '').split('/')
 
         if dn_list[0] in self.directory_name_dict:
-            head = list(self.directory_name_dict[dn_list[0]].values())[0]
+            head = iter(self.directory_name_dict[dn_list[0]].values()).next()
             pid_ = head.boxid
         elif dn_list[0] == '':
             pid_ = '0'

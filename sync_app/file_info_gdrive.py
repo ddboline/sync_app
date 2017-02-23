@@ -53,12 +53,19 @@ class FileInfoGdrive(FileInfo):
         if self.mimetype in ('application/vnd.google-apps.map', 'application/vnd.google-apps.form'):
             return False
         export_mimetype = GOOGLEAPP_MIMETYPES.get(self.mimetype, None)
-        if BASE_DIR in self.filename:
+        fname = self.filename
+        tmp = fname.split('.')[-2:]
+        if len(tmp) > 1 and tmp[0] == tmp[1]:
+            test = '.'.join(fname.split('.')[:-1])
+            if os.path.exists(test):
+                return False
+            fname = test
+        if BASE_DIR in fname:
             return self.gdrive.download(
-                self.gdriveid, self.filename, md5sum=self.md5sum, export_mimetype=export_mimetype)
+                self.gdriveid, fname, md5sum=self.md5sum, export_mimetype=export_mimetype)
         else:
             ext = MIMETYPE_SUFFIXES[export_mimetype]
-            path_ = '%s/%s.%s' % (BASE_DIR, self.filename, ext)
+            path_ = '%s/%s.%s' % (BASE_DIR, fname, ext)
             return self.gdrive.download(
                 self.gdriveid, path_, md5sum=self.md5sum, export_mimetype=export_mimetype)
 
@@ -112,7 +119,7 @@ class FileInfoGdrive(FileInfo):
         # this is meant to fix a very specific bug, not a good idea in general
         if self.filename.lower().endswith('.{f}.{f}'.format(f=fext)):
             self.filename = '.'.join(self.filename.split('.')[:-1])
-        if fext not in self.filename.lower():
+        if fext.lower() not in self.filename.lower():
             print('file extension', self.filename, fext)
             self.filename += '.%s' % fext
         if 'owners' in item:

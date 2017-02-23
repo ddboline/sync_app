@@ -62,18 +62,21 @@ def t_execute(request):
         except socket.error:
             time.sleep(timeout)
         except HttpError as exc:
-            if 'user rate limit exceeded' in exc.content.lower():
+            content = exc.content
+            if hasattr(content, 'decode'):
+                content = content.decode(errors='ignore')
+            if 'user rate limit exceeded' in content.lower():
                 if timeout > 1:
                     print('timeout %s' % timeout)
                 time.sleep(timeout)
                 timeout *= 2
                 if timeout >= 64:
                     raise
-            elif 'sufficient permissions' in exc.content.lower():
+            elif 'sufficient permissions' in content.lower():
                 raise TExecuteException('insufficient permission')
             else:
                 print(dir(exc))
-                print('content', exc.content)
+                print('content', content)
                 print('response', exc.resp)
                 raise TExecuteException(exc)
 

@@ -6,6 +6,7 @@
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 
 import os
+import pytest
 from boxsdk import OAuth2, Client
 from boxsdk.exception import BoxAPIException
 #from boxsdk import get_default_client, Folder, Item
@@ -184,6 +185,7 @@ class BoxInstance(object):
         return self.client.file(file_id=fileid).delete()
 
 
+@pytest.mark.skip
 def test_box_instance():
     box = BoxInstance()
     box.get_folders(lambda x: print(x), number_to_process=10)

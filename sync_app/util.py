@@ -31,6 +31,7 @@ MIMETYPE_SUFFIXES = {
     'image/png': 'png',
     'application/pdf': 'pdf',
     'image/jpeg': 'jpg',
+    'text/x-csrc': 'C',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx'
 }
 

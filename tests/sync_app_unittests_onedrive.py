@@ -58,7 +58,7 @@ class TestSyncAppOneDrive(unittest.TestCase):
         self.onedrive.list_files(flist_onedrive.append_item)
 
         for directory, finfo in flist_onedrive.directory_name_dict.items():
-            finfo = finfo.values()[0]
+            finfo = iter(finfo.values()).next()
             print(directory)
             print(flist_onedrive.get_export_path(finfo))
 
@@ -93,7 +93,7 @@ class TestSyncAppOneDrive(unittest.TestCase):
         self.onedrive.get_folders(flist_onedrive.append_dir)
         flist_onedrive.fix_export_path()
         print(flist_onedrive.directory_name_dict)
-        id_ = flist_onedrive.directory_name_dict['Imported'].values()[0].onedriveid
+        id_ = iter(flist_onedrive.directory_name_dict['Imported'].values()).next().onedriveid
         val = flist_onedrive.directory_id_dict[id_]
         print(val)
         self.assertEqual(val.exportpath, '%s/OneDrive/Documents' % HOMEDIR)
@@ -104,7 +104,7 @@ class TestSyncAppOneDrive(unittest.TestCase):
         self.onedrive.get_folders(flist_onedrive.append_dir)
         flist_onedrive.fix_export_path()
 
-        finf_ = flist_onedrive.directory_name_dict['Imported'].values()[0]
+        finf_ = iter(flist_onedrive.directory_name_dict['Imported'].values()).next()
 
         self.assertEqual(finf_.exportpath, '%s/OneDrive/Documents' % HOMEDIR)
 

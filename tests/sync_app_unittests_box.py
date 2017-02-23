@@ -12,6 +12,7 @@ import os
 import hashlib
 import shutil
 import unittest
+import pytest
 
 CURDIR = os.path.abspath(os.curdir)
 os.sys.path.append(CURDIR)
@@ -27,6 +28,7 @@ TEST_GDR = 'fastcalosim_punch_through_simulation_CERN-THESIS-2011-112.pdf'
 HOMEDIR = os.getenv('HOME')
 
 
+@pytest.mark.skip
 class TestSyncAppBox(unittest.TestCase):
     """ SyncApp Unit Tests """
 
@@ -57,7 +59,7 @@ class TestSyncAppBox(unittest.TestCase):
         self.box.list_files(flist_box.append_item)
 
         for directory, finfo in flist_box.directory_name_dict.items():
-            finfo = finfo.values()[0]
+            finfo = iter(finfo.values()).next()
             print(directory)
             print(flist_box.get_export_path(finfo))
 
@@ -92,7 +94,7 @@ class TestSyncAppBox(unittest.TestCase):
         self.box.get_folders(flist_box.append_dir)
         flist_box.fix_export_path()
         print(flist_box.directory_name_dict)
-        id_ = flist_box.directory_name_dict['Imported'].values()[0].boxid
+        id_ = iter(flist_box.directory_name_dict['Imported'].values()).next().boxid
         val = flist_box.directory_id_dict[id_]
         print(val)
         self.assertEqual(val.exportpath, '%s/Box/Documents' % HOMEDIR)
@@ -103,10 +105,10 @@ class TestSyncAppBox(unittest.TestCase):
         self.box.get_folders(flist_box.append_dir)
         flist_box.fix_export_path()
         print(flist_box.directory_name_dict)
-        finf_ = flist_box.directory_name_dict['Imported'].values()[0]
+        finf_ = iter(flist_box.directory_name_dict['Imported'].values()).next()
 
         self.assertEqual(finf_.exportpath, '%s/Box/Documents' % HOMEDIR)
 
 
-if __name__ == '__main__':
-    unittest.main()
+#if __name__ == '__main__':
+#    unittest.main()

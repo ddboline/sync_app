@@ -141,7 +141,7 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
             if (finfo.mimetype in GOOGLEAPP_MIMETYPES or finfo.mimetype in MIMETYPE_SUFFIXES):
                 mtype = GOOGLEAPP_MIMETYPES.get(finfo.mimetype, finfo.mimetype)
                 ext = MIMETYPE_SUFFIXES[mtype]
-                if not fname.lower().endswith(ext):
+                if not fname.lower().endswith(ext.lower()):
                     fname = '%s.%s' % (fname, ext)
                 if fname.lower().endswith('.{ext}.{ext}'.format(ext=ext)):
                     print("don't download", finfo.filename, fname, ext)
