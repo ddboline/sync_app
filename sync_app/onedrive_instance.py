@@ -70,7 +70,7 @@ class OneDriveInstance(object):
             code = get_auth_code(auth_url, self.redirect_uri)
             self.client.auth_provider.authenticate(code, self.redirect_uri, self.client_secret)
             with open('.onedrive_session.pkl', 'wb') as pfile:
-                pickle.dump(self.client.auth_provider._session, pfile)
+                pickle.dump(self.client.auth_provider._session, pfile, protocol=pickle.HIGHEST_PROTOCOL)
 
         return self.client
 

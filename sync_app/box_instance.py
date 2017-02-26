@@ -40,7 +40,7 @@ class BoxInstance(object):
     def store_tokens(self, access_token, refresh_token):
         with open('.box_tokens.pkl', 'w') as credfile:
             tmp = (access_token, refresh_token)
-            pickle.dump(obj=tmp, file=credfile, protocol=-1)
+            pickle.dump(obj=tmp, file=credfile, protocol=pickle.HIGHEST_PROTOCOL)
 
     def read_credentials(self, credential_file=HOMEDIR + '/.box/credentials'):
         """ read credentials from file """
