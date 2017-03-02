@@ -38,7 +38,7 @@ class BoxInstance(object):
         self.client = self.get_auth()
 
     def store_tokens(self, access_token, refresh_token):
-        with open('.box_tokens.pkl', 'w') as credfile:
+        with open(os.path.join(HOMEDIR, '.box_tokens.pkl'), 'w') as credfile:
             tmp = (access_token, refresh_token)
             pickle.dump(obj=tmp, file=credfile, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -53,8 +53,8 @@ class BoxInstance(object):
 
     def get_auth(self):
         """ do authorization """
-        if os.path.exists('.box_tokens.pkl'):
-            with open('.box_tokens.pkl', 'rb') as pfile:
+        if os.path.exists(os.path.join(HOMEDIR, '.box_tokens.pkl')):
+            with open(os.path.join(HOMEDIR, '.box_tokens.pkl'), 'rb') as pfile:
                 self.access_token, self.refresh_token = pickle.load(pfile)
                 self.oauth = OAuth2(
                     client_id=self.client_id,

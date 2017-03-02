@@ -7,7 +7,7 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 
 import os
 import time
-from onedrivesdk import get_default_client, Folder, Item
+from onedrivesdk import get_default_client, Folder, Item, error
 try:
     import cPickle as pickle
 except ImportError:
@@ -61,15 +61,15 @@ class OneDriveInstance(object):
         self.client = get_default_client(
             client_id=self.client_id,
             scopes=['wl.signin', 'wl.offline_access', 'onedrive.readwrite'])
-        if os.path.exists('.onedrive_session.pkl'):
-            with open('.onedrive_session.pkl', 'rb') as pfile:
+        if os.path.exists(os.path.join(HOMEDIR, '.onedrive_session.pkl')):
+            with open(os.path.join(HOMEDIR, '.onedrive_session.pkl'), 'rb') as pfile:
                 self.client.auth_provider._session = pickle.load(pfile)
         else:
             auth_url = \
                 self.client.auth_provider.get_auth_url(self.redirect_uri)
             code = get_auth_code(auth_url, self.redirect_uri)
             self.client.auth_provider.authenticate(code, self.redirect_uri, self.client_secret)
-            with open('.onedrive_session.pkl', 'wb') as pfile:
+            with open(os.path.join(HOMEDIR, '.onedrive_session.pkl'), 'wb') as pfile:
                 pickle.dump(self.client.auth_provider._session, pfile, protocol=pickle.HIGHEST_PROTOCOL)
 
         return self.client
@@ -133,7 +133,10 @@ class OneDriveInstance(object):
         newitem.name = dname
         newitem.folder = newfolder
 
-        tmp = self.client.item(id=parent_id).children.add(newitem)
+        try:
+            tmp = self.client.item(id=parent_id).children.add(newitem)
+        except error.OneDriveError as exc:
+            import pdb ; pdb.set_trace()
         result = tmp.to_dict()
         result['parentid'] = parent_id
         return result
