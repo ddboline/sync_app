@@ -119,7 +119,7 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
 
     def upload_file(finfo):
         """ callback to upload to gdrive """
-        print('upload', finfo.filename)
+        print('upload', finfo.filename, finfo)
         if not dry_run:
             try:
                 return flist_gdrive.upload_file(finfo.filename)

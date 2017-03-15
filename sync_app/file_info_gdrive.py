@@ -105,6 +105,8 @@ class FileInfoGdrive(FileInfo):
             _temp['st_mtime'] = int(parse(item['modifiedTime']).strftime("%s"))
         if 'fileSize' in item:
             _temp['st_size'] = item['fileSize']
+        if 'size' in item:
+            _temp['st_size'] = item['size']
         self.fill_stat(**_temp)
         self.mimetype = item['mimeType']
         item_parents = item.get('parents', [])
