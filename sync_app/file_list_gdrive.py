@@ -65,8 +65,7 @@ class FileListGdrive(FileList):
                     finfo.delete()
                 except (HttpError, TExecuteException) as exc:
                     print('failed with error', exc)
-                    import pdb
-                    pdb.set_trace()
+                    import pdb ; pdb.set_trace()
                     pass
             elif finfo.owned_by_me:
                 print(finfo.filename, self.filelist[finfo.filename].mimetype)

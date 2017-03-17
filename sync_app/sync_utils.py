@@ -148,6 +148,31 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
                     return False
             print('download', finfo.urlname, fname, finfo.mimetype)
 
+            mimetype_set = {
+                ('application/vnd.google-apps.document', 'odt',
+                 'maverick_packages_dileptoneee.txt.odt'),
+                ('application/vnd.google-apps.spreadsheet', 'xlsx', 'Race Times.xlsx'),
+                ('application/vnd.google-apps.presentation', 'pdf', 'Scalla_Xrootd.pdf'),
+            }
+            
+            for mimetype, ext, fname_ in mimetype_set:
+                if finfo.mimetype == mimetype:
+                    basename = finfo.filename.split('/')[-1]
+                    parent = flist_gdrive[fname_][0]
+                    newpid = parent.parentid
+                    if flist_local.filelist_name_dict.get(basename + '.' + ext) and finfo.parentid and finfo.parentid != newpid:
+                        print(finfo)
+                        print(parent)
+                        finfo.gdrive.set_parent_id(finfo.gdriveid, newpid)
+                        if basename + '.' + ext in flist_gdrive.filelist_name_dict:
+                            _tmp = flist_gdrive.filelist_name_dict[basename + '.' + ext][0]
+                            finfo.gdrive.set_parent_id(_tmp.gdriveid, newpid)
+            if finfo.mimetype in GOOGLEAPP_MIMETYPES:
+                return False
+            if flist_local.filelist_name_dict.get(finfo.filename.split('/')[-1] + '.' + MIMETYPE_SUFFIXES.get(finfo.mimetype)):
+                return False
+            print(flist_gdrive, flist_local)
+
             if not dry_run and finfo.mimetype:
                 try:
                     return finfo.download()

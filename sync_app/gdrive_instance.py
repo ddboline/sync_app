@@ -208,9 +208,10 @@ class GdriveInstance(object):
 
     def set_parent_id(self, fid, parent_id):
         """ set parent_id """
-        request = self.get_file(fid)
-        response = t_execute(request)
+        response = self.get_file(fid)
         previous_pids = response['parents']
+        if len(previous_pids) == 1:
+            previous_pids = previous_pids[0]
         request = self.gfiles.update(
             fileId=fid, addParents=parent_id, removeParents=previous_pids, fields=fields)
         return t_execute(request)
@@ -258,8 +259,7 @@ class GdriveInstance(object):
             return
         parents_output = []
         for fid in fids:
-            request = self.get_file(fid)
-            response = t_execute(request)
+            response = self.get_file(fid)
             parents_output.extend(response['parents'])
         return parents_output
 
