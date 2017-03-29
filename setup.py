@@ -33,7 +33,4 @@ setup(
     install_requires=['boto', 'google-api-python-client'],
     packages=['sync_app'],
     package_dir={'sync_app': 'sync_app'},
-    package_data={'sync_app': ['templates/*.html']},
-    entry_points={
-        'console_scripts': console_scripts
-    })
+    entry_points={'console_scripts': console_scripts})
