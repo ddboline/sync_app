@@ -127,7 +127,7 @@ class GdriveInstance(object):
             next_token = response.get('nextPageToken', None)
             if next_token is None:
                 return
-            
+
             args['pageToken'] = next_token
             new_request = self.gfiles.list(**args)
             if not new_request:
@@ -148,7 +148,7 @@ class GdriveInstance(object):
         query_string = 'mimeType != "application/vnd.google-apps.folder"'
         if searchstr:
             query_string += ' and name contains "%s"' % searchstr
-        
+
         args = {'q': query_string, 'fields': list_fields}
         request = self.gfiles.list(**args)
         return self.process_request(request, args, callback_fn)

@@ -70,7 +70,8 @@ class OneDriveInstance(object):
             code = get_auth_code(auth_url, self.redirect_uri)
             self.client.auth_provider.authenticate(code, self.redirect_uri, self.client_secret)
             with open(os.path.join(HOMEDIR, '.onedrive_session.pkl'), 'wb') as pfile:
-                pickle.dump(self.client.auth_provider._session, pfile, protocol=pickle.HIGHEST_PROTOCOL)
+                pickle.dump(
+                    self.client.auth_provider._session, pfile, protocol=pickle.HIGHEST_PROTOCOL)
 
         return self.client
 
@@ -136,7 +137,7 @@ class OneDriveInstance(object):
         try:
             tmp = self.client.item(id=parent_id).children.add(newitem)
         except error.OneDriveError as exc:
-            import pdb ; pdb.set_trace()
+            raise
         result = tmp.to_dict()
         result['parentid'] = parent_id
         return result
