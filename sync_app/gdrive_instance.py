@@ -21,7 +21,7 @@ APPLICATION_NAME = 'Python API'
 
 fields = ', '.join(('id', 'name', 'md5Checksum', 'modifiedTime', 'size', 'parents', 'fileExtension',
                     'mimeType', 'webContentLink', 'owners'))
-list_fields = 'kind, nextPageToken, files(%s)' % fields
+list_fields = 'kind, nextPageToken, incompleteSearch, files(%s)' % fields
 CHUNKSIZE = 2 * 1024 * 1024
 
 
@@ -74,8 +74,9 @@ def t_execute(request):
                     raise
             elif 'sufficient permissions' in content.lower():
                 raise TExecuteException('insufficient permission')
+            elif exc._get_reason() == 'Invalid Value':
+                raise TExecuteException('Invalid Value')
             else:
-                print(dir(exc))
                 print('content', content)
                 print('response', exc.resp)
                 raise TExecuteException(exc)
@@ -114,8 +115,9 @@ class GdriveInstance(object):
             self.items_processed += 1
         return 1
 
-    def process_request(self, request, callback_fn=None):
+    def process_request(self, request, args={}, callback_fn=None):
         """ call process_response until new_request exists or until stopped """
+        original_request = request
         response = t_execute(request)
 
         new_request = True
@@ -125,8 +127,9 @@ class GdriveInstance(object):
             next_token = response.get('nextPageToken', None)
             if next_token is None:
                 return
-
-            new_request = self.gfiles.list(pageToken=next_token, fields=list_fields)
+            
+            args['pageToken'] = next_token
+            new_request = self.gfiles.list(**args)
             if not new_request:
                 return
             request = new_request
@@ -136,6 +139,8 @@ class GdriveInstance(object):
                 time.sleep(5)
                 print('HttpError')
                 response = t_execute(request)
+            except TExecuteException as exc:
+                print('invalid next token %s' % exc)
         return
 
     def list_files(self, callback_fn, searchstr=None):
@@ -143,9 +148,10 @@ class GdriveInstance(object):
         query_string = 'mimeType != "application/vnd.google-apps.folder"'
         if searchstr:
             query_string += ' and name contains "%s"' % searchstr
-
-        request = self.gfiles.list(q=query_string, fields=list_fields)
-        return self.process_request(request, callback_fn)
+        
+        args = {'q': query_string, 'fields': list_fields}
+        request = self.gfiles.list(**args)
+        return self.process_request(request, args, callback_fn)
 
     def get_file(self, fid):
         request = self.gfiles.get(fileId=fid, fields=fields)
@@ -156,8 +162,9 @@ class GdriveInstance(object):
         query_string = 'mimeType = "application/vnd.google-apps.folder"'
         if searchstr:
             query_string += ' and name contains "%s"' % searchstr
-        request = self.gfiles.list(q=query_string, fields=list_fields)
-        return self.process_request(request, callback_fn)
+        args = {'q': query_string, 'fields': list_fields}
+        request = self.gfiles.list(**args)
+        return self.process_request(request, args, callback_fn)
 
     def download(self, fileid, exportfile, md5sum=None, export_mimetype=None):
         """ download using dlink url """
