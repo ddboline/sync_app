@@ -24,7 +24,7 @@ else:
 
 setup(
     name='sync_app',
-    version='0.0.4.6',
+    version='0.0.4.7',
     author='Daniel Boline',
     author_email='ddboline@gmail.com',
     description='sync_app',
