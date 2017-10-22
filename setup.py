@@ -9,12 +9,13 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 import sys
 from setuptools import setup
 
-console_scripts = (
-    ('sync-app', 'sync_app.sync_utils:sync_arg_parse'),
-    ('list-drive-files', 'sync_app.sync_utils:list_drive_parse'),
-    ('list-onedrive-files', 'sync_app.sync_utils:list_onedrive_parse'),
-    ('list-box-files', 'sync_app.sync_utils:list_box_parse'),
-    ('list-s3-files', 'sync_app.sync_utils:parse_s3_args'))
+console_scripts = (('sync-app',
+                    'sync_app.sync_utils:sync_arg_parse'), ('list-drive-files',
+                                                            'sync_app.sync_utils:list_drive_parse'),
+                   ('list-onedrive-files', 'sync_app.sync_utils:list_onedrive_parse'),
+                   ('list-box-files',
+                    'sync_app.sync_utils:list_box_parse'), ('list-s3-files',
+                                                            'sync_app.sync_utils:parse_s3_args'))
 
 if sys.version_info.major == 2:
     console_scripts = ['%s = %s' % (x, y) for x, y in console_scripts]
@@ -33,4 +34,6 @@ setup(
     install_requires=['boto', 'google-api-python-client'],
     packages=['sync_app'],
     package_dir={'sync_app': 'sync_app'},
-    entry_points={'console_scripts': console_scripts})
+    entry_points={
+        'console_scripts': console_scripts
+    })

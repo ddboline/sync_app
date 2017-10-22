@@ -44,7 +44,10 @@ class FileListGdrive(FileList):
         finfo = FileInfoGdrive(gdrive=self.gdrive, item=item)
 
         ### Fix paths
-        finfo.exportpath = self.get_export_path(finfo, abspath=False)
+        try:
+            finfo.exportpath = self.get_export_path(finfo, abspath=False)
+        except TExecuteException:
+            return finfo
         if not finfo.urlname:
             finfo.urlname = 'gdrive://%s' % (finfo.exportpath)
         finfo.filename = '%s/%s' % (finfo.exportpath, os.path.basename(finfo.filename))

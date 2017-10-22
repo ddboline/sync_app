@@ -95,10 +95,10 @@ class GetAuthCodeRequestHandler(BaseHTTPRequestHandler):
             # Extract the code query param
             self.server.auth_code = params["code"][0]
         if "error" in params:
-            error_msg, error_desc = (unquote(params["error"][0]),
-                                     unquote(params["error_description"][0]))
-            raise RuntimeError("The server returned an error: {} - {}"
-                               .format(error_msg, error_desc))
+            error_msg, error_desc = (unquote(params["error"][0]), unquote(
+                params["error_description"][0]))
+            raise RuntimeError("The server returned an error: {} - {}".format(
+                error_msg, error_desc))
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
