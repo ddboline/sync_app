@@ -146,6 +146,8 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
                 if fname.lower().endswith('.{ext}.{ext}'.format(ext=ext)):
                     print("don't download", finfo.filename, fname, ext)
                     return False
+            if hasattr(fname, 'encode'):
+                fname = fname.encode('ascii', errors='ignore')
             print('download', finfo.urlname, fname, finfo.mimetype)
 
             mimetype_set = {
