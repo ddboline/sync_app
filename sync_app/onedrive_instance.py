@@ -129,6 +129,10 @@ class OneDriveInstance(object):
         """ create directory, assign parent_id if supplied """
         if not parent_id:
             raise ValueError('need to specify parent_id')
+        if dname == '':
+            result = t_get(self.client.item(id='root')).to_dict()
+            result['parentid'] = 'root'
+            return result
         newfolder = Folder()
         newitem = Item()
         newitem.name = dname
