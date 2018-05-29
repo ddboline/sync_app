@@ -60,7 +60,7 @@ class S3Instance(object):
     def download(self, bucket_name, key_name, fname):
         """ download from s3 bucket """
         dname = os.path.dirname(fname)
-        if not os.path.exists(dname):
+        if dname and not os.path.exists(dname):
             os.makedirs(dname)
         bucket = self.s3_.get_bucket(bucket_name)
         key = bucket.get_key(key_name)
