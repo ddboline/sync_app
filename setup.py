@@ -17,15 +17,14 @@ console_scripts = (('sync-app',
                     'sync_app.sync_utils:list_box_parse'), ('list-s3-files',
                                                             'sync_app.sync_utils:parse_s3_args'))
 
-if sys.version_info.major == 2:
-    console_scripts = ['%s = %s' % (x, y) for x, y in console_scripts]
-else:
-    v = sys.version_info.major
-    console_scripts = ['%s%s = %s' % (x, v, y) for x, y in console_scripts]
+console_scripts = ['%s = %s' % (x, y) for x, y in console_scripts]
+
+v = sys.version_info.major
+console_scripts.extend('%s%s = %s' % (x, v, y) for x, y in console_scripts)
 
 setup(
     name='sync_app',
-    version='0.0.4.9',
+    version='0.0.5.0',
     author='Daniel Boline',
     author_email='ddboline@gmail.com',
     description='sync_app',
