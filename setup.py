@@ -9,7 +9,7 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 import sys
 from setuptools import setup
 
-console_scripts = (('sync-app',
+console_scripts_ = (('sync-app',
                     'sync_app.sync_utils:sync_arg_parse'), ('list-drive-files',
                                                             'sync_app.sync_utils:list_drive_parse'),
                    ('list-onedrive-files', 'sync_app.sync_utils:list_onedrive_parse'),
@@ -17,10 +17,10 @@ console_scripts = (('sync-app',
                     'sync_app.sync_utils:list_box_parse'), ('list-s3-files',
                                                             'sync_app.sync_utils:parse_s3_args'))
 
-console_scripts = ['%s = %s' % (x, y) for x, y in console_scripts]
+console_scripts = ['%s = %s' % (x, y) for x, y in console_scripts_]
 
 v = sys.version_info.major
-console_scripts.extend('%s%s = %s' % (x, v, y) for x, y in console_scripts)
+console_scripts.extend('%s%s = %s' % (x, v, y) for x, y in console_scripts_)
 
 setup(
     name='sync_app',
