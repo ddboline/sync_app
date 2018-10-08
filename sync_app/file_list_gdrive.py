@@ -70,7 +70,7 @@ class FileListGdrive(FileList):
                     print('failed with error', exc)
                     pass
             elif finfo.owned_by_me:
-                print(finfo.filename, self.filelist[finfo.filename].mimetype)
+                print('owned_by_me', finfo.filename, self.filelist[finfo.filename].mimetype)
         self.append(finfo)
         self.filelist_id_dict[finfo.gdriveid] = finfo
         return finfo

@@ -148,6 +148,10 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
                     return False
             if hasattr(fname, 'encode'):
                 fname = fname.encode('ascii', errors='ignore')
+
+            if finfo.mimetype in GOOGLEAPP_MIMETYPES:
+                return False
+
             print('download', finfo.urlname, fname, finfo.mimetype)
 
             mimetype_set = {
@@ -166,8 +170,8 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
                         if flist_local.filelist_name_dict.get(
                                 basename + '.' +
                                 ext) and finfo.parentid and finfo.parentid != newpid:
-                            print(finfo)
-                            print(parent)
+                            print('finfo', finfo)
+                            print('parent', parent)
                             finfo.gdrive.set_parent_id(finfo.gdriveid, newpid)
                             if basename + '.' + ext in flist_gdrive.filelist_name_dict:
                                 _tmp = flist_gdrive.filelist_name_dict[basename + '.' + ext][0]
@@ -178,13 +182,13 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
                                                   (finfo.filename.split('/')[-1],
                                                    MIMETYPE_SUFFIXES.get(finfo.mimetype))):
                 return False
-            print(flist_gdrive, flist_local)
+            print('flist_gdrive flist_local', flist_gdrive, flist_local)
 
             if not dry_run and finfo.mimetype:
                 try:
                     return finfo.download()
                 except HttpError as exc:
-                    print(exc, finfo.mimetype)
+                    print('exc mimetype', exc, finfo.mimetype)
                     return False
         return
 
@@ -443,14 +447,14 @@ def list_drive_parse():
                     and parent_directory not in os.path.dirname(val.filename):
                 continue
             if val.md5sum:
-                print(key, val.filename)
+                print('key filename', key, val.filename)
     elif cmd == 'search':
         if search_strings:
             for search_string in search_strings:
                 flist_gdrive.fill_file_list(verbose=False, searchstr=search_string)
                 for key, val in flist_gdrive.filelist_id_dict.items():
                     if val.md5sum:
-                        print(key, val.filename)
+                        print('key filename', key, val.filename)
     elif cmd == 'directories':
         flist_gdrive.get_folders()
         for key, val in flist_gdrive.directory_name_dict.items():
@@ -459,7 +463,7 @@ def list_drive_parse():
             export_path = flist_gdrive.get_export_path(val, abspath=False)
             if val.isroot:
                 export_path += '/gDrive'
-            print(key, '%s/%s' % (export_path, val.filename))
+            print('key path', key, '%s/%s' % (export_path, val.filename))
     elif cmd == 'upload':
         flist_gdrive.get_folders()
         for fname in search_strings:
@@ -509,7 +513,7 @@ def parse_s3_args():
                     if kname and not any(_ in key.key for _ in kname):
                         continue
                     try:
-                        print(key.key, key.etag.replace('"', ''), key.last_modified,
+                        print('key tag', key.key, key.etag.replace('"', ''), key.last_modified,
                               key.bucket.name)
                     except IOError:
                         raise
@@ -520,7 +524,7 @@ def parse_s3_args():
                         if kname and not any(_ in key.key for _ in kname):
                             continue
                         try:
-                            print(key.key, key.etag.replace('"', ''), key.last_modified,
+                            print('key modified', key.key, key.etag.replace('"', ''), key.last_modified,
                                   key.bucket.name)
                         except IOError:
                             raise
@@ -580,21 +584,21 @@ def list_onedrive_parse():
                     and parent_directory not in os.path.dirname(val.filename):
                 continue
             if val.sha1sum:
-                print(key, val)
+                print('key val', key, val)
     elif cmd == 'search':
         flist_onedrive.fill_file_list(verbose=False)
         if search_strings:
             for search_string in search_strings:
                 for key, val in flist_onedrive.filelist_id_dict.items():
                     if val.sha1sum and search_string in val.filename:
-                        print(key, val.filename)
+                        print('key filename', key, val.filename)
     elif cmd == 'directories':
         onedrive.get_folders(flist_onedrive.append_dir)
         for key, val in flist_onedrive.directory_name_dict.items():
             if search_strings and not any(st_ in key for st_ in search_strings):
                 continue
             export_path = flist_onedrive.get_export_path(val, abspath=False)
-            print(key, '%s/%s' % (export_path, val.filename))
+            print('key export', key, '%s/%s' % (export_path, val.filename))
     elif cmd == 'upload':
         onedrive.get_folders(flist_onedrive.append_dir)
         for fname in search_strings:
@@ -658,21 +662,21 @@ def list_box_parse():
                     and parent_directory not in os.path.dirname(val.filename):
                 continue
             if val.sha1sum:
-                print(key, val)
+                print('key val list', key, val)
     elif cmd == 'search':
         flist_box.fill_file_list(verbose=False)
         if search_strings:
             for search_string in search_strings:
                 for key, val in flist_box.filelist_id_dict.items():
                     if val.sha1sum and search_string in val.filename:
-                        print(key, val.filename)
+                        print('key filename', key, val.filename)
     elif cmd == 'directories':
         box.get_folders(flist_box.append_dir)
         for key, val in flist_box.directory_name_dict.items():
             if search_strings and not any(st_ in key for st_ in search_strings):
                 continue
             export_path = flist_box.get_export_path(val, abspath=False)
-            print(key, '%s/%s' % (export_path, val.filename))
+            print('dir', key, '%s/%s' % (export_path, val.filename))
     elif cmd == 'upload':
         box.get_folders(flist_box.append_dir)
         for fname in search_strings:

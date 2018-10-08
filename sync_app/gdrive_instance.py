@@ -188,7 +188,7 @@ class GdriveInstance(object):
                         print('total_size', status.total_size)
                         print('progress', status.progress() * 100)
             except HttpError as exc:
-                print('download', exc)
+                print('download error', exc)
                 raise
         if md5sum:
             from sync_app.util import get_md5, get_filetype
