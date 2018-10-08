@@ -24,7 +24,7 @@ console_scripts.extend('%s%s = %s' % (x, v, y) for x, y in console_scripts_)
 
 setup(
     name='sync_app',
-    version='0.0.5.0',
+    version='0.0.5.1',
     author='Daniel Boline',
     author_email='ddboline@gmail.com',
     description='sync_app',
