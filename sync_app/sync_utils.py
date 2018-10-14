@@ -152,6 +152,9 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
             if finfo.mimetype in GOOGLEAPP_MIMETYPES:
                 return False
 
+            if b'Chrome Syncable FileSystem' in fname:
+                return False
+
             print('download', finfo.urlname, fname, finfo.mimetype)
 
             mimetype_set = {
