@@ -10,6 +10,7 @@ import socket
 import time
 import httplib2
 import oauth2client
+import oauth2client.file
 from oauth2client import client, tools
 from apiclient import discovery
 from apiclient.http import MediaIoBaseDownload
