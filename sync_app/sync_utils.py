@@ -11,6 +11,7 @@ from apiclient.errors import HttpError
 
 from sync_app.file_cache import FileListCache
 from sync_app.file_sync import FileSync
+from sync_app.gdrive_instance import TExecuteException
 from sync_app.util import MIMETYPE_SUFFIXES, GOOGLEAPP_MIMETYPES
 
 try:
@@ -125,6 +126,9 @@ def sync_gdrive(dry_run=False, delete_file=None, rebuild_index=False):
                 return flist_gdrive.upload_file(finfo.filename)
             except UnknownFileType:
                 print('unknown file type', finfo.filename)
+                return
+            except TExecuteException as e:
+                print('problem with gdrive %s' % e)
                 return
 
     def download_file(finfo):
