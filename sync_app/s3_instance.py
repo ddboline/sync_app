@@ -33,7 +33,10 @@ class S3Instance(object):
     def get_list_of_buckets(self):
         """ get list of buckets """
         _temp = []
+        BLACKLIST = ['py2deb-repo']
         for bucket in self.s3_.get_all_buckets():
+            if bucket in BLACKLIST:
+                continue
             _temp.append(bucket.name)
         return _temp
 
