@@ -291,6 +291,7 @@ def sync_s3(dry_run=False, delete_file=None, rebuild_index=False):
                 if not dry_run:
                     os.remove(df_)
 
+    from sync_app.s3_instance import S3Instance
     from sync_app.file_list_s3 import BASE_DIR as BASE_DIR_S3
     print('build s3')
     flist_s3 = build_s3_index()
@@ -304,6 +305,8 @@ def sync_s3(dry_run=False, delete_file=None, rebuild_index=False):
         _tmp = fn_.replace(BASE_DIR_S3 + '/', '')
         bn_ = _tmp.split('/')[0]
         kn_ = _tmp.replace(bn_ + '/', '')
+        if bn_ in S3Instance.BLACKLIST:
+            return
         print('upload', bn_, kn_, fn_)
         if not dry_run:
             flist_s3.s3_.upload(bn_, kn_, fn_)
@@ -313,6 +316,8 @@ def sync_s3(dry_run=False, delete_file=None, rebuild_index=False):
         bn_ = finfo.bucket
         kn_ = finfo.filename
         fn_ = '%s/%s/%s' % (BASE_DIR_S3, bn_, kn_)
+        if bn_ in S3Instance.BLACKLIST:
+            return
         if delete_file and finfo.filename in delete_file:
             print('delete', bn_, kn_, fn_)
             if not dry_run:

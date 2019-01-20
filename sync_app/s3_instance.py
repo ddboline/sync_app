@@ -25,6 +25,7 @@ AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY = read_keys()
 
 class S3Instance(object):
     """ S3Instance class to interact with S3 via Boto """
+    BLACKLIST = ['py2deb-repo']
 
     def __init__(self):
         self.s3_ = boto.connect_s3(
@@ -33,9 +34,9 @@ class S3Instance(object):
     def get_list_of_buckets(self):
         """ get list of buckets """
         _temp = []
-        BLACKLIST = ['py2deb-repo']
+
         for bucket in self.s3_.get_all_buckets():
-            if bucket in BLACKLIST:
+            if bucket.name in self.BLACKLIST:
                 continue
             _temp.append(bucket.name)
         return _temp
@@ -44,6 +45,8 @@ class S3Instance(object):
         """ delete s3 bucket """
         if bucket_name:
             for bucket in self.s3_.get_all_buckets():
+                if bucket.name in self.BLACKLIST:
+                    continue
                 if bucket.name == bucket_name:
                     bucket.delete()
                     return
@@ -83,7 +86,7 @@ class S3Instance(object):
         if bucket_name:
             buckets = [self.s3_.get_bucket(bucket_name)]
         else:
-            buckets = self.s3_.get_all_buckets()
+            buckets = [b for b in self.s3_.get_all_buckets() if b.name not in self.BLACKLIST]
         for bucket in buckets:
             for key in bucket.list():
                 callback_fn(key)
